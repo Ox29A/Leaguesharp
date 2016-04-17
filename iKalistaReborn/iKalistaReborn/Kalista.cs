@@ -69,6 +69,7 @@ namespace iKalistaReborn
                 comboMenu.AddBool("com.ikalista.combo.useQ", "Use Q", true);
                 comboMenu.AddBool("com.ikalista.combo.useE", "Use E", true);
                 comboMenu.AddSlider("com.ikalista.combo.stacks", "Rend at X stacks", 10, 1, 20);
+                comboMenu.AddBool("com.ikalista.combo.saveMana", "Save Mana for E", true);
                 Menu.AddSubMenu(comboMenu);
             }
 
@@ -165,7 +166,8 @@ namespace iKalistaReborn
 
         private void OnCombo()
         {
-            if (!SpellManager.Spell[SpellSlot.Q].IsReady() || !Menu.Item("com.ikalista.combo.useQ").GetValue<bool>())
+            if (!SpellManager.Spell[SpellSlot.Q].IsReady() || !Menu.Item("com.ikalista.combo.useQ").GetValue<bool>() ||
+                ObjectManager.Player.Mana < SpellManager.Spell[SpellSlot.Q].ManaCost + SpellManager.Spell[SpellSlot.E].ManaCost)
                 return;
 
             var target = TargetSelector.GetTarget(SpellManager.Spell[SpellSlot.Q].Range,

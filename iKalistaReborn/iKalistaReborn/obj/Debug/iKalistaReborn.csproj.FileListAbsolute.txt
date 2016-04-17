@@ -1,2 +1,1 @@
-C:\Users\Mobby\Desktop\New Projects\iKalistaReborn\iKalistaReborn\bin\Release\iKalistaReborn.exe.config
 C:\Users\Mobby\Desktop\New Projects\Leaguesharp\iKalistaReborn\iKalistaReborn\bin\Release\iKalistaReborn.exe.config
