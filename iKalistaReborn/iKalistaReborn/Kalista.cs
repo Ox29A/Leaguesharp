@@ -8,6 +8,7 @@ using iKalistaReborn.Utils;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SPrediction;
+using System.Drawing;
 
 namespace iKalistaReborn
 {
@@ -30,16 +31,11 @@ namespace iKalistaReborn
         {
             CreateMenu();
             LoadModules();
+            CustomDamageIndicator.Initialize(Helper.GetRendDamage);
             SPrediction.Prediction.Initialize(Menu);
             Game.OnUpdate += OnUpdate;
             Drawing.OnDraw += OnDraw;
-            Obj_AI_Base.OnProcessSpellCast += (sender, args) =>
-            {
-                if (sender.IsMe && args.SData.Name == "KalistaExpungeWrapper")
-                {
-                    Orbwalking.ResetAutoAttackTimer();
-                }
-            };
+            Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
             Spellbook.OnCastSpell += (sender, args) =>
             {
                 if (sender.Owner.IsMe && args.Slot == SpellSlot.Q && ObjectManager.Player.IsDashing())
@@ -67,9 +63,13 @@ namespace iKalistaReborn
             var comboMenu = new Menu("iKalista: Reborn - Combo", "com.ikalista.combo");
             {
                 comboMenu.AddBool("com.ikalista.combo.useQ", "Use Q", true);
+                comboMenu.AddText("--", "------------------");
                 comboMenu.AddBool("com.ikalista.combo.useE", "Use E", true);
                 comboMenu.AddSlider("com.ikalista.combo.stacks", "Rend at X stacks", 10, 1, 20);
                 comboMenu.AddBool("com.ikalista.combo.saveMana", "Save Mana for E", true);
+                comboMenu.AddText("---", "------------------");
+                comboMenu.AddBool("com.ikalista.combo.saveAlly", "Save Ally With R", true);
+                comboMenu.AddSlider("com.ikalista.combo.allyPercent", "Min Health % for Ally", 20, 10, 100);
                 Menu.AddSubMenu(comboMenu);
             }
 
@@ -107,6 +107,15 @@ namespace iKalistaReborn
                 Menu.AddSubMenu(modulesMenu);
             }
 
+            var drawingMenu = new Menu("iKalista: Reborn - Drawing", "com.ikalista.drawing");
+            {
+                drawingMenu.AddBool("com.ikalista.drawing.spellRanges", "Draw Spell Ranges", true);
+                drawingMenu.AddItem(
+                    new MenuItem("com.ikalista.drawing.eDamage", "Draw E Damage").SetValue(new Circle(true,
+                        Color.DarkOliveGreen)));
+                Menu.AddSubMenu(drawingMenu);
+            }
+
             Menu.AddToMainMenu();
         }
 
@@ -131,6 +140,48 @@ namespace iKalistaReborn
         /// <param name="args">even more gay</param>
         private void OnDraw(EventArgs args)
         {
+            if (Menu.Item("com.ikalista.drawing.spellRanges").GetValue<bool>())
+            {
+                foreach (var spell in SpellManager.Spell.Values)
+                {
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, spell.Range, Color.DarkOliveGreen);
+                }
+            }
+
+            CustomDamageIndicator.DrawingColor = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Color;
+            CustomDamageIndicator.Enabled = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Active;
+        }
+
+        /// <summary>
+        ///     The on process spell function
+        /// </summary>
+        /// <param name="sender">
+        ///     The Spell Sender
+        /// </param>
+        /// <param name="args">
+        ///     The Arguments
+        /// </param>
+        private void OnProcessSpell(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (sender.IsMe && args.SData.Name == "KalistaExpungeWrapper")
+            {
+                Orbwalking.ResetAutoAttackTimer();
+            }
+
+            if (sender.Type == GameObjectType.obj_AI_Hero && sender.IsEnemy && args.Target != null &&
+                Menu.Item("com.ikalista.combo.saveAlly").GetValue<bool>())
+            {
+                var soulboundhero =
+                    HeroManager.Allies.FirstOrDefault(
+                        hero =>
+                            hero.HasBuff("kalistacoopstrikeally") && args.Target.NetworkId == hero.NetworkId);
+
+                if (soulboundhero != null &&
+                    soulboundhero.HealthPercent < Menu.Item("com.ikalista.combo.allyPercent").GetValue<Slider>().Value)
+                {
+                    SpellManager.Spell[SpellSlot.R].Cast();
+                }
+            }
         }
 
         /// <summary>
@@ -167,7 +218,8 @@ namespace iKalistaReborn
         private void OnCombo()
         {
             if (!SpellManager.Spell[SpellSlot.Q].IsReady() || !Menu.Item("com.ikalista.combo.useQ").GetValue<bool>() ||
-                ObjectManager.Player.Mana < SpellManager.Spell[SpellSlot.Q].ManaCost + SpellManager.Spell[SpellSlot.E].ManaCost)
+                ObjectManager.Player.Mana <
+                SpellManager.Spell[SpellSlot.Q].ManaCost + SpellManager.Spell[SpellSlot.E].ManaCost)
                 return;
 
             var target = TargetSelector.GetTarget(SpellManager.Spell[SpellSlot.Q].Range,
