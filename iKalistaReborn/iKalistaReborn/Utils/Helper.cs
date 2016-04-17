@@ -111,13 +111,13 @@ namespace iKalistaReborn.Utils
             // With exhaust players damage is reduced by 40%
             if (ObjectManager.Player.HasBuff("summonerexhaust"))
             {
-                return baseDamage*0.4f;
+                return baseDamage*0.6f;
             }
 
             // Alistars ultimate reduces damage dealt by 70%
             if (target.HasBuff("FerociousHowl"))
             {
-                return baseDamage*0.7f;
+                return baseDamage*0.3f;
             }
 
             // Damage to dragon is reduced by 7% * (stacks)
