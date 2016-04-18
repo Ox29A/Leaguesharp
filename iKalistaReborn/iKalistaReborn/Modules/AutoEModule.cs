@@ -36,12 +36,24 @@ namespace iKalistaReborn.Modules
 
         public void OnExecute()
         {
-            var enemy = HeroManager.Enemies.Where(hero => hero.HasRendBuff()).MinOrDefault(hero => hero.Distance(ObjectManager.Player, true));
-            if (enemy?.Distance(ObjectManager.Player, true) < Math.Pow(SpellManager.Spell[SpellSlot.E].Range + 200, 2))
+            if (Kalista.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed ||
+                Kalista.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear)
             {
-                if (ObjectManager.Get<Obj_AI_Minion>().Any(x => SpellManager.Spell[SpellSlot.E].IsInRange(x) && x.HasRendBuff() && Helper.GetRendDamage(x) >= x.Health))
+                var enemy =
+                    HeroManager.Enemies.Where(hero => hero.HasRendBuff())
+                        .MinOrDefault(hero => hero.Distance(ObjectManager.Player, true));
+                if (enemy?.Distance(ObjectManager.Player, true) <
+                    Math.Pow(SpellManager.Spell[SpellSlot.E].Range + 200, 2))
                 {
-                    SpellManager.Spell[SpellSlot.E].Cast();
+                    if (
+                        ObjectManager.Get<Obj_AI_Minion>()
+                            .Any(
+                                x =>
+                                    SpellManager.Spell[SpellSlot.E].IsInRange(x) && x.HasRendBuff() &&
+                                    Helper.GetRendDamage(x) >= x.Health + 5))
+                    {
+                        SpellManager.Spell[SpellSlot.E].Cast();
+                    }
                 }
             }
         }
