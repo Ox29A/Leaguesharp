@@ -16,6 +16,19 @@ namespace iKalistaReborn
     {
         public static Menu Menu;
 
+        public static List<string> JungleMinions = new List<string>
+        {
+            "SRU_Baron",
+            "SRU_Blue",
+            "Sru_Crab",
+            "SRU_Dragon",
+            "SRU_Gromp",
+            "SRU_Krug",
+            "SRU_Murkwolf",
+            "SRU_Razorbeak",
+            "SRU_Red",
+        };
+
         /// <summary>
         ///     The Modules
         /// </summary>
@@ -92,8 +105,10 @@ namespace iKalistaReborn
 
             var jungleStealMenu = new Menu("iKalista: Reborn - Jungle Steal", "com.ikalista.jungleSteal");
             {
-                jungleStealMenu.AddStringList("com.ikalista.jungleSteal.mode", "Mode",
-                    new[] {"Objectives", "All Mobs", "Both"});
+                foreach (var minion in JungleMinions)
+                {
+                    jungleStealMenu.AddBool(minion, minion, true);
+                }
                 Menu.AddSubMenu(jungleStealMenu);
             }
 

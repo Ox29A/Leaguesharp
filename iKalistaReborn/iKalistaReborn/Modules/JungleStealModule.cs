@@ -35,63 +35,23 @@ namespace iKalistaReborn.Modules
 
         public void OnExecute()
         {
-            var junglelMinions =
-                MinionManager.GetMinions(
-                    ObjectManager.Player.ServerPosition,
-                    SpellManager.Spell[SpellSlot.E].Range,
-                    MinionTypes.All,
-                    MinionTeam.Neutral,
-                    MinionOrderTypes.MaxHealth)
+            var minion =
+                ObjectManager.Get<Obj_AI_Minion>()
                     .FirstOrDefault(
                         x =>
-                            x.IsMobKillable() && !x.Name.Contains("Mini")
-                            && !x.Name.Contains("Dragon") && !x.Name.Contains("Baron"));
+                            SpellManager.Spell[SpellSlot.E].IsInRange(x) &&
+                            x.IsValidTarget(SpellManager.Spell[SpellSlot.E].Range));
 
-            var baron =
-                MinionManager.GetMinions(
-                    ObjectManager.Player.ServerPosition,
-                    SpellManager.Spell[SpellSlot.E].Range,
-                    MinionTypes.All,
-                    MinionTeam.Neutral,
-                    MinionOrderTypes.MaxHealth)
-                    .FirstOrDefault(x => x.IsValid && x.IsMobKillable() && x.Name.Contains("Baron"));
-
-            var dragon =
-                MinionManager.GetMinions(
-                    ObjectManager.Player.ServerPosition,
-                    SpellManager.Spell[SpellSlot.E].Range,
-                    MinionTypes.All,
-                    MinionTeam.Neutral,
-                    MinionOrderTypes.MaxHealth)
-                    .FirstOrDefault(
-                        x => x.IsValid && x.IsMobKillable() && x.Name.Contains("Dragon"));
-
-            switch (Kalista.Menu.Item("com.ikalista.jungleSteal.mode").GetValue<StringList>().SelectedIndex)
+            if (minion == null || minion.CharData.BaseSkinName.Contains("Mini") ||
+                !minion.CharData.BaseSkinName.Contains("SRU_"))
+                return;
+            if (Kalista.JungleMinions.Contains(minion.CharData.BaseSkinName) &&
+                Kalista.Menu.Item(minion.CharData.BaseSkinName).GetValue<bool>())
             {
-                case 0: // Objectives / Baron / Dragon
-                    if (baron != null && SpellManager.Spell[SpellSlot.E].CanCast(baron) ||
-                        dragon != null && SpellManager.Spell[SpellSlot.E].CanCast(dragon))
-                    {
-                        SpellManager.Spell[SpellSlot.E].Cast();
-                    }
-                    break;
-                case 1: // All Mobs
-                    if (junglelMinions != null)
-                    {
-                        SpellManager.Spell[SpellSlot.E].Cast();
-                    }
-                    break;
-                case 2: // Both options
-                    if (baron != null && SpellManager.Spell[SpellSlot.E].CanCast(baron) ||
-                        dragon != null && SpellManager.Spell[SpellSlot.E].CanCast(dragon))
-                    {
-                        SpellManager.Spell[SpellSlot.E].Cast();
-                    }
-                    if (junglelMinions != null)
-                    {
-                        SpellManager.Spell[SpellSlot.E].Cast();
-                    }
-                    break;
+                if (minion.IsMobKillable())
+                {
+                    SpellManager.Spell[SpellSlot.E].Cast();
+                }
             }
         }
     }
