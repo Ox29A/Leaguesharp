@@ -123,7 +123,7 @@ namespace iKalistaReborn.Utils
             // Damage to dragon is reduced by 7% * (stacks)
             if (target.Name.Contains("Dragon") && ObjectManager.Player.HasBuff("s5test_dragonslayerbuff"))
             {
-                return baseDamage*(1 - 0.7f*ObjectManager.Player.GetBuffCount("s5test_dragonslayerbuff"));
+                return baseDamage*(1f - 0.075f*ObjectManager.Player.GetBuffCount("s5test_dragonslayerbuff"));
             }
 
             // Damage to baron is reduced by 50% if the player has the 'barontarget'
@@ -179,6 +179,11 @@ namespace iKalistaReborn.Utils
 
             // Kayle R
             if (target.Buffs.Any(b => b.IsValid && b.DisplayName == "JudicatorIntervention"))
+            {
+                return true;
+            }
+
+            if (target.Buffs.Any(b => b.IsValid && b.DisplayName == "kindredrnodeathbuff"))
             {
                 return true;
             }
