@@ -252,7 +252,6 @@ namespace iKalistaReborn
                             .FirstOrDefault();
                     if (minion != null)
                     {
-                        //ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
                         Orbwalking.Orbwalk(minion, Game.CursorPos);
                     }
                 }

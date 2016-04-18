@@ -100,7 +100,7 @@ namespace iKalistaReborn.Utils
         public static float GetRendDamage(Obj_AI_Base target)
         {
             // If that target doesn't have a rend stack then calculating this is pointless
-            if (!target.HasRendBuff())
+            if (!target.HasRendBuff() || target.Health < 1)
             {
                 return 0f;
             }
