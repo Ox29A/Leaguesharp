@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Kalista.cs" />
+    <Compile Include="Modules\AutoEModule.cs" />
     <Compile Include="Modules\AutoRendModule.cs" />
     <Compile Include="Modules\JungleStealModule.cs" />
     <Compile Include="Program.cs" />

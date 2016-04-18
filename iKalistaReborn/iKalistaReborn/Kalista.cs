@@ -26,7 +26,7 @@ namespace iKalistaReborn
             "SRU_Krug",
             "SRU_Murkwolf",
             "SRU_Razorbeak",
-            "SRU_Red",
+            "SRU_Red"
         };
 
         /// <summary>
@@ -35,7 +35,8 @@ namespace iKalistaReborn
         public static readonly List<IModule> Modules = new List<IModule>
         {
             new AutoRendModule(),
-            new JungleStealModule()
+            new JungleStealModule(),
+            new AutoEModule()
         };
 
         public static Orbwalking.Orbwalker Orbwalker;
@@ -80,6 +81,8 @@ namespace iKalistaReborn
                 comboMenu.AddBool("com.ikalista.combo.useE", "Use E", true);
                 comboMenu.AddSlider("com.ikalista.combo.stacks", "Rend at X stacks", 10, 1, 20);
                 comboMenu.AddBool("com.ikalista.combo.saveMana", "Save Mana for E", true);
+                comboMenu.AddBool("com.ikalista.combo.autoE", "Auto E Minion > Champion", true);
+                comboMenu.AddBool("com.ikalista.combo.orbwalkMinions", "Orbwalk Minions in combo", true);
                 comboMenu.AddText("---", "------------------");
                 comboMenu.AddBool("com.ikalista.combo.saveAlly", "Save Ally With R", true);
                 comboMenu.AddSlider("com.ikalista.combo.allyPercent", "Min Health % for Ally", 20, 10, 100);
@@ -232,6 +235,29 @@ namespace iKalistaReborn
 
         private void OnCombo()
         {
+            if (Menu.Item("com.ikalista.combo.orbwalkMinions").GetValue<bool>())
+            {
+                var targets =
+                    HeroManager.Enemies.Where(
+                        x =>
+                            ObjectManager.Player.Distance(x) <= SpellManager.Spell[SpellSlot.E].Range*2 &&
+                            x.IsValidTarget(SpellManager.Spell[SpellSlot.E].Range*2));
+
+                if (targets.Count(x => ObjectManager.Player.Distance(x) < Orbwalking.GetRealAutoAttackRange(x)) == 0)
+                {
+                    var minion =
+                        ObjectManager.Get<Obj_AI_Minion>()
+                            .Where(x => ObjectManager.Player.Distance(x) <= Orbwalking.GetRealAutoAttackRange(x) && x.IsEnemy)
+                            .OrderBy(x => x.Health)
+                            .FirstOrDefault();
+                    if (minion != null)
+                    {
+                        //ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
+                        Orbwalking.Orbwalk(minion, Game.CursorPos);
+                    }
+                }
+            }
+
             if (!SpellManager.Spell[SpellSlot.Q].IsReady() || !Menu.Item("com.ikalista.combo.useQ").GetValue<bool>() ||
                 ObjectManager.Player.Mana <
                 SpellManager.Spell[SpellSlot.Q].ManaCost + SpellManager.Spell[SpellSlot.E].ManaCost)
