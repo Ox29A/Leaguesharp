@@ -73,6 +73,8 @@ namespace iTwitch
                 miscMenu.AddBool("com.itwitch.misc.autoYo", "Yomuus with R", true);
                 _menu.AddSubMenu(miscMenu);
             }
+
+            _menu.AddToMainMenu();
         }
 
         public void LoadSpells()
