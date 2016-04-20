@@ -32,12 +32,21 @@ namespace iTwitch
 
             Spellbook.OnCastSpell += (sender, eventArgs) =>
             {
-                if (eventArgs.Slot != SpellSlot.R || !_menu.Item("com.itwitch.misc.autoYo").GetValue<bool>())
-                    return;
-                if (ItemData.Youmuus_Ghostblade.GetItem().IsReady())
+                if (eventArgs.Slot == SpellSlot.R && _menu.Item("com.itwitch.misc.autoYo").GetValue<bool>())
                 {
-                    ItemData.Youmuus_Ghostblade.GetItem().Cast();
+                    if (ItemData.Youmuus_Ghostblade.GetItem().IsReady())
+                    {
+                        ItemData.Youmuus_Ghostblade.GetItem().Cast();
+                    }
                 }
+                if (_menu.Item("com.itwitch.misc.saveManaE").GetValue<bool>() && eventArgs.Slot == SpellSlot.W)
+                {
+                    if (ObjectManager.Player.Mana <= _spells[SpellSlot.E].ManaCost + 50)
+                    {
+                        eventArgs.Process = false;
+                    }
+                }
+
             };
 
             Game.OnUpdate += OnUpdate;
@@ -71,6 +80,8 @@ namespace iTwitch
             var miscMenu = new Menu(":: iTwitch 2.0 - Misc Options", "com.itwitch.misc");
             {
                 miscMenu.AddBool("com.itwitch.misc.autoYo", "Yomuus with R", true);
+
+                miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
                 _menu.AddSubMenu(miscMenu);
             }
 
