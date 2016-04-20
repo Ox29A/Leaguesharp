@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using DZLib.MenuExtensions;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -58,7 +57,6 @@ namespace iTwitch
             {
                 comboMenu.AddBool("com.itwitch.combo.useW", "Use W", true);
                 comboMenu.AddBool("com.itwitch.combo.useEKillable", "Use E Killable", true);
-                //comboMenu.AddBool("", "");
                 _menu.AddSubMenu(comboMenu);
             }
 
