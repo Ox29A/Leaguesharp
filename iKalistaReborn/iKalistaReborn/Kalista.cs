@@ -58,6 +58,7 @@ namespace iKalistaReborn
                     args.Process = false;
                 }
             };
+            Orbwalker.RegisterCustomMode("com.ikalista.flee", "Flee", "V".ToCharArray()[0]);
         }
 
         /// <summary>
@@ -247,6 +248,9 @@ namespace iKalistaReborn
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     OnLaneclear();
                     break;
+                case Orbwalking.OrbwalkingMode.CustomMode:
+                    OnFlee();
+                    break;
                 case Orbwalking.OrbwalkingMode.None:
                     break;
                 default:
@@ -280,6 +284,19 @@ namespace iKalistaReborn
             {
                 module.OnExecute();
             }
+        }
+
+        private void OnFlee()
+        {
+            var bestTarget =
+                ObjectManager.Get<Obj_AI_Base>()
+                    .Where(x => x.IsEnemy && ObjectManager.Player.Distance(x) <= Orbwalking.GetRealAutoAttackRange(x))
+                    .OrderBy(x => ObjectManager.Player.Distance(x))
+                    .FirstOrDefault();
+
+            Orbwalking.Orbwalk(bestTarget, Game.CursorPos);
+
+            //TODO wall flee
         }
 
         private void OnCombo()
