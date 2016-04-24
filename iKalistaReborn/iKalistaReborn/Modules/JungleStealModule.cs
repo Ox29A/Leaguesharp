@@ -45,13 +45,11 @@ namespace iKalistaReborn.Modules
             if (minion == null || minion.CharData.BaseSkinName.Contains("Mini") ||
                 !minion.CharData.BaseSkinName.Contains("SRU_"))
                 return;
-            if (Kalista.JungleMinions.Contains(minion.CharData.BaseSkinName) &&
-                Kalista.Menu.Item(minion.CharData.BaseSkinName).GetValue<bool>())
+            if (!Kalista.JungleMinions.Contains(minion.CharData.BaseSkinName) ||
+                !Kalista.Menu.Item(minion.CharData.BaseSkinName).GetValue<bool>()) return;
+            if (minion.IsMobKillable())
             {
-                if (minion.IsMobKillable())
-                {
-                    SpellManager.Spell[SpellSlot.E].Cast();
-                }
+                SpellManager.Spell[SpellSlot.E].Cast();
             }
         }
     }

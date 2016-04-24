@@ -36,12 +36,9 @@ namespace iKalistaReborn.Modules
 
         public void OnExecute()
         {
-            if (Kalista.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed ||
-                Kalista.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear)
+            if (Kalista.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed || Kalista.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear)
             {
-                var enemy =
-                    HeroManager.Enemies.Where(hero => hero.HasRendBuff())
-                        .MinOrDefault(hero => hero.Distance(ObjectManager.Player, true));
+                var enemy = HeroManager.Enemies.Where(hero => hero.HasRendBuff()).MinOrDefault(hero => hero.Distance(ObjectManager.Player, true));
                 if (enemy?.Distance(ObjectManager.Player, true) <
                     Math.Pow(SpellManager.Spell[SpellSlot.E].Range + 200, 2))
                 {

@@ -80,7 +80,6 @@ namespace iTwitch
             var miscMenu = new Menu(":: iTwitch 2.0 - Misc Options", "com.itwitch.misc");
             {
                 miscMenu.AddBool("com.itwitch.misc.autoYo", "Yomuus with R", true);
-
                 miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
                 _menu.AddSubMenu(miscMenu);
             }

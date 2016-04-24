@@ -36,7 +36,8 @@ namespace iKalistaReborn
         {
             new AutoRendModule(),
             new JungleStealModule(),
-            new AutoEModule()
+            new AutoEModule(),
+            new AutoELeavingModule()
         };
 
         public static Orbwalking.Orbwalker Orbwalker;
@@ -80,11 +81,14 @@ namespace iKalistaReborn
                 comboMenu.AddText("--", "------------------");
                 comboMenu.AddBool("com.ikalista.combo.useE", "Use E", true);
                 comboMenu.AddSlider("com.ikalista.combo.stacks", "Rend at X stacks", 10, 1, 20);
+                comboMenu.AddBool("com.ikalista.combo.eLeaving", "Use E Leaving", true);
+                comboMenu.AddSlider("com.ikalista.combo.ePercent", "Min Percent for E Leaving", 50, 10, 100);
                 comboMenu.AddBool("com.ikalista.combo.saveMana", "Save Mana for E", true);
                 comboMenu.AddBool("com.ikalista.combo.autoE", "Auto E Minion > Champion", true);
                 comboMenu.AddBool("com.ikalista.combo.orbwalkMinions", "Orbwalk Minions in combo", true);
                 comboMenu.AddText("---", "------------------");
                 comboMenu.AddBool("com.ikalista.combo.saveAlly", "Save Ally With R", true);
+                comboMenu.AddBool("com.ikalista.combo.balista", "Use Balista", true);
                 comboMenu.AddSlider("com.ikalista.combo.allyPercent", "Min Health % for Ally", 20, 10, 100);
                 Menu.AddSubMenu(comboMenu);
             }
@@ -131,6 +135,9 @@ namespace iKalistaReborn
                 drawingMenu.AddItem(
                     new MenuItem("com.ikalista.drawing.eDamage", "Draw E Damage").SetValue(new Circle(true,
                         Color.DarkOliveGreen)));
+                drawingMenu.AddItem(
+                    new MenuItem("com.ikalista.drawing.damagePercent", "Draw Percent Damage").SetValue(new Circle(true,
+                        Color.DarkOliveGreen)));
                 Menu.AddSubMenu(drawingMenu);
             }
 
@@ -163,6 +170,25 @@ namespace iKalistaReborn
                 foreach (var spell in SpellManager.Spell.Values)
                 {
                     Render.Circle.DrawCircle(ObjectManager.Player.Position, spell.Range, Color.DarkOliveGreen);
+                }
+            }
+
+            if (Menu.Item("com.kalista.drawing.damagePercent").GetValue<Circle>().Active)
+            {
+                foreach (var source in
+                    HeroManager.Enemies.Where(x => ObjectManager.Player.Distance(x) <= 2000f && !x.IsDead))
+                {
+                    var currentPercentage = Math.Round(Helper.GetRendDamage(source)*100/source.GetHealthWithShield(), 2);
+
+                    Drawing.DrawText(
+                        Drawing.WorldToScreen(source.Position)[0],
+                        Drawing.WorldToScreen(source.Position)[1],
+                        currentPercentage >= 100
+                            ? Menu.Item("com.kalista.drawing.damagePercent").GetValue<Circle>().Color
+                            : Color.White,
+                        currentPercentage >= 100
+                            ? "Killable With E"
+                            : "Current Damage: " + currentPercentage + "%");
                 }
             }
 
@@ -227,6 +253,29 @@ namespace iKalistaReborn
                     throw new ArgumentOutOfRangeException();
             }
 
+            //BALISTA
+            if (Menu.Item("com.ikalista.combo.balista").GetValue<bool>() && SpellManager.Spell[SpellSlot.R].IsReady())
+            {
+                var soulboundhero = HeroManager.Allies.FirstOrDefault(x => x.HasBuff("kalistacoopstrikeally"));
+                if (soulboundhero?.ChampionName == "Blitzcrank")
+                {
+                    foreach (
+                        var unit in
+                            HeroManager.Enemies
+                                .Where(
+                                    h => h.IsHPBarRendered &&
+                                         h.Distance(ObjectManager.Player.ServerPosition) > 700 &&
+                                         h.Distance(ObjectManager.Player.ServerPosition) < 1400)
+                        )
+                    {
+                        if (unit.HasBuff("rocketgrab2"))
+                        {
+                            SpellManager.Spell[SpellSlot.R].Cast();
+                        }
+                    }
+                }
+            }
+
             foreach (var module in Modules.Where(x => x.ShouldGetExecuted()))
             {
                 module.OnExecute();
@@ -247,7 +296,10 @@ namespace iKalistaReborn
                 {
                     var minion =
                         ObjectManager.Get<Obj_AI_Minion>()
-                            .Where(x => ObjectManager.Player.Distance(x) <= Orbwalking.GetRealAutoAttackRange(x) && x.IsEnemy)
+                            .Where(
+                                x =>
+                                    ObjectManager.Player.Distance(x) <= Orbwalking.GetRealAutoAttackRange(x) &&
+                                    x.IsEnemy)
                             .OrderBy(x => x.Health)
                             .FirstOrDefault();
                     if (minion != null)
