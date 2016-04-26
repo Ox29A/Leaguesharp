@@ -103,6 +103,12 @@ namespace iKalistaReborn.Utils
 
             var baseDamage = SpellManager.Spell[SpellSlot.E].GetDamage(target);
 
+            //Exory Is Bae
+            if (champion != null && champion.HasBuff("meditate"))
+            {
+                baseDamage *= (0.5f - 0.05f * champion.Spellbook.GetSpell(SpellSlot.W).Level);
+            }
+
             if (target.Name.Contains("Baron") && ObjectManager.Player.HasBuff("barontarget"))
             {
                 baseDamage *= 0.5f;
@@ -115,6 +121,7 @@ namespace iKalistaReborn.Utils
             {
                 baseDamage *= (1f - (0.07f*ObjectManager.Player.GetBuffCount("s5test_dragonslayerbuff")));
             }
+
 
             return baseDamage > target.GetHealthWithShield();
         }
@@ -196,7 +203,7 @@ namespace iKalistaReborn.Utils
             return IsRendKillable(target);
         }
 
-        
+
         /*public static bool IsRendKillable(this Obj_AI_Hero target)
         {
             return IsRendKillable((Obj_AI_Base) target) >= GetHealthWithShield(target) && !HasUndyingBuff(target) && !target.HasBuffOfType(BuffType.SpellShield);
