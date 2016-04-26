@@ -44,6 +44,12 @@ namespace iKalistaReborn
             "SRU_Red"
         };
 
+        public static Dictionary<string, string> JungleMinion = new Dictionary<string, string>
+        {
+            { "SRU_Baron", "Baron" },
+            { "SRU_Dragon", "Dragon" },
+        };
+
         /// <summary>
         ///     The Modules
         /// </summary>
@@ -146,10 +152,10 @@ namespace iKalistaReborn
             {
                 jungleStealMenu.AddBool("com.ikalista.jungleSteal.enabled", "Use Rend To Steal Jungle Minions", true);
 
-                foreach (var minion in JungleMinions)
+                /*foreach (var minion in JungleMinions)
                 {
                     jungleStealMenu.AddBool("com.ikalista.jungleSteal." + minion, minion, true);
-                }
+                }*/
                 Menu.AddSubMenu(jungleStealMenu);
             }
 
@@ -353,10 +359,13 @@ namespace iKalistaReborn
                 }
             }
 
-            if (!SpellManager.Spell[SpellSlot.Q].IsReady() || !Menu.Item("com.ikalista.combo.useQ").GetValue<bool>() ||
-                ObjectManager.Player.Mana <
-                SpellManager.Spell[SpellSlot.Q].ManaCost + SpellManager.Spell[SpellSlot.E].ManaCost)
+            if (!SpellManager.Spell[SpellSlot.Q].IsReady() || !Menu.Item("com.ikalista.combo.useQ").GetValue<bool>())
                 return;
+
+            if (Menu.Item("com.ikalista.combo.saveMana").GetValue<bool>() && ObjectManager.Player.Mana < SpellManager.Spell[SpellSlot.E].ManaCost * 2)
+            {
+                return;
+            }
 
             var target = TargetSelector.GetTarget(SpellManager.Spell[SpellSlot.Q].Range,
                 TargetSelector.DamageType.Physical);
