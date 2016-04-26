@@ -116,6 +116,12 @@ namespace iKalistaReborn.Utils
                 return baseDamage*0.3f;
             }
 
+            // Master YI reduces the damage taken by 50/55/60/65/70 based on his W Level.
+            if (target.HasBuff("meditate"))
+            {
+                return baseDamage*(0.5f - 0.05f * target.Spellbook.GetSpell(SpellSlot.W).Level);
+            }
+
             // Damage to dragon is reduced by 7% * (stacks)
             if (target.Name.Contains("Dragon") && ObjectManager.Player.HasBuff("s5test_dragonslayerbuff"))
             {
