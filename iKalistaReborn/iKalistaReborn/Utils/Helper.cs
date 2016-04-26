@@ -103,7 +103,7 @@ namespace iKalistaReborn.Utils
             }
 
             // The base damage of E
-            var baseDamage = Damages.GetRendDamage(target);
+            var baseDamage = SpellManager.Spell[SpellSlot.E].GetDamage(target);
 
             // With exhaust players damage is reduced by 40%
             if (ObjectManager.Player.HasBuff("summonerexhaust"))
