@@ -52,8 +52,7 @@ namespace iKalistaReborn.Utils
         /// <returns>
         ///     The <see cref="float" />.
         /// </returns>
-        public static float GetHealthWithShield(this Obj_AI_Base target)
-            => target.AllShield > 0 ? target.Health + target.AllShield : target.Health;
+        public static float GetHealthWithShield(this Obj_AI_Base target) => target.AllShield > 0 ? target.Health + target.AllShield : target.Health + 10;
 
         /// <summary>
         ///     Gets the rend buff
@@ -215,8 +214,7 @@ namespace iKalistaReborn.Utils
         /// </returns>
         public static bool IsRendKillable(this Obj_AI_Hero target)
         {
-            return GetRendDamage(target) >= GetHealthWithShield(target) && !HasUndyingBuff(target) &&
-                   !target.HasBuffOfType(BuffType.SpellShield);
+            return GetRendDamage(target) >= GetHealthWithShield(target) && !HasUndyingBuff(target) && !target.HasBuffOfType(BuffType.SpellShield);
         }
 
         #endregion
