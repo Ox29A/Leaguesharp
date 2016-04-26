@@ -144,21 +144,18 @@ namespace iKalistaReborn
 
             var jungleStealMenu = new Menu("iKalista: Reborn - Jungle Steal", "com.ikalista.jungleSteal");
             {
+                jungleStealMenu.AddBool("com.ikalista.jungleSteal.enabled", "Use Rend To Steal Jungle Minions", true);
+
                 foreach (var minion in JungleMinions)
                 {
-                    jungleStealMenu.AddBool(minion, minion, true);
+                    jungleStealMenu.AddBool("com.ikalista.jungleSteal." + minion, minion, true);
                 }
                 Menu.AddSubMenu(jungleStealMenu);
             }
 
-            var modulesMenu = new Menu("iKalista: Reborn - Modules", "com.ikalista.modules");
+            var miscMenu = new Menu("iKalista: Reborn - Misc", "com.ikalista.misc");
             {
-                foreach (var module in Modules)
-                {
-                    modulesMenu.AddBool("com.ikalista.modules." + module.GetName().ToLowerInvariant(),
-                        "" + module.GetName(), true);
-                }
-                Menu.AddSubMenu(modulesMenu);
+                Menu.AddSubMenu(miscMenu);
             }
 
             var drawingMenu = new Menu("iKalista: Reborn - Drawing", "com.ikalista.drawing");

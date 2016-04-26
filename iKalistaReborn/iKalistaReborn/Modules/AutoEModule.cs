@@ -25,8 +25,7 @@ namespace iKalistaReborn.Modules
         public bool ShouldGetExecuted()
         {
             return SpellManager.Spell[SpellSlot.E].IsReady() &&
-                   Kalista.Menu.Item("com.ikalista.combo.autoE").GetValue<bool>() &&
-                   Kalista.Menu.Item("com.ikalista.modules." + GetName().ToLowerInvariant()).GetValue<bool>();
+                   Kalista.Menu.Item("com.ikalista.combo.autoE").GetValue<bool>();
         }
 
         public ModuleType GetModuleType()
@@ -47,7 +46,7 @@ namespace iKalistaReborn.Modules
                             .Any(
                                 x =>
                                     SpellManager.Spell[SpellSlot.E].IsInRange(x) && x.HasRendBuff() &&
-                                    Helper.GetRendDamage(x) >= x.Health + 5))
+                                    x.IsRendKillable()))
                     {
                         SpellManager.Spell[SpellSlot.E].Cast();
                     }

@@ -52,7 +52,8 @@ namespace iKalistaReborn.Utils
         /// <returns>
         ///     The <see cref="float" />.
         /// </returns>
-        public static float GetHealthWithShield(this Obj_AI_Base target) => target.AllShield > 0 ? target.Health + target.AllShield : target.Health + 10;
+        public static float GetHealthWithShield(this Obj_AI_Base target)
+            => target.AllShield > 0 ? target.Health + target.AllShield : target.Health + 10;
 
         /// <summary>
         ///     Gets the rend buff
@@ -85,50 +86,42 @@ namespace iKalistaReborn.Utils
         }
 
         /// <summary>
-        ///     Gets the Rend Damage for each target
+        ///     Checks if the given target is killable
         /// </summary>
         /// <param name="target">
         ///     The Target
         /// </param>
         /// <returns>
-        ///     The <see cref="float" />.
+        ///     The <see cref="bool" />.
         /// </returns>
-        public static float GetRendDamage(Obj_AI_Base target)
+        public static bool IsRendKillable(this Obj_AI_Base target)
         {
-            // If that target doesn't have a rend stack then calculating this is pointless
-            if (!target.HasRendBuff() || target.Health < 1)
-            {
-                return 0f;
-            }
+            var champion = target as Obj_AI_Hero;
+            if (champion != null &&
+                (champion.HasUndyingBuff() || champion.Health < 1 || champion.HasBuffOfType(BuffType.SpellShield)))
+                return false;
 
-            // The base damage of E
             var baseDamage = SpellManager.Spell[SpellSlot.E].GetDamage(target);
 
-            // With exhaust players damage is reduced by 40%
-            if (ObjectManager.Player.HasBuff("summonerexhaust"))
-            {
-                return baseDamage*0.6f;
-            }
-
-            // Alistars ultimate reduces damage dealt by 70%
-            if (target.HasBuff("FerociousHowl"))
-            {
-                return baseDamage*0.3f;
-            }
-
-            // Damage to dragon is reduced by 7% * (stacks)
-            if (target.Name.Contains("Dragon") && ObjectManager.Player.HasBuff("s5test_dragonslayerbuff"))
-            {
-                return baseDamage*(1f - 0.075f*ObjectManager.Player.GetBuffCount("s5test_dragonslayerbuff"));
-            }
-
-            // Damage to baron is reduced by 50% if the player has the 'barontarget'
             if (target.Name.Contains("Baron") && ObjectManager.Player.HasBuff("barontarget"))
             {
-                return baseDamage*0.5f;
+                baseDamage *= 0.5f;
+            }
+            if (ObjectManager.Player.HasBuff("SummonerExhaustSlow"))
+            {
+                baseDamage *= 0.55f;
+            }
+            if (target.Name.Contains("Dragon") && ObjectManager.Player.HasBuff("s5test_dragonslayerbuff"))
+            {
+                baseDamage *= (1f - (0.07f*ObjectManager.Player.GetBuffCount("s5test_dragonslayerbuff")));
             }
 
-            return baseDamage;
+            return baseDamage > target.GetHealthWithShield();
+        }
+
+        public static float GetRendDamage(Obj_AI_Base target)
+        {
+            return SpellManager.Spell[SpellSlot.E].GetDamage(target);
         }
 
         /// <summary>
@@ -179,7 +172,7 @@ namespace iKalistaReborn.Utils
                 return true;
             }
 
-            if (target.Buffs.Any(b => b.IsValid && b.DisplayName == "kindredrnodeathbuff"))
+            if (target.HasBuff("kindredrnodeathbuff"))
             {
                 return true;
             }
@@ -200,22 +193,14 @@ namespace iKalistaReborn.Utils
         /// </returns>
         public static bool IsMobKillable(this Obj_AI_Base target)
         {
-            return GetRendDamage(target) >= target.Health;
+            return IsRendKillable(target);
         }
 
-        /// <summary>
-        ///     Checks if the given target is killable
-        /// </summary>
-        /// <param name="target">
-        ///     The Target
-        /// </param>
-        /// <returns>
-        ///     The <see cref="bool" />.
-        /// </returns>
-        public static bool IsRendKillable(this Obj_AI_Hero target)
+        
+        /*public static bool IsRendKillable(this Obj_AI_Hero target)
         {
-            return GetRendDamage(target) >= GetHealthWithShield(target) && !HasUndyingBuff(target) && !target.HasBuffOfType(BuffType.SpellShield);
-        }
+            return IsRendKillable((Obj_AI_Base) target) >= GetHealthWithShield(target) && !HasUndyingBuff(target) && !target.HasBuffOfType(BuffType.SpellShield);
+        }*/
 
         #endregion
     }

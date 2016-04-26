@@ -20,7 +20,6 @@ namespace iKalistaReborn.Modules
         public bool ShouldGetExecuted()
         {
             return SpellManager.Spell[SpellSlot.E].IsReady() &&
-                   Kalista.Menu.Item("com.ikalista.modules." + GetName().ToLowerInvariant()).GetValue<bool>() &&
                    Kalista.Menu.Item("com.ikalista.combo.useE").GetValue<bool>();
         }
 

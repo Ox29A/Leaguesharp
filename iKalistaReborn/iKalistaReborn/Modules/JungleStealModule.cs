@@ -22,7 +22,7 @@ namespace iKalistaReborn.Modules
         public bool ShouldGetExecuted()
         {
             return SpellManager.Spell[SpellSlot.E].IsReady() &&
-                   Kalista.Menu.Item("com.ikalista.modules." + GetName().ToLowerInvariant()).GetValue<bool>();
+                   Kalista.Menu.Item("com.ikalista.jungleSteal.enabled").GetValue<bool>();
         }
 
         public ModuleType GetModuleType()
@@ -32,19 +32,17 @@ namespace iKalistaReborn.Modules
 
         public void OnExecute()
         {
-            var minion =
+            var mob =
                 ObjectManager.Get<Obj_AI_Minion>()
                     .FirstOrDefault(
                         x =>
                             SpellManager.Spell[SpellSlot.E].IsInRange(x) &&
                             x.IsValidTarget(SpellManager.Spell[SpellSlot.E].Range));
 
-            if (minion == null || minion.CharData.BaseSkinName.Contains("Mini") ||
-                !minion.CharData.BaseSkinName.Contains("SRU_"))
+            if (mob == null || mob.CharData.BaseSkinName.Contains("Mini") || !mob.CharData.BaseSkinName.Contains("SRU_"))
                 return;
-            if (!Kalista.JungleMinions.Contains(minion.CharData.BaseSkinName) ||
-                !Kalista.Menu.Item(minion.CharData.BaseSkinName).GetValue<bool>()) return;
-            if (minion.IsMobKillable())
+
+            if (mob.IsRendKillable() && Kalista.JungleMinions.Contains(mob.CharData.BaseSkinName) && Kalista.Menu.Item("com.ikalista.jungleSteal." + mob.CharData.BaseSkinName).GetValue<bool>())
             {
                 SpellManager.Spell[SpellSlot.E].Cast();
             }
