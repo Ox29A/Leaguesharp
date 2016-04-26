@@ -12,7 +12,6 @@ namespace iKalistaReborn.Utils
     /// </summary>
     internal static class Helper
     {
-
         #region Public Methods and Operators
 
         /// <summary>
@@ -54,9 +53,7 @@ namespace iKalistaReborn.Utils
         ///     The <see cref="float" />.
         /// </returns>
         public static float GetHealthWithShield(this Obj_AI_Base target)
-        {
-            return target.Health + target.AllShield;
-        }
+            => target.AllShield > 0 ? target.Health + target.AllShield : target.Health;
 
         /// <summary>
         ///     Gets the rend buff

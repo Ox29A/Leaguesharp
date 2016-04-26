@@ -10,6 +10,21 @@ using LeagueSharp.Common;
 using SPrediction;
 using System.Drawing;
 
+/*
+    TODO: 
+
+    1. it doesnt rend the big super minions would be helpful for laneclear later
+
+    2. sometimes it doesnt rend jungle mobs for me checked everything it only rend drake and baron o.O but only sometimes
+
+    3. it uses rend into kindred ult cost my last game... :-/
+
+    4. color change for e damage didnt work
+
+    5. rend minions u cant get with aa
+
+*/
+
 namespace iKalistaReborn
 {
     internal class Kalista
@@ -59,6 +74,21 @@ namespace iKalistaReborn
                 }
             };
             Orbwalker.RegisterCustomMode("com.ikalista.flee", "Flee", "V".ToCharArray()[0]);
+            Orbwalking.OnNonKillableMinion += minion =>
+            {
+                var killableMinion = minion as Obj_AI_Base;
+                if (killableMinion == null || !SpellManager.Spell[SpellSlot.E].IsReady()
+                    || ObjectManager.Player.HasBuff("summonerexhaust") || !killableMinion.HasRendBuff())
+                {
+                    return;
+                }
+
+                if (Menu.Item("com.ikalista.laneclear.useEUnkillable").GetValue<bool>() &&
+                    killableMinion.IsMobKillable())
+                {
+                    SpellManager.Spell[SpellSlot.E].Cast();
+                }
+            };
         }
 
         /// <summary>
@@ -108,6 +138,7 @@ namespace iKalistaReborn
                 laneclearMenu.AddSlider("com.ikalista.laneclear.qMinions", "Min Minions for Q", 3, 1, 10);
                 laneclearMenu.AddBool("com.ikalista.laneclear.useE", "Use E", true);
                 laneclearMenu.AddSlider("com.ikalista.laneclear.eMinions", "Min Minions for E", 5, 1, 10);
+                laneclearMenu.AddBool("com.ikalista.laneclear.useEUnkillable", "E Unkillable Minions", true);
                 Menu.AddSubMenu(laneclearMenu);
             }
 
@@ -174,10 +205,9 @@ namespace iKalistaReborn
                 }
             }
 
-            if (Menu.Item("com.kalista.drawing.damagePercent").GetValue<Circle>().Active)
+            if (Menu.Item("com.ikalista.drawing.damagePercent").GetValue<Circle>().Active)
             {
-                foreach (var source in
-                    HeroManager.Enemies.Where(x => ObjectManager.Player.Distance(x) <= 2000f && !x.IsDead))
+                foreach (var source in HeroManager.Enemies.Where(x => ObjectManager.Player.Distance(x) <= 2000f && !x.IsDead))
                 {
                     var currentPercentage = Math.Round(Helper.GetRendDamage(source)*100/source.GetHealthWithShield(), 2);
 
