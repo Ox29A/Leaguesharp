@@ -96,30 +96,37 @@ namespace iKalistaReborn.Utils
         /// </returns>
         public static bool IsRendKillable(this Obj_AI_Base target)
         {
-            var champion = target as Obj_AI_Hero;
-            if (champion != null &&
-                (champion.HasUndyingBuff() || champion.Health < 1 || champion.HasBuffOfType(BuffType.SpellShield)))
+            if (target == null)
                 return false;
 
             var baseDamage = SpellManager.Spell[SpellSlot.E].GetDamage(target);
 
-            //Exory Is Bae
-            if (champion != null && champion.HasBuff("meditate"))
+            if (target is Obj_AI_Hero)
             {
-                baseDamage *= (0.5f - 0.05f * champion.Spellbook.GetSpell(SpellSlot.W).Level);
+                if (target.HasUndyingBuff() || target.Health < 1 || target.HasBuffOfType(BuffType.SpellShield))
+                    return false;
+
+                if (target.HasBuff("meditate"))
+                {
+                    baseDamage *= (0.5f - 0.05f*target.Spellbook.GetSpell(SpellSlot.W).Level);
+                }
             }
 
-            if (target.Name.Contains("Baron") && ObjectManager.Player.HasBuff("barontarget"))
+            if (target is Obj_AI_Minion)
             {
-                baseDamage *= 0.5f;
+                if (target.Name.Contains("Baron") && ObjectManager.Player.HasBuff("barontarget"))
+                {
+                    baseDamage *= 0.5f;
+                }
+                if (target.Name.Contains("Dragon") && ObjectManager.Player.HasBuff("s5test_dragonslayerbuff"))
+                {
+                    baseDamage *= (1f - (0.07f*ObjectManager.Player.GetBuffCount("s5test_dragonslayerbuff")));
+                }
             }
+
             if (ObjectManager.Player.HasBuff("SummonerExhaustSlow"))
             {
                 baseDamage *= 0.55f;
-            }
-            if (target.Name.Contains("Dragon") && ObjectManager.Player.HasBuff("s5test_dragonslayerbuff"))
-            {
-                baseDamage *= (1f - (0.07f*ObjectManager.Player.GetBuffCount("s5test_dragonslayerbuff")));
             }
 
 
