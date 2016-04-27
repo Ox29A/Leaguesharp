@@ -31,23 +31,17 @@ namespace iKalistaReborn
     {
         public static Menu Menu;
 
-        public static List<string> JungleMinions = new List<string>
+        public static Dictionary<string, string> JungleMinions = new Dictionary<string, string>
         {
-            "SRU_Baron",
-            "SRU_Blue",
-            "Sru_Crab",
-            "SRU_Dragon",
-            "SRU_Gromp",
-            "SRU_Krug",
-            "SRU_Murkwolf",
-            "SRU_Razorbeak",
-            "SRU_Red"
-        };
-
-        public static Dictionary<string, string> JungleMinion = new Dictionary<string, string>
-        {
-            { "SRU_Baron", "Baron" },
-            { "SRU_Dragon", "Dragon" },
+            {"SRU_Baron", "Baron"},
+            {"SRU_Dragon", "Dragon"},
+            {"SRU_Blue", "Blue Buff"},
+            {"SRU_Red", "Red Buff"},
+            {"SRU_Crab", "Crab"},
+            {"SRU_Gromp", "Gromp"},
+            {"SRU_Razorbeak", "Wraiths"},
+            {"SRU_Murkwolf", "Wolves"},
+            {"SRU_Krug", "Krug"}
         };
 
         /// <summary>
@@ -93,6 +87,18 @@ namespace iKalistaReborn
                     killableMinion.IsMobKillable())
                 {
                     SpellManager.Spell[SpellSlot.E].Cast();
+                }
+            };
+            Orbwalking.BeforeAttack += args =>
+            {
+                if (!Menu.Item("com.ikalista.misc.forceW").GetValue<bool>()) return;
+
+                var target =
+                    HeroManager.Enemies.FirstOrDefault(
+                        x => ObjectManager.Player.Distance(x) <= 600 && x.HasBuff("kalistacoopstrikemarkally"));
+                if (target != null)
+                {
+                    Orbwalker.ForceTarget(target);
                 }
             };
         }
@@ -145,6 +151,7 @@ namespace iKalistaReborn
                 laneclearMenu.AddBool("com.ikalista.laneclear.useE", "Use E", true);
                 laneclearMenu.AddSlider("com.ikalista.laneclear.eMinions", "Min Minions for E", 5, 1, 10);
                 laneclearMenu.AddBool("com.ikalista.laneclear.useEUnkillable", "E Unkillable Minions", true);
+                laneclearMenu.AddBool("com.ikalista.laneclear.eSiege", "Auto E Siege Minions", true);
                 Menu.AddSubMenu(laneclearMenu);
             }
 
@@ -152,15 +159,16 @@ namespace iKalistaReborn
             {
                 jungleStealMenu.AddBool("com.ikalista.jungleSteal.enabled", "Use Rend To Steal Jungle Minions", true);
 
-                /*foreach (var minion in JungleMinions)
+                foreach (var minion in JungleMinions)
                 {
-                    jungleStealMenu.AddBool("com.ikalista.jungleSteal." + minion, minion, true);
-                }*/
+                    jungleStealMenu.AddBool(minion.Key, minion.Value, true);
+                }
                 Menu.AddSubMenu(jungleStealMenu);
             }
 
             var miscMenu = new Menu("iKalista: Reborn - Misc", "com.ikalista.misc");
             {
+                miscMenu.AddBool("com.ikalista.misc.forceW", "Focus Enemy With W");
                 Menu.AddSubMenu(miscMenu);
             }
 
@@ -210,7 +218,9 @@ namespace iKalistaReborn
 
             if (Menu.Item("com.ikalista.drawing.damagePercent").GetValue<Circle>().Active)
             {
-                foreach (var source in HeroManager.Enemies.Where(x => ObjectManager.Player.Distance(x) <= 2000f && !x.IsDead))
+                foreach (
+                    var source in HeroManager.Enemies.Where(x => ObjectManager.Player.Distance(x) <= 2000f && !x.IsDead)
+                    )
                 {
                     var currentPercentage = Math.Round(Helper.GetRendDamage(source)*100/source.GetHealthWithShield(), 2);
 
@@ -362,7 +372,8 @@ namespace iKalistaReborn
             if (!SpellManager.Spell[SpellSlot.Q].IsReady() || !Menu.Item("com.ikalista.combo.useQ").GetValue<bool>())
                 return;
 
-            if (Menu.Item("com.ikalista.combo.saveMana").GetValue<bool>() && ObjectManager.Player.Mana < SpellManager.Spell[SpellSlot.E].ManaCost * 2)
+            if (Menu.Item("com.ikalista.combo.saveMana").GetValue<bool>() &&
+                ObjectManager.Player.Mana < SpellManager.Spell[SpellSlot.E].ManaCost*2)
             {
                 return;
             }
@@ -438,6 +449,12 @@ namespace iKalistaReborn
                 var minions = MinionManager.GetMinions(SpellManager.Spell[SpellSlot.E].Range).ToList();
                 if (minions.Count < 0)
                     return;
+                var siegeMinion = minions.FirstOrDefault(x => x.Name.Contains("siege") && x.IsRendKillable());
+
+                if (Menu.Item("com.ikalista.laneclear.eSiege").GetValue<bool>() && siegeMinion != null)
+                {
+                    SpellManager.Spell[SpellSlot.E].Cast();
+                }
 
                 var count =
                     minions.Count(
