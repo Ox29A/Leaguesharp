@@ -52,6 +52,7 @@ namespace iLucian.MenuHelper
             {
                 miscOptions.AddBool("com.ilucian.misc.usePrediction", "Use W Pred", true);
                 miscOptions.AddBool("com.ilucian.misc.gapcloser", "Use E For Gapcloser", true);
+                miscOptions.AddBool("com.ilucian.misc.eqKs", "EQ - Killsteal", true);
                 rootMenu.AddSubMenu(miscOptions);
             }
 

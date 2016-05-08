@@ -79,6 +79,7 @@
     <Compile Include="MenuHelper\MenuUtils.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\MathHelper.cs" />
     <Compile Include="Variables.cs" />
   </ItemGroup>
   <ItemGroup>
