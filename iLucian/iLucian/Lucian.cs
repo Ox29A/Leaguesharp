@@ -336,12 +336,12 @@ namespace iLucian
         {
             var target = TargetSelector.GetTarget(Variables.Spell[Variables.Spells.E].Range + Variables.Spell[Variables.Spells.Q2].Range, TargetSelector.DamageType.Physical);
 
-            if (!Variables.Menu.IsEnabled("com.ilucian.misc.eqKs"))
+            if (!Variables.Menu.IsEnabled("com.ilucian.misc.eqKs") || !Variables.Spell[Variables.Spells.Q].IsReady() || !target.IsValidTarget(Variables.Spell[Variables.Spells.E].Range + Variables.Spell[Variables.Spells.Q2].Range))
             { 
                 return;
             }
 
-            if (target.IsValidTarget(Variables.Spell[Variables.Spells.E].Range + Variables.Spell[Variables.Spells.Q2].Range) && Variables.Spell[Variables.Spells.Q].GetDamage(target) - 20 >= target.Health)
+            if (Variables.Spell[Variables.Spells.Q].GetDamage(target) - 20 >= target.Health)
             {
                 if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range))
                 {
@@ -375,7 +375,7 @@ namespace iLucian
             foreach (var minion in
                 minions.Select(x => Prediction.GetPrediction(x, dashSpeed)).Select(pred => MathHelper.GetCicleLineInteraction(pred.UnitPosition.To2D(), extendedPrediction.To2D(), ObjectManager.Player.ServerPosition.To2D(), Variables.Spell[Variables.Spells.E].Range)).Select(inter => inter.GetBestInter(target)))
             {
-                if (minion.X == 0)
+                if (Math.Abs(minion.X) < 1)
                     return;
 
                 if (!NavMesh.GetCollisionFlags(minion.To3D()).HasFlag(CollisionFlags.Wall) && !NavMesh.GetCollisionFlags(minion.To3D()).HasFlag(CollisionFlags.Building) && minion.To3D().IsSafe(Variables.Spell[Variables.Spells.E].Range))
