@@ -208,6 +208,9 @@ namespace iKalistaReborn
         /// <param name="args">even more gay</param>
         private void OnDraw(EventArgs args)
         {
+            CustomDamageIndicator.DrawingColor = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Color;
+            CustomDamageIndicator.Enabled = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Active;
+            
             if (Menu.Item("com.ikalista.drawing.spellRanges").GetValue<bool>())
             {
                 foreach (var spell in SpellManager.Spell.Values)
@@ -228,16 +231,13 @@ namespace iKalistaReborn
                         Drawing.WorldToScreen(source.Position)[0],
                         Drawing.WorldToScreen(source.Position)[1],
                         currentPercentage >= 100
-                            ? Menu.Item("com.kalista.drawing.damagePercent").GetValue<Circle>().Color
+                            ? Menu.Item("com.ikalista.drawing.damagePercent").GetValue<Circle>().Color
                             : Color.White,
                         currentPercentage >= 100
                             ? "Killable With E"
                             : "Current Damage: " + currentPercentage + "%");
                 }
             }
-
-            CustomDamageIndicator.DrawingColor = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Color;
-            CustomDamageIndicator.Enabled = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Active;
         }
 
         /// <summary>
