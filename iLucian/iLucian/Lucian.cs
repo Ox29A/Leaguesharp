@@ -29,7 +29,7 @@ namespace iLucian
             Obj_AI_Base.OnDoCast += OnDoCast;
             DZAntigapcloser.OnEnemyGapcloser += OnEnemyGapcloser;
         }
-        
+
         private static void OnEnemyGapcloser(DZLib.Core.ActiveGapcloser gapcloser)
         {
             if (!Variables.Menu.IsEnabled("com.ilucian.misc.gapcloser"))

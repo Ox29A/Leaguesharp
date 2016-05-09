@@ -53,7 +53,7 @@ namespace iKalistaReborn.Utils
         ///     The <see cref="float" />.
         /// </returns>
         public static float GetHealthWithShield(this Obj_AI_Base target)
-            => target.AllShield > 0 ? target.Health + target.AllShield : target.Health + 10;
+            => target.PhysicalShield > 0 ? target.Health + target.PhysicalShield : target.Health + 10;
 
         /// <summary>
         ///     Gets the rend buff
@@ -64,12 +64,9 @@ namespace iKalistaReborn.Utils
         /// <returns>
         ///     The <see cref="BuffInstance" />.
         /// </returns>
-        public static BuffInstance GetRendBuff(this Obj_AI_Base target)
-        {
-            return
-                target.Buffs.Find(
-                    b => b.Caster.IsMe && b.IsValid && b.DisplayName.ToLowerInvariant() == "kalistaexpungemarker");
-        }
+        public static BuffInstance GetRendBuff(this Obj_AI_Base target) =>
+            target.Buffs.Find(
+                b => b.Caster.IsMe && b.IsValid && b.DisplayName.ToLowerInvariant() == "kalistaexpungemarker");
 
         /// <summary>
         ///     Gets the current <see cref="BuffInstance" /> Count of Expunge
@@ -81,9 +78,7 @@ namespace iKalistaReborn.Utils
         ///     The <see cref="int" />.
         /// </returns>
         public static int GetRendBuffCount(this Obj_AI_Base target)
-        {
-            return target.Buffs.Count(x => x.Name == "kalistaexpungemarker");
-        }
+            => target.Buffs.Count(x => x.Name == "kalistaexpungemarker");
 
         /// <summary>
         ///     Checks if the given target is killable
@@ -133,10 +128,8 @@ namespace iKalistaReborn.Utils
             return baseDamage > target.GetHealthWithShield();
         }
 
-        public static float GetRendDamage(Obj_AI_Base target)
-        {
-            return SpellManager.Spell[SpellSlot.E].GetDamage(target);
-        }
+        public static float GetRendDamage(Obj_AI_Base target) => SpellManager.Spell[SpellSlot.E].GetDamage(target);
+
 
         /// <summary>
         ///     Checks if a target has the Expunge <see cref="BuffInstance" />
@@ -147,10 +140,8 @@ namespace iKalistaReborn.Utils
         /// <returns>
         ///     The <see cref="bool" />.
         /// </returns>
-        public static bool HasRendBuff(this Obj_AI_Base target)
-        {
-            return target?.GetRendBuff() != null;
-        }
+        public static bool HasRendBuff(this Obj_AI_Base target) => target?.GetRendBuff() != null;
+
 
         /// <summary>
         ///     Checks if the given target has an invulnerable buff
@@ -205,12 +196,8 @@ namespace iKalistaReborn.Utils
         /// <returns>
         ///     The <see cref="bool" />.
         /// </returns>
-        public static bool IsMobKillable(this Obj_AI_Base target)
-        {
-            return IsRendKillable(target);
-        }
-
-
+        public static bool IsMobKillable(this Obj_AI_Base target) => IsRendKillable(target);
+        
         /*public static bool IsRendKillable(this Obj_AI_Hero target)
         {
             return IsRendKillable((Obj_AI_Base) target) >= GetHealthWithShield(target) && !HasUndyingBuff(target) && !target.HasBuffOfType(BuffType.SpellShield);
