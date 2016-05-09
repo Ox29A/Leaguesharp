@@ -33,27 +33,16 @@ namespace iKalistaReborn.Modules
         public void OnExecute()
         {
             var attackableMinion =
-                MinionManager.GetMinions(
-                    ObjectManager.Player.ServerPosition,
-                    SpellManager.Spell[SpellSlot.E].Range,
-                    MinionTypes.All,
-                    MinionTeam.Neutral,
-                    MinionOrderTypes.MaxHealth)
-                    .FirstOrDefault(x => x.IsRendKillable() && !x.Name.Contains("Mini") && x.Name.Contains("SRU_"));
+                MinionManager.GetMinions(ObjectManager.Player.ServerPosition, SpellManager.Spell[SpellSlot.E].Range,
+                    MinionTypes.All, MinionTeam.Neutral,
+                    MinionOrderTypes.MaxHealth).FirstOrDefault(x => !x.Name.Contains("Mini"));
 
-            if (attackableMinion != null && SpellManager.Spell[SpellSlot.E].CanCast(attackableMinion))
-            {
-                foreach (var minion in Kalista.JungleMinions)
-                {
-                    if (minion.Key.Contains(attackableMinion.CharData.BaseSkinName) &&
-                        Kalista.Menu.Item(attackableMinion.CharData.BaseSkinName).GetValue<bool>())
-                    {
-                        Console.WriteLine("Minion: " + attackableMinion.CharData.BaseSkinName);
-                        Console.WriteLine("Key: " + minion.Value);
-                        SpellManager.Spell[SpellSlot.E].Cast();
-                    }
-                }
-            }
+            if (attackableMinion == null || !attackableMinion.HasRendBuff() || !attackableMinion.IsMobKillable() ||
+                !Kalista.Menu.Item(attackableMinion.CharData.BaseSkinName).GetValue<bool>())
+                return;
+
+            Console.WriteLine("Minion Killable: " + attackableMinion.CharData.BaseSkinName);
+            SpellManager.Spell[SpellSlot.E].Cast();
         }
     }
 }
