@@ -113,10 +113,10 @@ namespace iKalistaReborn.Utils
                 {
                     baseDamage *= 0.5f;
                 }
-                if (target.Name.Contains("Dragon") && ObjectManager.Player.HasBuff("s5test_dragonslayerbuff"))
-                {
-                    baseDamage *= (1f - (0.07f*ObjectManager.Player.GetBuffCount("s5test_dragonslayerbuff")));
-                }
+                //if (target.Name.Contains("Dragon") && ObjectManager.Player.HasBuff("s5test_dragonslayerbuff"))
+                //{
+                //    baseDamage *= (1f - (0.07f*ObjectManager.Player.GetBuffCount("s5test_dragonslayerbuff")));
+                //} HM???
             }
 
             if (ObjectManager.Player.HasBuff("SummonerExhaustSlow"))

@@ -55,31 +55,5 @@ namespace iKalistaReborn.Modules
                 }
             }
         }
-
-        /// <summary>
-        ///     Gets the baron reduction.
-        /// </summary>
-        /// <param name="target">The target.</param>
-        /// <returns></returns>
-        private float GetBaronReduction(Obj_AI_Base target)
-        {
-            return ObjectManager.Player.HasBuff("barontarget")
-                ? SpellManager.Spell[SpellSlot.E].GetDamage(target)*0.5f
-                : SpellManager.Spell[SpellSlot.E].GetDamage(target);
-        }
-
-
-        /// <summary>
-        ///     Gets the dragon reduction.
-        /// </summary>
-        /// <param name="target">The target.</param>
-        /// <returns></returns>
-        private float GetDragonReduction(Obj_AI_Base target)
-        {
-            return ObjectManager.Player.HasBuff("s5test_dragonslayerbuff")
-                ? SpellManager.Spell[SpellSlot.E].GetDamage(target)
-                  *(1 - (.07f*ObjectManager.Player.GetBuffCount("s5test_dragonslayerbuff")))
-                : SpellManager.Spell[SpellSlot.E].GetDamage(target);
-        }
     }
 }
