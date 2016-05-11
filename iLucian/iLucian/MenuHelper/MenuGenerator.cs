@@ -53,6 +53,7 @@ namespace iLucian.MenuHelper
                 miscOptions.AddBool("com.ilucian.misc.usePrediction", "Use W Pred", true);
                 miscOptions.AddBool("com.ilucian.misc.gapcloser", "Use E For Gapcloser", true);
                 miscOptions.AddBool("com.ilucian.misc.eqKs", "EQ - Killsteal", true);
+                miscOptions.AddBool("com.ilucian.misc.useChampions", "Use EQ on Champions", true);
                 rootMenu.AddSubMenu(miscOptions);
             }
 

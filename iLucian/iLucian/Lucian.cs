@@ -28,6 +28,13 @@ namespace iLucian
             Game.OnUpdate += OnUpdate;
             Obj_AI_Base.OnDoCast += OnDoCast;
             DZAntigapcloser.OnEnemyGapcloser += OnEnemyGapcloser;
+            Obj_AI_Base.OnProcessSpellCast += (sender, args) =>
+            {
+                if (!sender.IsMe || args.Slot != SpellSlot.R)
+                    return;
+
+                //UltimateLock();
+            };
         }
 
         private static void OnEnemyGapcloser(DZLib.Core.ActiveGapcloser gapcloser)
@@ -147,6 +154,16 @@ namespace iLucian
             Variables.Spell[Variables.Spells.W].Collision =
                 Variables.Menu.Item("com.ilucian.misc.usePrediction").GetValue<bool>();
             Killsteal();
+
+            if (ObjectManager.Player.HasBuff("LucianR"))
+            {
+                //UltimateLock();
+            }
+
+            foreach (var buff in ObjectManager.Player.Buffs)
+            {
+                Console.WriteLine("Buff: " + buff.Name);
+            }
             switch (Variables.Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -168,6 +185,27 @@ namespace iLucian
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public void UltimateLock()
+        {
+            var currentTarget = TargetSelector.GetSelectedTarget();
+            if (currentTarget.IsValidTarget())
+            {
+                var predictedPosition = Variables.Spell[Variables.Spells.R].GetPrediction(currentTarget).UnitPosition;
+                var directionVector = (currentTarget.ServerPosition - ObjectManager.Player.ServerPosition).Normalized();
+                const float rRangeCoefficient = 0.95f;
+                var rRangeAdjusted = Variables.Spell[Variables.Spells.R].Range*rRangeCoefficient;
+                var rEndPointXCoordinate = predictedPosition.X + directionVector.X*rRangeAdjusted;
+                var rEndPointYCoordinate = predictedPosition.Y + directionVector.Y*rRangeAdjusted;
+                var rEndPoint = new Vector2(rEndPointXCoordinate, rEndPointYCoordinate).To3D();
+
+                if (rEndPoint.Distance(ObjectManager.Player.ServerPosition) < Variables.Spell[Variables.Spells.R].Range)
+                {
+                    Game.PrintChat("Lock R ??");
+                    ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, rEndPoint);
+                }
             }
         }
 
@@ -442,8 +480,34 @@ namespace iLucian
                     !NavMesh.GetCollisionFlags(minion.To3D()).HasFlag(CollisionFlags.Building) &&
                     minion.To3D().IsSafe(Variables.Spell[Variables.Spells.E].Range))
                 {
-                    Console.WriteLine("EQ KILLSTEAL THO");
                     Variables.Spell[Variables.Spells.E].Cast((Vector3) minion);
+                }
+            }
+
+            var champions = ObjectManager.Get<Obj_AI_Hero>()
+                .Where(x => x.IsEnemy && x.IsValid && x.Distance(extendedPrediction, true) < 900*900)
+                .OrderByDescending(x => x.Distance(extendedPrediction));
+
+            if (Variables.Menu.IsEnabled("com.ilucian.misc.useChampions"))
+            {
+                foreach (var position in
+                    champions.Select(x => Prediction.GetPrediction(x, dashSpeed))
+                        .Select(
+                            pred =>
+                                MathHelper.GetCicleLineInteraction(pred.UnitPosition.To2D(), extendedPrediction.To2D(),
+                                    ObjectManager.Player.ServerPosition.To2D(),
+                                    Variables.Spell[Variables.Spells.E].Range))
+                        .Select(inter => inter.GetBestInter(target)))
+                {
+                    if (Math.Abs(position.X) < 1)
+                        return;
+
+                    if (!NavMesh.GetCollisionFlags(position.To3D()).HasFlag(CollisionFlags.Wall) &&
+                        !NavMesh.GetCollisionFlags(position.To3D()).HasFlag(CollisionFlags.Building) &&
+                        position.To3D().IsSafe(Variables.Spell[Variables.Spells.E].Range))
+                    {
+                        Variables.Spell[Variables.Spells.E].Cast((Vector3) position);
+                    }
                 }
             }
         }

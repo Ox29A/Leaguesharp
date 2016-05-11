@@ -15,5 +15,10 @@ namespace iLucian.MenuHelper
             return menu.Item(item).GetValue<bool>();
         }
 
+        public static T GetValue<T>(string item)
+        {
+            return Variables.Menu.Item(item).GetValue<T>();
+        }
+
     }
 }
