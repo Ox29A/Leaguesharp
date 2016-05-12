@@ -21,6 +21,8 @@ namespace iLucian
             MenuGenerator.Generate();
             LoadSpells();
             LoadEvents();
+
+            Game.PrintChat("Don't forget to upvote on assembly database.");
         }
 
         private void LoadEvents()
@@ -28,13 +30,6 @@ namespace iLucian
             Game.OnUpdate += OnUpdate;
             Obj_AI_Base.OnDoCast += OnDoCast;
             DZAntigapcloser.OnEnemyGapcloser += OnEnemyGapcloser;
-            Obj_AI_Base.OnProcessSpellCast += (sender, args) =>
-            {
-                if (!sender.IsMe || args.Slot != SpellSlot.R)
-                    return;
-
-                //UltimateLock();
-            };
         }
 
         private static void OnEnemyGapcloser(DZLib.Core.ActiveGapcloser gapcloser)
@@ -160,10 +155,7 @@ namespace iLucian
                 //UltimateLock();
             }
 
-            foreach (var buff in ObjectManager.Player.Buffs)
-            {
-                Console.WriteLine("Buff: " + buff.Name);
-            }
+            AutoHarass();
             switch (Variables.Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -292,6 +284,30 @@ namespace iLucian
             }
         }
 
+        public void AutoHarass()
+        {
+            if (!Variables.Menu.Item("com.ilucian.harass.auto.autoharass").GetValue<KeyBind>().Active)
+                return;
+
+            var target = TargetSelector.GetTarget(Variables.Spell[Variables.Spells.Q2].Range,
+                TargetSelector.DamageType.Physical);
+
+            if (Variables.Menu.IsEnabled("com.ilucian.harass.auto.q") && Variables.Spell[Variables.Spells.Q].IsReady())
+            {
+                if (Variables.Spell[Variables.Spells.Q].IsReady() &&
+                    Variables.Spell[Variables.Spells.Q].IsInRange(target) && target.IsValidTarget())
+                {
+                    Variables.Spell[Variables.Spells.Q].Cast(target);
+                }
+            }
+
+            if (Variables.Menu.IsEnabled("com.ilucian.harass.auto.qExtended") &&
+                Variables.Spell[Variables.Spells.Q].IsReady())
+            {
+                CastExtendedQ();
+            }
+        }
+
         private void OnLaneclear()
         {
             if (Variables.Menu.IsEnabled("com.ilucian.laneclear.q"))
@@ -396,19 +412,36 @@ namespace iLucian
                     TargetSelector.DamageType.Physical);
 
             var predictionPosition = Variables.Spell[Variables.Spells.Q2].GetPrediction(target);
-            var minions = MinionManager.GetMinions(ObjectManager.Player.Position,
-                Variables.Spell[Variables.Spells.Q].Range);
 
-            foreach (var minion in from minion in minions
+            foreach (var unit in from unit in GetHittableTargets()
                 let polygon =
                     new Geometry.Polygon.Rectangle(ObjectManager.Player.ServerPosition,
-                        ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition,
+                        ObjectManager.Player.ServerPosition.Extend(unit.ServerPosition,
                             Variables.Spell[Variables.Spells.Q2].Range), 65f)
                 where polygon.IsInside(predictionPosition.CastPosition)
-                select minion)
+                select unit)
             {
-                Variables.Spell[Variables.Spells.Q].Cast(minion);
+                Variables.Spell[Variables.Spells.Q].Cast(unit);
             }
+        }
+
+        public List<Obj_AI_Base> GetHittableTargets()
+        {
+            var unitList = new List<Obj_AI_Base>();
+            var minions = MinionManager.GetMinions(ObjectManager.Player.Position,
+                Variables.Spell[Variables.Spells.Q].Range);
+            var champions =
+                HeroManager.Enemies.Where(
+                    x =>
+                        ObjectManager.Player.Distance(x) <= Variables.Spell[Variables.Spells.Q].Range &&
+                        !x.HasBuffOfType(BuffType.SpellShield));
+
+            unitList.AddRange(minions);
+            if (Variables.Menu.IsEnabled("com.ilucian.misc.extendChamps"))
+            {
+                unitList.AddRange(champions);
+            }
+            return unitList;
         }
 
         public void Killsteal()

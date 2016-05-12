@@ -196,7 +196,7 @@ namespace iKalistaReborn.Utils
         /// <returns>
         ///     The <see cref="bool" />.
         /// </returns>
-        public static bool IsMobKillable(this Obj_AI_Base target) => IsRendKillable(target);
+        public static bool IsMobKillable(this Obj_AI_Base target) => IsRendKillable(target as Obj_AI_Minion);
         
         /*public static bool IsRendKillable(this Obj_AI_Hero target)
         {
