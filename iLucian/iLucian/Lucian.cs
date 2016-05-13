@@ -373,7 +373,8 @@ namespace iLucian
                 if (Variables.Spell[Variables.Spells.E].IsReady() &&
                     Variables.Menu.IsEnabled("com.ilucian.jungleclear.e") && !Variables.HasPassive)
                 {
-                    Variables.Spell[Variables.Spells.E].Cast(jungleMob);
+                    Variables.Spell[Variables.Spells.E].Cast(ObjectManager.Player.Position.Extend(Game.CursorPos,
+                            475));
                 }
             }
         }
