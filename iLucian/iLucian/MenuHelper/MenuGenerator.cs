@@ -29,8 +29,9 @@ namespace iLucian.MenuHelper
                 comboOptions.AddBool("com.ilucian.combo.qExtended", "Use Extended Q", true);
                 comboOptions.AddBool("com.ilucian.combo.w", "Use W", true);
                 comboOptions.AddBool("com.ilucian.combo.e", "Use E", true);
+                comboOptions.AddSlider("com.ilucian.combo.eRange", "E Dash Range", 65, 50, 475);
                 comboOptions.AddStringList("com.ilucian.combo.eMode", "E Mode",
-                    new[] {"Kite", "Side", "Cursor", "Enemy"});
+                    new[] {"Kite", "Side", "Cursor", "Enemy", "Fast Mode"});
                 rootMenu.AddSubMenu(comboOptions);
             }
             

@@ -343,16 +343,7 @@ namespace iLucian
                 return;
             }
 
-            if (HeroManager.Player.HasBuff("AwesomeBuff"))
-            {
-                var extendedPosition = ObjectManager.Player.ServerPosition.Extend(Game.CursorPos,
-                    Variables.Spell[Variables.Spells.E].Range);
-                if (extendedPosition.IsSafe(Variables.Spell[Variables.Spells.E].Range))
-                {
-                    Variables.Spell[Variables.Spells.E].Cast(Game.CursorPos);
-                }
-                return;
-            }
+            var dashRange = Variables.Menu.Item("com.ilucian.combo.eRange").GetValue<Slider>().Value;
 
             switch (Variables.Menu.Item("com.ilucian.combo.eMode").GetValue<StringList>().SelectedIndex)
             {
@@ -381,19 +372,23 @@ namespace iLucian
 
                 case 1: // side
                     Variables.Spell[Variables.Spells.E].Cast(
-                        Deviation(ObjectManager.Player.Position.To2D(), target.Position.To2D(), 65).To3D());
+                        Deviation(ObjectManager.Player.Position.To2D(), target.Position.To2D(), dashRange).To3D());
                     break;
 
                 case 2: //Cursor
                     if (Game.CursorPos.IsSafe(475))
                     {
                         Variables.Spell[Variables.Spells.E].Cast(ObjectManager.Player.Position.Extend(Game.CursorPos,
-                            65f));
+                            dashRange));
                     }
                     break;
 
                 case 3: // Enemy
-                    Variables.Spell[Variables.Spells.E].Cast(ObjectManager.Player.Position.Extend(target.Position, 400));
+                    Variables.Spell[Variables.Spells.E].Cast(ObjectManager.Player.Position.Extend(target.Position, dashRange));
+                    break;
+                case 4:
+                    Variables.Spell[Variables.Spells.E].Cast(
+                       Deviation(ObjectManager.Player.Position.To2D(), target.Position.To2D(), 65f).To3D());
                     break;
             }
         }

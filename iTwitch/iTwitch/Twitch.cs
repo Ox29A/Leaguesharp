@@ -134,7 +134,7 @@ namespace iTwitch
             {
                 var position = new Vector3(ObjectManager.Player.Position.X, ObjectManager.Player.Position.Y - 30, ObjectManager.Player.Position.Z);
                 position.DrawTextOnScreen(
-                    "Q:  " + $"{ObjectManager.Player.GetRemainingBuffTime("TwitchHideInShadows"):0.0}",
+                    "Stealth:  " + $"{ObjectManager.Player.GetRemainingBuffTime("TwitchHideInShadows"):0.0}",
                     System.Drawing.Color.AntiqueWhite);
             }
 
@@ -142,7 +142,7 @@ namespace iTwitch
                 ObjectManager.Player.HasBuff("TwitchFullAutomatic"))
             {
                 ObjectManager.Player.Position.DrawTextOnScreen(
-                    "R:  " + $"{ObjectManager.Player.GetRemainingBuffTime("TwitchFullAutomatic"):0.0}",
+                    "Ultimate:  " + $"{ObjectManager.Player.GetRemainingBuffTime("TwitchFullAutomatic"):0.0}",
                     System.Drawing.Color.AntiqueWhite);
             }
 
@@ -151,7 +151,7 @@ namespace iTwitch
                 foreach (
                     var source in
                         HeroManager.Enemies.Where(
-                            x => x.HasBuff("TwitchDeadlyVenom")))
+                            x => x.HasBuff("TwitchDeadlyVenom") && !x.IsDead))
                 {
                     source.Position.DrawTextOnScreen($"{"Stacks: " + source.GetPoisonStacks()}",
                         System.Drawing.Color.AntiqueWhite);
