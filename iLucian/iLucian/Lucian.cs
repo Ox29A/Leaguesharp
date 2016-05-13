@@ -22,7 +22,7 @@ namespace iLucian
             LoadSpells();
             LoadEvents();
 
-            Game.PrintChat("Don't forget to upvote on assembly database.");
+            Game.PrintChat("[iLucian] -> Don't forget to upvote on assembly database.");
         }
 
         private void LoadEvents()
@@ -156,6 +156,7 @@ namespace iLucian
             if (Variables.Menu.Item("com.ilucian.combo.forceR").GetValue<KeyBind>().Active)
             {
                 SemiUlt();
+                ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             }
 
             AutoHarass();
@@ -382,7 +383,7 @@ namespace iLucian
         private void CastE(Obj_AI_Base target)
         {
             if (!Variables.Spell[Variables.Spells.E].IsReady() || !Variables.Menu.IsEnabled("com.ilucian.combo.e") ||
-                target == null)
+                target == null || ObjectManager.Player.HasBuff("LucianR"))
             {
                 return;
             }
