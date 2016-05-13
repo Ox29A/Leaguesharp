@@ -34,10 +34,11 @@ namespace iTwitch
 
             Spellbook.OnCastSpell += (sender, eventArgs) =>
             {
-                if (eventArgs.Slot == SpellSlot.Recall && Spells[SpellSlot.Q].IsReady() && _menu.Item("com.itwitch.misc.recall").GetValue<bool>())
+                if (eventArgs.Slot == SpellSlot.Recall && Spells[SpellSlot.Q].IsReady() && _menu.Item("com.itwitch.misc.recall").GetValue<KeyBind>().Active)
                 {
                     Spells[SpellSlot.Q].Cast();
-                    Utility.DelayAction.Add((int) (Spells[SpellSlot.Q].Delay + 300), () => ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall));
+                    Utility.DelayAction.Add((int) (Spells[SpellSlot.Q].Delay + 300),
+                        () => ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall));
                     eventArgs.Process = false;
                     return;
                 }
@@ -93,7 +94,7 @@ namespace iTwitch
             {
                 miscMenu.AddBool("com.itwitch.misc.autoYo", "Yomuus with R", true);
                 miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
-                miscMenu.AddBool("com.itwitch.misc.recall", "Stealth Recall", true);
+                miscMenu.AddKeybind("com.itwitch.misc.recall", "Stealth Recall", new Tuple<uint, KeyBindType>("T".ToCharArray()[0], KeyBindType.Press));
                 _menu.AddSubMenu(miscMenu);
             }
 
@@ -115,6 +116,12 @@ namespace iTwitch
 
         private void OnUpdate(EventArgs args)
         {
+
+            if (_menu.Item("com.itwitch.misc.recall").GetValue<KeyBind>().Active)
+            {
+                ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
+            }
+
             switch (_orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -132,7 +139,8 @@ namespace iTwitch
             if (_menu.Item("com.itwitch.drawing.drawQTime").GetValue<bool>() &&
                 ObjectManager.Player.HasBuff("TwitchHideInShadows"))
             {
-                var position = new Vector3(ObjectManager.Player.Position.X, ObjectManager.Player.Position.Y - 30, ObjectManager.Player.Position.Z);
+                var position = new Vector3(ObjectManager.Player.Position.X, ObjectManager.Player.Position.Y - 30,
+                    ObjectManager.Player.Position.Z);
                 position.DrawTextOnScreen(
                     "Stealth:  " + $"{ObjectManager.Player.GetRemainingBuffTime("TwitchHideInShadows"):0.0}",
                     System.Drawing.Color.AntiqueWhite);
@@ -153,7 +161,8 @@ namespace iTwitch
                         HeroManager.Enemies.Where(
                             x => x.HasBuff("TwitchDeadlyVenom") && !x.IsDead))
                 {
-                    source.Position.DrawTextOnScreen($"{"Stacks: " + source.GetPoisonStacks()}",
+                    var position = new Vector3(source.Position.X, source.Position.Y - 30, source.Position.Z);
+                    position.DrawTextOnScreen($"{"Stacks: " + source.GetPoisonStacks()}",
                         System.Drawing.Color.AntiqueWhite);
                 }
             }
