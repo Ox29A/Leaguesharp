@@ -100,6 +100,9 @@ namespace iLucian
 
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
+                    if (ObjectManager.Player.ManaPercent <
+                        Variables.Menu.Item("com.ilucian.harass.minMana").GetValue<Slider>().Value)
+                        return;
                     if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range) &&
                         Variables.Menu.Item("com.ilucian.harass.q").GetValue<bool>())
                     {
@@ -150,9 +153,9 @@ namespace iLucian
                 Variables.Menu.Item("com.ilucian.misc.usePrediction").GetValue<bool>();
             Killsteal();
 
-            if (ObjectManager.Player.HasBuff("LucianR"))
+            if (Variables.Menu.Item("com.ilucian.combo.forceR").GetValue<KeyBind>().Active)
             {
-                //UltimateLock();
+                SemiUlt();
             }
 
             AutoHarass();
@@ -166,6 +169,7 @@ namespace iLucian
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     OnLaneclear();
+                    OnJungleclear();
                     break;
                 case Orbwalking.OrbwalkingMode.LastHit:
                     break;
@@ -195,7 +199,6 @@ namespace iLucian
 
                 if (rEndPoint.Distance(ObjectManager.Player.ServerPosition) < Variables.Spell[Variables.Spells.R].Range)
                 {
-                    Game.PrintChat("Lock R ??");
                     ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, rEndPoint);
                 }
             }
@@ -248,6 +251,9 @@ namespace iLucian
 
             if (target == null || Variables.HasPassive)
                 return;
+            if (ObjectManager.Player.ManaPercent <
+                Variables.Menu.Item("com.ilucian.harass.minMana").GetValue<Slider>().Value)
+                return;
             if (Variables.Menu.IsEnabled("com.ilucian.harass.qExtended"))
             {
                 CastExtendedQ();
@@ -281,6 +287,18 @@ namespace iLucian
                         }
                     }
                 }
+            }
+        }
+
+        public void SemiUlt()
+        {
+            var target = TargetSelector.SelectedTarget != null
+                ? TargetSelector.GetSelectedTarget()
+                : TargetSelector.GetTarget(Variables.Spell[Variables.Spells.R].Range, TargetSelector.DamageType.Physical);
+            if (target.IsValid && Variables.Spell[Variables.Spells.R].IsReady() &&
+                !ObjectManager.Player.HasBuff("LucianR"))
+            {
+                Variables.Spell[Variables.Spells.R].Cast(target.Position);
             }
         }
 
@@ -335,6 +353,31 @@ namespace iLucian
             }
         }
 
+        private void OnJungleclear()
+        {
+            var jungleMob = MinionManager.GetMinions(Orbwalking.GetRealAutoAttackRange(ObjectManager.Player),
+                MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth).FirstOrDefault(x => x.IsValid);
+
+            if (jungleMob != null)
+            {
+                if (Variables.Spell[Variables.Spells.Q].IsReady() &&
+                    Variables.Menu.IsEnabled("com.ilucian.jungleclear.q") && !Variables.HasPassive)
+                {
+                    Variables.Spell[Variables.Spells.Q].Cast(jungleMob);
+                }
+                if (Variables.Spell[Variables.Spells.W].IsReady() &&
+                    Variables.Menu.IsEnabled("com.ilucian.jungleclear.w") && !Variables.HasPassive)
+                {
+                    Variables.Spell[Variables.Spells.W].Cast(jungleMob);
+                }
+                if (Variables.Spell[Variables.Spells.E].IsReady() &&
+                    Variables.Menu.IsEnabled("com.ilucian.jungleclear.e") && !Variables.HasPassive)
+                {
+                    Variables.Spell[Variables.Spells.E].Cast(jungleMob);
+                }
+            }
+        }
+
         private void CastE(Obj_AI_Base target)
         {
             if (!Variables.Spell[Variables.Spells.E].IsReady() || !Variables.Menu.IsEnabled("com.ilucian.combo.e") ||
@@ -384,13 +427,31 @@ namespace iLucian
                     break;
 
                 case 3: // Enemy
-                    Variables.Spell[Variables.Spells.E].Cast(ObjectManager.Player.Position.Extend(target.Position, dashRange));
+                    Variables.Spell[Variables.Spells.E].Cast(ObjectManager.Player.Position.Extend(target.Position,
+                        dashRange));
                     break;
                 case 4:
                     Variables.Spell[Variables.Spells.E].Cast(
-                       Deviation(ObjectManager.Player.Position.To2D(), target.Position.To2D(), 65f).To3D());
+                        Deviation(ObjectManager.Player.Position.To2D(), target.Position.To2D(), 65f).To3D());
                     break;
             }
+        }
+
+        public static float GetComboDamage(Obj_AI_Base target)
+        {
+            float damage = 0;
+            if (Variables.Spell[Variables.Spells.Q].IsReady())
+                damage = damage + Variables.Spell[Variables.Spells.Q].GetDamage(target) +
+                         (float) ObjectManager.Player.GetAutoAttackDamage(target);
+            if (Variables.Spell[Variables.Spells.W].IsReady())
+                damage = damage + Variables.Spell[Variables.Spells.W].GetDamage(target) +
+                         (float) ObjectManager.Player.GetAutoAttackDamage(target);
+            if (Variables.Spell[Variables.Spells.E].IsReady())
+                damage = damage + (float) ObjectManager.Player.GetAutoAttackDamage(target)*2;
+
+            damage = (float) (damage + ObjectManager.Player.GetAutoAttackDamage(target));
+
+            return damage;
         }
 
         private void CastExtendedQ()
@@ -467,7 +528,6 @@ namespace iLucian
                 }
                 else if (Variables.Spell[Variables.Spells.E].IsReady() && Variables.Spell[Variables.Spells.Q].IsReady())
                 {
-                    Game.PrintChat("EQ - KS");
                     CastEqKillsteal();
                 }
             }

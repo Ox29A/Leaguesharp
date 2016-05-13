@@ -23,30 +23,35 @@ namespace iLucian.MenuHelper
                 rootMenu.AddSubMenu(owMenu);
             }
 
-            var comboOptions = new Menu(":: iLucian - Combo Options", "com.ilucian.combo").SetFontStyle(FontStyle.Regular, Color.Aqua);
+            var comboOptions =
+                new Menu(":: iLucian - Combo Options", "com.ilucian.combo").SetFontStyle(FontStyle.Regular, Color.Aqua);
             {
                 comboOptions.AddBool("com.ilucian.combo.q", "Use Q", true);
                 comboOptions.AddBool("com.ilucian.combo.qExtended", "Use Extended Q", true);
                 comboOptions.AddBool("com.ilucian.combo.w", "Use W", true);
                 comboOptions.AddBool("com.ilucian.combo.e", "Use E", true);
+                comboOptions.AddKeybind("com.ilucian.combo.forceR", "Semi Ult Key",
+                    new Tuple<uint, KeyBindType>("T".ToCharArray()[0], KeyBindType.Press));
                 comboOptions.AddSlider("com.ilucian.combo.eRange", "E Dash Range", 65, 50, 475);
                 comboOptions.AddStringList("com.ilucian.combo.eMode", "E Mode",
                     new[] {"Kite", "Side", "Cursor", "Enemy", "Fast Mode"});
                 rootMenu.AddSubMenu(comboOptions);
             }
-            
+
             var harassOptions = new Menu(":: iLucian - Harass Options", "com.ilucian.harass");
             {
                 var autoHarassMenu = new Menu("Auto Harass", "com.ilucian.harass.auto");
                 {
                     autoHarassMenu.AddKeybind("com.ilucian.harass.auto.autoharass", "Enabled",
-                        new Tuple<uint, KeyBindType>("T".ToCharArray()[0], KeyBindType.Toggle)).Permashow(true, "iLucian | Auto Harass", Color.Aqua);
+                        new Tuple<uint, KeyBindType>("Z".ToCharArray()[0], KeyBindType.Toggle))
+                        .Permashow(true, "iLucian | Auto Harass", Color.Aqua);
                     autoHarassMenu.AddBool("com.ilucian.harass.auto.q", "Use Q", true);
                     autoHarassMenu.AddBool("com.ilucian.harass.auto.qExtended", "Use Extended Q", true);
                 }
                 harassOptions.AddBool("com.ilucian.harass.q", "Use Q", true);
                 harassOptions.AddBool("com.ilucian.harass.qExtended", "Use Extended Q", true);
                 harassOptions.AddBool("com.ilucian.harass.w", "Use W", true);
+                harassOptions.AddSlider("com.ilucian.harass.minMana", "Min Mana Percent", 80, 10, 100);
                 harassOptions.AddSubMenu(autoHarassMenu);
                 rootMenu.AddSubMenu(harassOptions);
             }
@@ -58,6 +63,15 @@ namespace iLucian.MenuHelper
                 rootMenu.AddSubMenu(laneclearOptions);
             }
 
+            var jungleclearOptions = new Menu(":: iLucian - Jungleclear Options", "com.ilucian.jungleclear");
+            {
+                jungleclearOptions.AddBool("com.ilucian.jungleclear.q", "Use Q", true);
+                jungleclearOptions.AddBool("com.ilucian.jungleclear.w", "Use W", true);
+                jungleclearOptions.AddBool("com.ilucian.jungleclear.e", "Use E", true);
+                rootMenu.AddSubMenu(jungleclearOptions);
+            }
+
+
             var miscOptions = new Menu(":: iLucian - Misc Options", "com.ilucian.misc");
             {
                 miscOptions.AddBool("com.ilucian.misc.usePrediction", "Use W Pred", true);
@@ -65,6 +79,18 @@ namespace iLucian.MenuHelper
                 miscOptions.AddBool("com.ilucian.misc.eqKs", "EQ - Killsteal", true);
                 miscOptions.AddBool("com.ilucian.misc.useChampions", "Use EQ on Champions", true);
                 miscOptions.AddBool("com.ilucian.misc.extendChamps", "Use Ext Q on Champions", true);
+                var dmgAfterComboItem =
+                    new MenuItem("com.ilucian.misc.drawDamage", "Draw Damage After Combo").SetValue(true);
+                {
+                    Utility.HpBarDamageIndicator.DamageToUnit = Lucian.GetComboDamage;
+                    Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
+                    dmgAfterComboItem.ValueChanged +=
+                        delegate(object sender, OnValueChangeEventArgs eventArgs)
+                        {
+                            Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+                        };
+                    miscOptions.AddItem(dmgAfterComboItem);
+                }
                 rootMenu.AddSubMenu(miscOptions);
             }
 
