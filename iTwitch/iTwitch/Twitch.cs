@@ -102,6 +102,7 @@ namespace iTwitch
             {
                 drawingMenu.AddBool("com.itwitch.drawing.drawQTime", "Draw Q Time", true);
                 drawingMenu.AddBool("com.itwitch.drawing.drawEStacks", "Draw E Stacks", true);
+                drawingMenu.AddBool("com.itwitch.drawing.drawEStackT", "Draw E Stack Time", true);
                 drawingMenu.AddBool("com.itwitch.drawing.drawRTime", "Draw R Time", true);
                 _menu.AddSubMenu(drawingMenu);
             }
@@ -164,6 +165,19 @@ namespace iTwitch
                     var position = new Vector3(source.Position.X, source.Position.Y - 30, source.Position.Z);
                     position.DrawTextOnScreen($"{"Stacks: " + source.GetPoisonStacks()}",
                         System.Drawing.Color.AntiqueWhite);
+                }
+            }
+            if (_menu.Item("com.itwitch.drawing.drawEStackT").GetValue<bool>())
+            {
+                foreach (
+                    var source in
+                        HeroManager.Enemies.Where(
+                            x => x.HasBuff("TwitchDeadlyVenom") && !x.IsDead))
+                {
+                    var position = new Vector3(source.Position.X, source.Position.Y - 60, source.Position.Z);
+                    position.DrawTextOnScreen(
+                    "Stack Timer:  " + $"{source.GetRemainingBuffTime("TwitchDeadlyVenom"):0.0}",
+                    System.Drawing.Color.AntiqueWhite);
                 }
             }
         }

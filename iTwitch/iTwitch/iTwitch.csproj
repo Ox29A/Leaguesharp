@@ -35,34 +35,34 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="clipper_library">
-      <HintPath>C:\Users\Mobby\Downloads\LeagueSharp\System\clipper_library.dll</HintPath>
+      <HintPath>C:\Users\Mobby\Desktop\new loader\System\clipper_library.dll</HintPath>
     </Reference>
     <Reference Include="DZLib">
-      <HintPath>C:\Users\Mobby\Downloads\LeagueSharp\System\DZLib.dll</HintPath>
+      <HintPath>C:\Users\Mobby\Desktop\new loader\System\DZLib.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp">
-      <HintPath>C:\Users\Mobby\Downloads\LeagueSharp\System\LeagueSharp.dll</HintPath>
+      <HintPath>C:\Users\Mobby\Desktop\new loader\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
-      <HintPath>C:\Users\Mobby\Downloads\LeagueSharp\System\LeagueSharp.Common.dll</HintPath>
+      <HintPath>C:\Users\Mobby\Desktop\new loader\System\LeagueSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Data">
-      <HintPath>C:\Users\Mobby\Downloads\LeagueSharp\System\LeagueSharp.Data.dll</HintPath>
+      <HintPath>C:\Users\Mobby\Desktop\new loader\System\LeagueSharp.Data.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Sandbox">
-      <HintPath>C:\Users\Mobby\Downloads\LeagueSharp\System\LeagueSharp.Sandbox.dll</HintPath>
+      <HintPath>C:\Users\Mobby\Desktop\new loader\System\LeagueSharp.Sandbox.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>C:\Users\Mobby\Downloads\LeagueSharp\System\SharpDX.dll</HintPath>
+      <HintPath>C:\Users\Mobby\Desktop\new loader\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
-      <HintPath>C:\Users\Mobby\Downloads\LeagueSharp\System\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>C:\Users\Mobby\Desktop\new loader\System\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.XInput">
-      <HintPath>C:\Users\Mobby\Downloads\LeagueSharp\System\SharpDX.XInput.dll</HintPath>
+      <HintPath>C:\Users\Mobby\Desktop\new loader\System\SharpDX.XInput.dll</HintPath>
     </Reference>
     <Reference Include="SPrediction">
-      <HintPath>C:\Users\Mobby\Downloads\LeagueSharp\System\SPrediction.dll</HintPath>
+      <HintPath>C:\Users\Mobby\Desktop\new loader\System\SPrediction.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
