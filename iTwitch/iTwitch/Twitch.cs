@@ -160,9 +160,9 @@ namespace iTwitch
                 foreach (
                     var source in
                         HeroManager.Enemies.Where(
-                            x => x.HasBuff("TwitchDeadlyVenom") && !x.IsDead))
+                            x => x.HasBuff("TwitchDeadlyVenom") && !x.IsDead && x.IsVisible))
                 {
-                    var position = new Vector3(source.Position.X, source.Position.Y - 30, source.Position.Z);
+                    var position = new Vector3(source.Position.X, source.Position.Y + 10, source.Position.Z);
                     position.DrawTextOnScreen($"{"Stacks: " + source.GetPoisonStacks()}",
                         System.Drawing.Color.AntiqueWhite);
                 }
@@ -172,9 +172,9 @@ namespace iTwitch
                 foreach (
                     var source in
                         HeroManager.Enemies.Where(
-                            x => x.HasBuff("TwitchDeadlyVenom") && !x.IsDead))
+                            x => x.HasBuff("TwitchDeadlyVenom") && !x.IsDead && x.IsVisible))
                 {
-                    var position = new Vector3(source.Position.X, source.Position.Y - 60, source.Position.Z);
+                    var position = new Vector3(source.Position.X, source.Position.Y - 30, source.Position.Z);
                     position.DrawTextOnScreen(
                     "Stack Timer:  " + $"{source.GetRemainingBuffTime("TwitchDeadlyVenom"):0.0}",
                     System.Drawing.Color.AntiqueWhite);
