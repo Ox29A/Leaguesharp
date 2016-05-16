@@ -1,16 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DZLib.MenuExtensions;
-using DZLib.Modules;
-using iKalistaReborn.Modules;
-using iKalistaReborn.Utils;
-using LeagueSharp;
-using LeagueSharp.Common;
-using SPrediction;
-using System.Drawing;
-
-/*
+﻿ /*
     TODO: 
 
     1. it doesnt rend the big super minions would be helpful for laneclear later
@@ -27,81 +15,106 @@ using System.Drawing;
 
 namespace iKalistaReborn
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Linq;
+
+    using DZLib.MenuExtensions;
+    using DZLib.Modules;
+
+    using iKalistaReborn.Modules;
+    using iKalistaReborn.Utils;
+
+    using LeagueSharp;
+    using LeagueSharp.Common;
+
+    using SPrediction;
+
+    using Prediction = SPrediction.Prediction;
+
     internal class Kalista
     {
-        public static Menu Menu;
-
-        public static Dictionary<string, string> JungleMinions = new Dictionary<string, string>
-        {
-            {"SRU_Baron", "Baron"},
-            {"SRU_Dragon", "Dragon"},
-            {"SRU_Blue", "Blue Buff"},
-            {"SRU_Red", "Red Buff"},
-            {"SRU_Crab", "Crab"},
-            {"SRU_Gromp", "Gromp"},
-            {"SRU_Razorbeak", "Wraiths"},
-            {"SRU_Murkwolf", "Wolves"},
-            {"SRU_Krug", "Krug"}
-        };
+        #region Static Fields
 
         /// <summary>
         ///     The Modules
         /// </summary>
         public static readonly List<IModule> Modules = new List<IModule>
-        {
-            new AutoRendModule(),
-            new JungleStealModule(),
-            new AutoEModule(),
-            new AutoELeavingModule()
-        };
+                                                           {
+                                                               new AutoRendModule(), new JungleStealModule(), 
+                                                               new AutoEModule(), new AutoELeavingModule()
+                                                           };
+
+        public static Dictionary<string, string> JungleMinions = new Dictionary<string, string>
+                                                                     {
+                                                                         { "SRU_Baron", "Baron" }, 
+                                                                         { "SRU_Dragon", "Dragon" }, 
+                                                                         { "SRU_Blue", "Blue Buff" }, 
+                                                                         { "SRU_Red", "Red Buff" }, { "SRU_Crab", "Crab" }, 
+                                                                         { "SRU_Gromp", "Gromp" }, 
+                                                                         { "SRU_Razorbeak", "Wraiths" }, 
+                                                                         { "SRU_Murkwolf", "Wolves" }, 
+                                                                         { "SRU_Krug", "Krug" }
+                                                                     };
+
+        public static Menu Menu;
 
         public static Orbwalking.Orbwalker Orbwalker;
+
+        #endregion
+
+        #region Constructors and Destructors
 
         public Kalista()
         {
             CreateMenu();
             LoadModules();
             CustomDamageIndicator.Initialize(Helper.GetRendDamage);
-            SPrediction.Prediction.Initialize(Menu);
+            Prediction.Initialize(Menu);
             Game.OnUpdate += OnUpdate;
             Drawing.OnDraw += OnDraw;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
             Spellbook.OnCastSpell += (sender, args) =>
-            {
-                if (sender.Owner.IsMe && args.Slot == SpellSlot.Q && ObjectManager.Player.IsDashing())
                 {
-                    args.Process = false;
-                }
-            };
+                    if (sender.Owner.IsMe && args.Slot == SpellSlot.Q && ObjectManager.Player.IsDashing())
+                    {
+                        args.Process = false;
+                    }
+                };
             Orbwalker.RegisterCustomMode("com.ikalista.flee", "Flee", "V".ToCharArray()[0]);
             Orbwalking.OnNonKillableMinion += minion =>
-            {
-                var killableMinion = minion as Obj_AI_Base;
-                if (killableMinion == null || !SpellManager.Spell[SpellSlot.E].IsReady()
-                    || ObjectManager.Player.HasBuff("summonerexhaust") || !killableMinion.HasRendBuff())
                 {
-                    return;
-                }
+                    var killableMinion = minion as Obj_AI_Base;
+                    if (killableMinion == null || !SpellManager.Spell[SpellSlot.E].IsReady()
+                        || ObjectManager.Player.HasBuff("summonerexhaust") || !killableMinion.HasRendBuff())
+                    {
+                        return;
+                    }
 
-                if (Menu.Item("com.ikalista.laneclear.useEUnkillable").GetValue<bool>() &&
-                    killableMinion.IsMobKillable())
-                {
-                    SpellManager.Spell[SpellSlot.E].Cast();
-                }
-            };
+                    if (Menu.Item("com.ikalista.laneclear.useEUnkillable").GetValue<bool>()
+                        && killableMinion.IsMobKillable())
+                    {
+                        SpellManager.Spell[SpellSlot.E].Cast();
+                    }
+                };
             Orbwalking.BeforeAttack += args =>
-            {
-                if (!Menu.Item("com.ikalista.misc.forceW").GetValue<bool>()) return;
-
-                var target =
-                    HeroManager.Enemies.FirstOrDefault(
-                        x => ObjectManager.Player.Distance(x) <= 600 && x.HasBuff("kalistacoopstrikemarkally"));
-                if (target != null)
                 {
-                    Orbwalker.ForceTarget(target);
-                }
-            };
+                    if (!Menu.Item("com.ikalista.misc.forceW").GetValue<bool>()) return;
+
+                    var target =
+                        HeroManager.Enemies.FirstOrDefault(
+                            x => ObjectManager.Player.Distance(x) <= 600 && x.HasBuff("kalistacoopstrikemarkally"));
+                    if (target != null)
+                    {
+                        Orbwalker.ForceTarget(target);
+                    }
+                };
         }
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         ///     This is where jeff creates his first Menu in a long time
@@ -163,6 +176,7 @@ namespace iKalistaReborn
                 {
                     jungleStealMenu.AddBool(minion.Key, minion.Value, true);
                 }
+
                 Menu.AddSubMenu(jungleStealMenu);
             }
 
@@ -174,14 +188,14 @@ namespace iKalistaReborn
 
             var drawingMenu = new Menu("iKalista: Reborn - Drawing", "com.ikalista.drawing");
             {
-                drawingMenu.AddBool("com.ikalista.drawing.spellRanges", "Draw Spell Ranges", false);
+                drawingMenu.AddBool("com.ikalista.drawing.spellRanges", "Draw Spell Ranges");
                 drawingMenu.AddBool("com.ikalista.drawing.shine", "Shine E Range tho", true);
                 drawingMenu.AddItem(
-                    new MenuItem("com.ikalista.drawing.eDamage", "Draw E Damage").SetValue(new Circle(true,
-                        Color.DarkOliveGreen)));
+                    new MenuItem("com.ikalista.drawing.eDamage", "Draw E Damage").SetValue(
+                        new Circle(true, Color.DarkOliveGreen)));
                 drawingMenu.AddItem(
-                    new MenuItem("com.ikalista.drawing.damagePercent", "Draw Percent Damage").SetValue(new Circle(true,
-                        Color.DarkOliveGreen)));
+                    new MenuItem("com.ikalista.drawing.damagePercent", "Draw Percent Damage").SetValue(
+                        new Circle(true, Color.DarkOliveGreen)));
                 Menu.AddSubMenu(drawingMenu);
             }
 
@@ -203,6 +217,51 @@ namespace iKalistaReborn
             }
         }
 
+        private void OnCombo()
+        {
+            if (Menu.Item("com.ikalista.combo.orbwalkMinions").GetValue<bool>())
+            {
+                var targets =
+                    HeroManager.Enemies.Where(
+                        x =>
+                        ObjectManager.Player.Distance(x) <= SpellManager.Spell[SpellSlot.E].Range * 2
+                        && x.IsValidTarget(SpellManager.Spell[SpellSlot.E].Range * 2));
+
+                if (targets.Count(x => ObjectManager.Player.Distance(x) < Orbwalking.GetRealAutoAttackRange(x)) == 0)
+                {
+                    var minion =
+                        ObjectManager.Get<Obj_AI_Minion>()
+                            .Where(
+                                x =>
+                                ObjectManager.Player.Distance(x) <= Orbwalking.GetRealAutoAttackRange(x) && x.IsEnemy)
+                            .OrderBy(x => x.Health)
+                            .FirstOrDefault();
+                    if (minion != null)
+                    {
+                        Orbwalking.Orbwalk(minion, Game.CursorPos);
+                    }
+                }
+            }
+
+            if (!SpellManager.Spell[SpellSlot.Q].IsReady() || !Menu.Item("com.ikalista.combo.useQ").GetValue<bool>()) return;
+
+            if (Menu.Item("com.ikalista.combo.saveMana").GetValue<bool>()
+                && ObjectManager.Player.Mana < SpellManager.Spell[SpellSlot.E].ManaCost * 2)
+            {
+                return;
+            }
+
+            var target = TargetSelector.GetTarget(
+                SpellManager.Spell[SpellSlot.Q].Range, 
+                TargetSelector.DamageType.Physical);
+            var prediction = SpellManager.Spell[SpellSlot.Q].GetSPrediction(target);
+            if (prediction.HitChance >= HitChance.High && target.IsValidTarget(SpellManager.Spell[SpellSlot.Q].Range)
+                && !ObjectManager.Player.IsDashing() && !ObjectManager.Player.IsWindingUp)
+            {
+                SpellManager.Spell[SpellSlot.Q].Cast(prediction.CastPosition);
+            }
+        }
+
         /// <summary>
         ///     My names definatly jeffery.
         /// </summary>
@@ -211,7 +270,7 @@ namespace iKalistaReborn
         {
             CustomDamageIndicator.DrawingColor = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Color;
             CustomDamageIndicator.Enabled = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Active;
-            
+
             if (Menu.Item("com.ikalista.drawing.spellRanges").GetValue<bool>())
             {
                 foreach (var spell in SpellManager.Spell.Values)
@@ -220,10 +279,12 @@ namespace iKalistaReborn
                 }
             }
 
-
             if (Menu.Item("com.ikalista.drawing.shine").GetValue<bool>())
             {
-                Render.Circle.DrawCircle(ObjectManager.Player.Position, SpellManager.Spell[SpellSlot.E].Range, Color.DarkOliveGreen);
+                Render.Circle.DrawCircle(
+                    ObjectManager.Player.Position, 
+                    SpellManager.Spell[SpellSlot.E].Range, 
+                    Color.DarkOliveGreen);
             }
 
             if (Menu.Item("com.ikalista.drawing.damagePercent").GetValue<Circle>().Active)
@@ -232,17 +293,108 @@ namespace iKalistaReborn
                     var source in HeroManager.Enemies.Where(x => ObjectManager.Player.Distance(x) <= 2000f && !x.IsDead)
                     )
                 {
-                    var currentPercentage = Math.Round(Helper.GetRendDamage(source)*100/source.GetHealthWithShield(), 2);
+                    var currentPercentage = Math.Round(
+                        Helper.GetRendDamage(source) * 100 / source.GetHealthWithShield(), 
+                        2);
 
                     Drawing.DrawText(
-                        Drawing.WorldToScreen(source.Position)[0],
-                        Drawing.WorldToScreen(source.Position)[1],
+                        Drawing.WorldToScreen(source.Position)[0], 
+                        Drawing.WorldToScreen(source.Position)[1], 
                         currentPercentage >= 100
                             ? Menu.Item("com.ikalista.drawing.damagePercent").GetValue<Circle>().Color
-                            : Color.White,
-                        currentPercentage >= 100
-                            ? "Killable With E"
-                            : "Current Damage: " + currentPercentage + "%");
+                            : Color.White, 
+                        currentPercentage >= 100 ? "Killable With E" : "Current Damage: " + currentPercentage + "%");
+                }
+            }
+        }
+
+        private void OnFlee()
+        {
+            var bestTarget =
+                ObjectManager.Get<Obj_AI_Base>()
+                    .Where(x => x.IsEnemy && ObjectManager.Player.Distance(x) <= Orbwalking.GetRealAutoAttackRange(x))
+                    .OrderBy(x => ObjectManager.Player.Distance(x))
+                    .FirstOrDefault();
+
+            Orbwalking.Orbwalk(bestTarget, Game.CursorPos);
+
+            // TODO wall flee
+        }
+
+        private void OnLaneclear()
+        {
+            if (Menu.Item("com.ikalista.laneclear.useQ").GetValue<bool>())
+            {
+                var minions = MinionManager.GetMinions(SpellManager.Spell[SpellSlot.Q].Range).ToList();
+                if (minions.Count < 0) return;
+
+                foreach (var minion in minions.Where(x => x.Health <= SpellManager.Spell[SpellSlot.Q].GetDamage(x)))
+                {
+                    var killableMinions =
+                        Helper.GetCollisionMinions(
+                            ObjectManager.Player, 
+                            ObjectManager.Player.ServerPosition.Extend(
+                                minion.ServerPosition, 
+                                SpellManager.Spell[SpellSlot.Q].Range))
+                            .Count(
+                                collisionMinion =>
+                                collisionMinion.Health
+                                <= ObjectManager.Player.GetSpellDamage(collisionMinion, SpellSlot.Q));
+
+                    if (killableMinions >= Menu.Item("com.ikalista.laneclear.qMinions").GetValue<Slider>().Value)
+                    {
+                        SpellManager.Spell[SpellSlot.Q].Cast(minion.ServerPosition);
+                    }
+                }
+            }
+
+            if (Menu.Item("com.ikalista.laneclear.useE").GetValue<bool>())
+            {
+                var minions = MinionManager.GetMinions(SpellManager.Spell[SpellSlot.E].Range).ToList();
+                if (minions.Count < 0) return;
+                var siegeMinion = minions.FirstOrDefault(x => x.Name.Contains("siege") && x.IsRendKillable());
+
+                if (Menu.Item("com.ikalista.laneclear.eSiege").GetValue<bool>() && siegeMinion != null)
+                {
+                    SpellManager.Spell[SpellSlot.E].Cast();
+                }
+
+                var count = minions.Count(x => SpellManager.Spell[SpellSlot.E].CanCast(x) && x.IsMobKillable());
+
+                if (count >= Menu.Item("com.ikalista.laneclear.eMinions").GetValue<Slider>().Value
+                    && !ObjectManager.Player.HasBuff("summonerexhaust"))
+                {
+                    SpellManager.Spell[SpellSlot.E].Cast();
+                }
+            }
+        }
+
+        private void OnMixed()
+        {
+            if (SpellManager.Spell[SpellSlot.Q].IsReady() && Menu.Item("com.ikalista.mixed.useQ").GetValue<bool>())
+            {
+                var target = TargetSelector.GetTarget(
+                    SpellManager.Spell[SpellSlot.Q].Range, 
+                    TargetSelector.DamageType.Physical);
+                var prediction = SpellManager.Spell[SpellSlot.Q].GetSPrediction(target);
+                if (prediction.HitChance >= HitChance.High
+                    && target.IsValidTarget(SpellManager.Spell[SpellSlot.Q].Range))
+                {
+                    SpellManager.Spell[SpellSlot.Q].Cast(prediction.CastPosition);
+                }
+            }
+
+            if (SpellManager.Spell[SpellSlot.E].IsReady() && Menu.Item("com.ikalista.mixed.useE").GetValue<bool>())
+            {
+                foreach (var source in
+                    HeroManager.Enemies.Where(
+                        x => x.IsValid && x.HasRendBuff() && SpellManager.Spell[SpellSlot.E].IsInRange(x)))
+                {
+                    if (source.IsRendKillable()
+                        || source.GetRendBuffCount() >= Menu.Item("com.ikalista.mixed.stacks").GetValue<Slider>().Value)
+                    {
+                        SpellManager.Spell[SpellSlot.E].Cast();
+                    }
                 }
             }
         }
@@ -263,16 +415,16 @@ namespace iKalistaReborn
                 Orbwalking.ResetAutoAttackTimer();
             }
 
-            if (sender.Type == GameObjectType.obj_AI_Hero && sender.IsEnemy && args.Target != null &&
-                Menu.Item("com.ikalista.combo.saveAlly").GetValue<bool>())
+            if (sender.Type == GameObjectType.obj_AI_Hero && sender.IsEnemy && args.Target != null
+                && Menu.Item("com.ikalista.combo.saveAlly").GetValue<bool>())
             {
                 var soulboundhero =
                     HeroManager.Allies.FirstOrDefault(
-                        hero =>
-                            hero.HasBuff("kalistacoopstrikeally") && args.Target.NetworkId == hero.NetworkId);
+                        hero => hero.HasBuff("kalistacoopstrikeally") && args.Target.NetworkId == hero.NetworkId);
 
-                if (soulboundhero != null &&
-                    soulboundhero.HealthPercent < Menu.Item("com.ikalista.combo.allyPercent").GetValue<Slider>().Value)
+                if (soulboundhero != null
+                    && soulboundhero.HealthPercent
+                    < Menu.Item("com.ikalista.combo.allyPercent").GetValue<Slider>().Value)
                 {
                     SpellManager.Spell[SpellSlot.R].Cast();
                 }
@@ -307,20 +459,17 @@ namespace iKalistaReborn
                     throw new ArgumentOutOfRangeException();
             }
 
-            //BALISTA
+            // BALISTA
             if (Menu.Item("com.ikalista.combo.balista").GetValue<bool>() && SpellManager.Spell[SpellSlot.R].IsReady())
             {
                 var soulboundhero = HeroManager.Allies.FirstOrDefault(x => x.HasBuff("kalistacoopstrikeally"));
                 if (soulboundhero?.ChampionName == "Blitzcrank")
                 {
-                    foreach (
-                        var unit in
-                            HeroManager.Enemies
-                                .Where(
-                                    h => h.IsHPBarRendered &&
-                                         h.Distance(ObjectManager.Player.ServerPosition) > 700 &&
-                                         h.Distance(ObjectManager.Player.ServerPosition) < 1400)
-                        )
+                    foreach (var unit in
+                        HeroManager.Enemies.Where(
+                            h =>
+                            h.IsHPBarRendered && h.Distance(ObjectManager.Player.ServerPosition) > 700
+                            && h.Distance(ObjectManager.Player.ServerPosition) < 1400))
                     {
                         if (unit.HasBuff("rocketgrab2"))
                         {
@@ -336,143 +485,6 @@ namespace iKalistaReborn
             }
         }
 
-        private void OnFlee()
-        {
-            var bestTarget =
-                ObjectManager.Get<Obj_AI_Base>()
-                    .Where(x => x.IsEnemy && ObjectManager.Player.Distance(x) <= Orbwalking.GetRealAutoAttackRange(x))
-                    .OrderBy(x => ObjectManager.Player.Distance(x))
-                    .FirstOrDefault();
-
-            Orbwalking.Orbwalk(bestTarget, Game.CursorPos);
-
-            //TODO wall flee
-        }
-
-        private void OnCombo()
-        {
-            if (Menu.Item("com.ikalista.combo.orbwalkMinions").GetValue<bool>())
-            {
-                var targets =
-                    HeroManager.Enemies.Where(
-                        x =>
-                            ObjectManager.Player.Distance(x) <= SpellManager.Spell[SpellSlot.E].Range*2 &&
-                            x.IsValidTarget(SpellManager.Spell[SpellSlot.E].Range*2));
-
-                if (targets.Count(x => ObjectManager.Player.Distance(x) < Orbwalking.GetRealAutoAttackRange(x)) == 0)
-                {
-                    var minion =
-                        ObjectManager.Get<Obj_AI_Minion>()
-                            .Where(
-                                x =>
-                                    ObjectManager.Player.Distance(x) <= Orbwalking.GetRealAutoAttackRange(x) &&
-                                    x.IsEnemy)
-                            .OrderBy(x => x.Health)
-                            .FirstOrDefault();
-                    if (minion != null)
-                    {
-                        Orbwalking.Orbwalk(minion, Game.CursorPos);
-                    }
-                }
-            }
-
-            if (!SpellManager.Spell[SpellSlot.Q].IsReady() || !Menu.Item("com.ikalista.combo.useQ").GetValue<bool>())
-                return;
-
-            if (Menu.Item("com.ikalista.combo.saveMana").GetValue<bool>() &&
-                ObjectManager.Player.Mana < SpellManager.Spell[SpellSlot.E].ManaCost*2)
-            {
-                return;
-            }
-
-            var target = TargetSelector.GetTarget(SpellManager.Spell[SpellSlot.Q].Range,
-                TargetSelector.DamageType.Physical);
-            var prediction = SpellManager.Spell[SpellSlot.Q].GetSPrediction(target);
-            if (prediction.HitChance >= HitChance.High &&
-                target.IsValidTarget(SpellManager.Spell[SpellSlot.Q].Range) && !ObjectManager.Player.IsDashing() &&
-                !ObjectManager.Player.IsWindingUp)
-            {
-                SpellManager.Spell[SpellSlot.Q].Cast(prediction.CastPosition);
-            }
-        }
-
-        private void OnMixed()
-        {
-            if (SpellManager.Spell[SpellSlot.Q].IsReady() && Menu.Item("com.ikalista.mixed.useQ").GetValue<bool>())
-            {
-                var target = TargetSelector.GetTarget(SpellManager.Spell[SpellSlot.Q].Range,
-                    TargetSelector.DamageType.Physical);
-                var prediction = SpellManager.Spell[SpellSlot.Q].GetSPrediction(target);
-                if (prediction.HitChance >= HitChance.High &&
-                    target.IsValidTarget(SpellManager.Spell[SpellSlot.Q].Range))
-                {
-                    SpellManager.Spell[SpellSlot.Q].Cast(prediction.CastPosition);
-                }
-            }
-
-            if (SpellManager.Spell[SpellSlot.E].IsReady() && Menu.Item("com.ikalista.mixed.useE").GetValue<bool>())
-            {
-                foreach (
-                    var source in
-                        HeroManager.Enemies.Where(
-                            x => x.IsValid && x.HasRendBuff() && SpellManager.Spell[SpellSlot.E].IsInRange(x)))
-                {
-                    if (source.IsRendKillable() ||
-                        source.GetRendBuffCount() >= Menu.Item("com.ikalista.mixed.stacks").GetValue<Slider>().Value)
-                    {
-                        SpellManager.Spell[SpellSlot.E].Cast();
-                    }
-                }
-            }
-        }
-
-        private void OnLaneclear()
-        {
-            if (Menu.Item("com.ikalista.laneclear.useQ").GetValue<bool>())
-            {
-                var minions = MinionManager.GetMinions(SpellManager.Spell[SpellSlot.Q].Range).ToList();
-                if (minions.Count < 0)
-                    return;
-
-                foreach (var minion in minions.Where(x => x.Health <= SpellManager.Spell[SpellSlot.Q].GetDamage(x)))
-                {
-                    var killableMinions = Helper.GetCollisionMinions(ObjectManager.Player,
-                        ObjectManager.Player.ServerPosition.Extend(
-                            minion.ServerPosition,
-                            SpellManager.Spell[SpellSlot.Q].Range))
-                        .Count(
-                            collisionMinion =>
-                                collisionMinion.Health
-                                <= ObjectManager.Player.GetSpellDamage(collisionMinion, SpellSlot.Q));
-
-                    if (killableMinions >= Menu.Item("com.ikalista.laneclear.qMinions").GetValue<Slider>().Value)
-                    {
-                        SpellManager.Spell[SpellSlot.Q].Cast(minion.ServerPosition);
-                    }
-                }
-            }
-            if (Menu.Item("com.ikalista.laneclear.useE").GetValue<bool>())
-            {
-                var minions = MinionManager.GetMinions(SpellManager.Spell[SpellSlot.E].Range).ToList();
-                if (minions.Count < 0)
-                    return;
-                var siegeMinion = minions.FirstOrDefault(x => x.Name.Contains("siege") && x.IsRendKillable());
-
-                if (Menu.Item("com.ikalista.laneclear.eSiege").GetValue<bool>() && siegeMinion != null)
-                {
-                    SpellManager.Spell[SpellSlot.E].Cast();
-                }
-
-                var count =
-                    minions.Count(
-                        x => SpellManager.Spell[SpellSlot.E].CanCast(x) && x.IsMobKillable());
-
-                if (count >= Menu.Item("com.ikalista.laneclear.eMinions").GetValue<Slider>().Value &&
-                    !ObjectManager.Player.HasBuff("summonerexhaust"))
-                {
-                    SpellManager.Spell[SpellSlot.E].Cast();
-                }
-            }
-        }
+        #endregion
     }
 }

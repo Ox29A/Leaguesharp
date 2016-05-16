@@ -15,12 +15,12 @@ namespace iKalistaReborn.Utils
         private const int LineThickness = 9;
         private static Utility.HpBarDamageIndicator.DamageToUnitDelegate _damageToUnit;
         private static readonly Vector2 BarOffset = new Vector2(10, 25);
-        private static System.Drawing.Color _drawingColor;
+        private static System.Drawing.Color drawingColor;
 
         public static System.Drawing.Color DrawingColor
         {
-            get { return _drawingColor; }
-            set { _drawingColor = System.Drawing.Color.FromArgb(170, value); }
+            get { return drawingColor; }
+            set { drawingColor = System.Drawing.Color.FromArgb(170, value); }
         }
 
         public static bool Enabled { get; set; }

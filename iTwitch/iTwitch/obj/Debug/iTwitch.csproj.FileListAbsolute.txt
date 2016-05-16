@@ -1,1 +1,2 @@
 C:\Users\Mobby\Desktop\New Projects\Leaguesharp\iTwitch\iTwitch\bin\Debug\iTwitch.exe.config
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\iTwitch.exe.config

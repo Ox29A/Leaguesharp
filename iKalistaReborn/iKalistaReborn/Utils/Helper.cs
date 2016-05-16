@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using LeagueSharp;
-using LeagueSharp.Common;
-using SharpDX;
-using Collision = LeagueSharp.Common.Collision;
-
-namespace iKalistaReborn.Utils
+﻿namespace iKalistaReborn.Utils
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using LeagueSharp;
+    using LeagueSharp.Common;
+
+    using SharpDX;
+
+    using Collision = LeagueSharp.Common.Collision;
+
     /// <summary>
     ///     The Helper class
     /// </summary>
@@ -29,16 +32,15 @@ namespace iKalistaReborn.Utils
         public static List<Obj_AI_Base> GetCollisionMinions(Obj_AI_Hero source, Vector3 targetPosition)
         {
             var input = new PredictionInput
-            {
-                Unit = source,
-                Radius = SpellManager.Spell[SpellSlot.Q].Width,
-                Delay = SpellManager.Spell[SpellSlot.Q].Delay,
-                Speed = SpellManager.Spell[SpellSlot.Q].Speed,
-                CollisionObjects = new[] {CollisionableObjects.Minions}
-            };
+                            {
+                                Unit = source, Radius = SpellManager.Spell[SpellSlot.Q].Width, 
+                                Delay = SpellManager.Spell[SpellSlot.Q].Delay, 
+                                Speed = SpellManager.Spell[SpellSlot.Q].Speed, 
+                                CollisionObjects = new[] { CollisionableObjects.Minions }
+                            };
 
             return
-                Collision.GetCollision(new List<Vector3> {targetPosition}, input)
+                Collision.GetCollision(new List<Vector3> { targetPosition }, input)
                     .OrderBy(x => x.Distance(source))
                     .ToList();
         }
@@ -64,9 +66,10 @@ namespace iKalistaReborn.Utils
         /// <returns>
         ///     The <see cref="BuffInstance" />.
         /// </returns>
-        public static BuffInstance GetRendBuff(this Obj_AI_Base target) =>
-            target.Buffs.Find(
-                b => b.Caster.IsMe && b.IsValid && b.DisplayName.ToLowerInvariant() == "kalistaexpungemarker");
+        public static BuffInstance GetRendBuff(this Obj_AI_Base target)
+            =>
+                target.Buffs.Find(
+                    b => b.Caster.IsMe && b.IsValid && b.DisplayName.ToLowerInvariant() == "kalistaexpungemarker");
 
         /// <summary>
         ///     Gets the current <see cref="BuffInstance" /> Count of Expunge
@@ -80,56 +83,7 @@ namespace iKalistaReborn.Utils
         public static int GetRendBuffCount(this Obj_AI_Base target)
             => target.Buffs.Count(x => x.Name == "kalistaexpungemarker");
 
-        /// <summary>
-        ///     Checks if the given target is killable
-        /// </summary>
-        /// <param name="target">
-        ///     The Target
-        /// </param>
-        /// <returns>
-        ///     The <see cref="bool" />.
-        /// </returns>
-        public static bool IsRendKillable(this Obj_AI_Base target)
-        {
-            if (target == null)
-                return false;
-
-            var baseDamage = SpellManager.Spell[SpellSlot.E].GetDamage(target);
-
-            if (target is Obj_AI_Hero)
-            {
-                if (target.HasUndyingBuff() || target.Health < 1 || target.HasBuffOfType(BuffType.SpellShield))
-                    return false;
-
-                if (target.HasBuff("meditate"))
-                {
-                    baseDamage *= (0.5f - 0.05f*target.Spellbook.GetSpell(SpellSlot.W).Level);
-                }
-            }
-
-            if (target is Obj_AI_Minion)
-            {
-                if (target.Name.Contains("Baron") && ObjectManager.Player.HasBuff("barontarget"))
-                {
-                    baseDamage *= 0.5f;
-                }
-                //if (target.Name.Contains("Dragon") && ObjectManager.Player.HasBuff("s5test_dragonslayerbuff"))
-                //{
-                //    baseDamage *= (1f - (0.07f*ObjectManager.Player.GetBuffCount("s5test_dragonslayerbuff")));
-                //} HM???
-            }
-
-            if (ObjectManager.Player.HasBuff("SummonerExhaustSlow"))
-            {
-                baseDamage *= 0.55f;
-            }
-
-
-            return baseDamage > target.GetHealthWithShield();
-        }
-
         public static float GetRendDamage(Obj_AI_Base target) => SpellManager.Spell[SpellSlot.E].GetDamage(target);
-
 
         /// <summary>
         ///     Checks if a target has the Expunge <see cref="BuffInstance" />
@@ -141,7 +95,6 @@ namespace iKalistaReborn.Utils
         ///     The <see cref="bool" />.
         /// </returns>
         public static bool HasRendBuff(this Obj_AI_Base target) => target?.GetRendBuff() != null;
-
 
         /// <summary>
         ///     Checks if the given target has an invulnerable buff
@@ -157,6 +110,7 @@ namespace iKalistaReborn.Utils
             var target = target1 as Obj_AI_Hero;
 
             if (target == null) return false;
+
             // Tryndamere R
             if (target.ChampionName == "Tryndamere"
                 && target.Buffs.Any(
@@ -182,8 +136,7 @@ namespace iKalistaReborn.Utils
                 return true;
             }
 
-            //TODO poppy
-
+            // TODO poppy
             return false;
         }
 
@@ -197,12 +150,58 @@ namespace iKalistaReborn.Utils
         ///     The <see cref="bool" />.
         /// </returns>
         public static bool IsMobKillable(this Obj_AI_Base target) => IsRendKillable(target as Obj_AI_Minion);
-        
+
+        /// <summary>
+        ///     Checks if the given target is killable
+        /// </summary>
+        /// <param name="target">
+        ///     The Target
+        /// </param>
+        /// <returns>
+        ///     The <see cref="bool" />.
+        /// </returns>
+        public static bool IsRendKillable(this Obj_AI_Base target)
+        {
+            if (target == null) return false;
+
+            var baseDamage = SpellManager.Spell[SpellSlot.E].GetDamage(target);
+
+            if (target is Obj_AI_Hero)
+            {
+                if (target.HasUndyingBuff() || target.Health < 1 || target.HasBuffOfType(BuffType.SpellShield)) return false;
+
+                if (target.HasBuff("meditate"))
+                {
+                    baseDamage *= 0.5f - 0.05f * target.Spellbook.GetSpell(SpellSlot.W).Level;
+                }
+            }
+
+            if (target is Obj_AI_Minion)
+            {
+                if (target.Name.Contains("Baron") && ObjectManager.Player.HasBuff("barontarget"))
+                {
+                    baseDamage *= 0.5f;
+                }
+
+                // if (target.Name.Contains("Dragon") && ObjectManager.Player.HasBuff("s5test_dragonslayerbuff"))
+                // {
+                // baseDamage *= (1f - (0.07f*ObjectManager.Player.GetBuffCount("s5test_dragonslayerbuff")));
+                // } HM???
+            }
+
+            if (ObjectManager.Player.HasBuff("SummonerExhaustSlow"))
+            {
+                baseDamage *= 0.55f;
+            }
+
+            return baseDamage > target.GetHealthWithShield();
+        }
+
+        #endregion
+
         /*public static bool IsRendKillable(this Obj_AI_Hero target)
         {
             return IsRendKillable((Obj_AI_Base) target) >= GetHealthWithShield(target) && !HasUndyingBuff(target) && !target.HasBuffOfType(BuffType.SpellShield);
         }*/
-
-        #endregion
     }
 }

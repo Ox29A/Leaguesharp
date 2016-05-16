@@ -4,12 +4,17 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using DZLib.MenuExtensions;
+
 using LeagueSharp.Common;
+
 using Color = SharpDX.Color;
 
 namespace iLucian.MenuHelper
 {
+    using LeagueSharp;
+
     class MenuGenerator
     {
         public static void Generate()
@@ -30,11 +35,15 @@ namespace iLucian.MenuHelper
                 comboOptions.AddBool("com.ilucian.combo.qExtended", "Use Extended Q", true);
                 comboOptions.AddBool("com.ilucian.combo.w", "Use W", true);
                 comboOptions.AddBool("com.ilucian.combo.e", "Use E", true);
-                comboOptions.AddKeybind("com.ilucian.combo.forceR", "Semi Ult Key",
+                comboOptions.AddKeybind(
+                    "com.ilucian.combo.forceR", 
+                    "Semi Ult Key", 
                     new Tuple<uint, KeyBindType>("T".ToCharArray()[0], KeyBindType.Press));
                 comboOptions.AddSlider("com.ilucian.combo.eRange", "E Dash Range", 65, 50, 475);
-                comboOptions.AddStringList("com.ilucian.combo.eMode", "E Mode",
-                    new[] {"Kite", "Side", "Cursor", "Enemy", "Fast Mode"});
+                comboOptions.AddStringList(
+                    "com.ilucian.combo.eMode", 
+                    "E Mode", 
+                    new[] { "Kite", "Side", "Cursor", "Enemy", "Fast Mode" });
                 rootMenu.AddSubMenu(comboOptions);
             }
 
@@ -42,14 +51,27 @@ namespace iLucian.MenuHelper
             {
                 var autoHarassMenu = new Menu("Auto Harass", "com.ilucian.harass.auto");
                 {
-                    autoHarassMenu.AddKeybind("com.ilucian.harass.auto.autoharass", "Enabled",
+                    autoHarassMenu.AddKeybind(
+                        "com.ilucian.harass.auto.autoharass", 
+                        "Enabled", 
                         new Tuple<uint, KeyBindType>("Z".ToCharArray()[0], KeyBindType.Toggle))
                         .Permashow(true, "iLucian | Auto Harass", Color.Aqua);
                     autoHarassMenu.AddBool("com.ilucian.harass.auto.q", "Use Q", true);
                     autoHarassMenu.AddBool("com.ilucian.harass.auto.qExtended", "Use Extended Q", true);
                 }
+
                 harassOptions.AddBool("com.ilucian.harass.q", "Use Q", true);
                 harassOptions.AddBool("com.ilucian.harass.qExtended", "Use Extended Q", true);
+                var harassWhitelist = new Menu("Extended Q Whitelist", "com.ilucian.harass.whitelist");
+                {
+                    foreach (var hero in HeroManager.Enemies)
+                    {
+                        harassWhitelist.AddBool(
+                            "com.ilucian.harass.whitelist." + hero.ChampionName.ToLower(), 
+                            "Don't Q: " + hero.ChampionName);
+                    }
+                }
+
                 harassOptions.AddBool("com.ilucian.harass.w", "Use W", true);
                 harassOptions.AddSlider("com.ilucian.harass.minMana", "Min Mana Percent", 80, 10, 100);
                 harassOptions.AddSubMenu(autoHarassMenu);
@@ -71,7 +93,6 @@ namespace iLucian.MenuHelper
                 rootMenu.AddSubMenu(jungleclearOptions);
             }
 
-
             var miscOptions = new Menu(":: iLucian - Misc Options", "com.ilucian.misc");
             {
                 miscOptions.AddBool("com.ilucian.misc.usePrediction", "Use W Pred", true);
@@ -86,11 +107,12 @@ namespace iLucian.MenuHelper
                     Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
                     dmgAfterComboItem.ValueChanged +=
                         delegate(object sender, OnValueChangeEventArgs eventArgs)
-                        {
-                            Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
-                        };
+                            {
+                                Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+                            };
                     miscOptions.AddItem(dmgAfterComboItem);
                 }
+
                 rootMenu.AddSubMenu(miscOptions);
             }
 
