@@ -43,7 +43,7 @@ namespace iLucian.MenuHelper
                 comboOptions.AddStringList(
                     "com.ilucian.combo.eMode", 
                     "E Mode", 
-                    new[] { "Kite", "Side", "Cursor", "Enemy", "Fast Mode" });
+                    new[] { "Kite", "Side", "Cursor", "Enemy", "Fast Mode", "Smart E" }, 5);
                 rootMenu.AddSubMenu(comboOptions);
             }
 

@@ -206,8 +206,9 @@
 
         private void CastE(Obj_AI_Base target)
         {
+            // TODO checkk possible wall dashes :^)
             if (!Variables.Spell[Variables.Spells.E].IsReady() || !Variables.Menu.IsEnabled("com.ilucian.combo.e")
-                || target == null || ObjectManager.Player.HasBuff("LucianR"))
+                || target == null || ObjectManager.Player.HasBuff("LucianR") || ObjectManager.Player.IsWindingUp)
             {
                 return;
             }
@@ -218,7 +219,7 @@
             {
                 case 0: // kite
                     var hypotheticalPosition = ObjectManager.Player.ServerPosition.Extend(
-                        Game.CursorPos, 
+                        Game.CursorPos,
                         Variables.Spell[Variables.Spells.E].Range);
                     if (ObjectManager.Player.HealthPercent <= 70
                         && target.HealthPercent >= ObjectManager.Player.HealthPercent)
@@ -235,11 +236,10 @@
                     if (hypotheticalPosition.IsSafe(Variables.Spell[Variables.Spells.E].Range)
                         && hypotheticalPosition.Distance(target.ServerPosition)
                         <= Orbwalking.GetRealAutoAttackRange(null)
-                        && (hypotheticalPosition.Distance(target.ServerPosition) > 400) && !Variables.HasPassive)
+                        && (hypotheticalPosition.Distance(target.ServerPosition) > 400) && !Variables.HasPassive())
                     {
                         Variables.Spell[Variables.Spells.E].Cast(hypotheticalPosition);
                     }
-
                     break;
 
                 case 1: // side
@@ -263,6 +263,15 @@
                 case 4:
                     Variables.Spell[Variables.Spells.E].Cast(
                         Deviation(ObjectManager.Player.Position.To2D(), target.Position.To2D(), 65f).To3D());
+                    break;
+                case 5: // Smart E Credits to ASUNOOO
+                    var ePosition = new EPosition();
+                    var bestPosition = ePosition.GetEPosition();
+                    if (bestPosition != Vector3.Zero
+                        && bestPosition.Distance(target.ServerPosition) < Orbwalking.GetRealAutoAttackRange(target))
+                    {
+                        Variables.Spell[Variables.Spells.E].Cast(bestPosition);
+                    }
                     break;
             }
         }
@@ -401,20 +410,21 @@
         private void OnDoCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (args.SData.Name != "LucianPassiveShot" && !args.SData.Name.Contains("LucianBasicAttack")) return;
-            if (Variables.HasPassive) return;
 
             var target = TargetSelector.GetTarget(
                 Variables.Spell[Variables.Spells.Q].Range, 
                 TargetSelector.DamageType.Physical);
+
             if (target == null) return;
             switch (Variables.Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
                     if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)
-                        && Variables.Menu.Item("com.ilucian.combo.q").GetValue<bool>())
+                        && Variables.Menu.Item("com.ilucian.combo.q").GetValue<bool>() && !Variables.HasPassive())
                     {
                         if (Variables.Spell[Variables.Spells.Q].IsReady()
-                            && Variables.Spell[Variables.Spells.Q].IsInRange(target))
+                            && Variables.Spell[Variables.Spells.Q].IsInRange(target)
+                            && !ObjectManager.Player.IsDashing())
                         {
                             Variables.Spell[Variables.Spells.Q].Cast(target);
                         }
@@ -422,7 +432,7 @@
 
                     if (!ObjectManager.Player.IsDashing() && Variables.Menu.Item("com.ilucian.combo.w").GetValue<bool>())
                     {
-                        if (Variables.Spell[Variables.Spells.W].IsReady())
+                        if (Variables.Spell[Variables.Spells.W].IsReady() && !Variables.HasPassive())
                         {
                             if (Variables.Menu.IsEnabled("com.ilucian.misc.usePrediction"))
                             {
@@ -432,17 +442,22 @@
                                     Variables.Spell[Variables.Spells.W].Cast(prediction.CastPosition);
                                 }
                             }
-                        }
-                        else
-                        {
-                            if (target.Distance(ObjectManager.Player) < 600)
+                            else
                             {
-                                Variables.Spell[Variables.Spells.W].Cast(target.Position);
+                                if (target.Distance(ObjectManager.Player) < 600)
+                                {
+                                    Variables.Spell[Variables.Spells.W].Cast(target.Position);
+                                }
                             }
                         }
                     }
 
-                    CastE(target);
+                    // CastE(target);
+                    if (sender.IsMe && !sender.IsDead && !Variables.HasPassive()
+                        && !Variables.Spell[Variables.Spells.Q].IsReady())
+                    {
+                        CastE(target);
+                    }
 
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
@@ -491,7 +506,7 @@
                 Variables.Spell[Variables.Spells.Q2].Range, 
                 TargetSelector.DamageType.Physical);
 
-            if (target == null || Variables.HasPassive) return;
+            if (target == null || Variables.HasPassive()) return;
             if (ObjectManager.Player.ManaPercent
                 < Variables.Menu.Item("com.ilucian.harass.minMana").GetValue<Slider>().Value) return;
             if (Variables.Menu.IsEnabled("com.ilucian.harass.qExtended"))
@@ -544,19 +559,19 @@
             if (jungleMob != null)
             {
                 if (Variables.Spell[Variables.Spells.Q].IsReady()
-                    && Variables.Menu.IsEnabled("com.ilucian.jungleclear.q") && !Variables.HasPassive)
+                    && Variables.Menu.IsEnabled("com.ilucian.jungleclear.q") && !Variables.HasPassive())
                 {
                     Variables.Spell[Variables.Spells.Q].Cast(jungleMob);
                 }
 
                 if (Variables.Spell[Variables.Spells.W].IsReady()
-                    && Variables.Menu.IsEnabled("com.ilucian.jungleclear.w") && !Variables.HasPassive)
+                    && Variables.Menu.IsEnabled("com.ilucian.jungleclear.w") && !Variables.HasPassive())
                 {
                     Variables.Spell[Variables.Spells.W].Cast(jungleMob);
                 }
 
                 if (Variables.Spell[Variables.Spells.E].IsReady()
-                    && Variables.Menu.IsEnabled("com.ilucian.jungleclear.e") && !Variables.HasPassive)
+                    && Variables.Menu.IsEnabled("com.ilucian.jungleclear.e") && !Variables.HasPassive())
                 {
                     Variables.Spell[Variables.Spells.E].Cast(ObjectManager.Player.Position.Extend(Game.CursorPos, 475));
                 }
@@ -581,7 +596,7 @@
                 var firstMinion = adjacentMinions.OrderBy(m => m.Distance(bestLocation.Position)).First();
 
                 if (!firstMinion.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)) return;
-                if (!Variables.HasPassive && Orbwalking.InAutoAttackRange(firstMinion))
+                if (!Variables.HasPassive() && Orbwalking.InAutoAttackRange(firstMinion))
                 {
                     Variables.Spell[Variables.Spells.Q].Cast(firstMinion);
                 }
