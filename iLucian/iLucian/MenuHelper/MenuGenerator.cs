@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using DZLib.MenuExtensions;
 
@@ -13,8 +9,6 @@ using Color = SharpDX.Color;
 
 namespace iLucian.MenuHelper
 {
-    using LeagueSharp;
-
     class MenuGenerator
     {
         public static void Generate()
@@ -43,7 +37,7 @@ namespace iLucian.MenuHelper
                 comboOptions.AddStringList(
                     "com.ilucian.combo.eMode", 
                     "E Mode", 
-                    new[] { "Kite", "Side", "Cursor", "Enemy", "Fast Mode", "Smart E" }, 5);
+                    new[] { "Kite", "Side", "Cursor", "Enemy", "Fast Mode", "iSeries Reborn: Smart E" }, 5);
                 rootMenu.AddSubMenu(comboOptions);
             }
 
@@ -82,6 +76,7 @@ namespace iLucian.MenuHelper
             {
                 laneclearOptions.AddBool("com.ilucian.laneclear.q", "Use Q", true);
                 laneclearOptions.AddSlider("com.ilucian.laneclear.qMinions", "Cast Q on x minions", 3, 1, 10);
+                //TODO turret laneclear :^)
                 rootMenu.AddSubMenu(laneclearOptions);
             }
 
@@ -96,6 +91,7 @@ namespace iLucian.MenuHelper
             var miscOptions = new Menu(":: iLucian - Misc Options", "com.ilucian.misc");
             {
                 miscOptions.AddBool("com.ilucian.misc.usePrediction", "Use W Pred", true);
+                miscOptions.AddBool("com.ilucian.misc.forcePassive", "Force Passive Target", true);
                 miscOptions.AddBool("com.ilucian.misc.gapcloser", "Use E For Gapcloser", true);
                 miscOptions.AddBool("com.ilucian.misc.eqKs", "EQ - Killsteal", true);
                 miscOptions.AddBool("com.ilucian.misc.useChampions", "Use EQ on Champions", true);
