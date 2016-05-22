@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace iLucian.Utils
 {
-    using System.IO;
-
     using ClipperLib;
 
     using LeagueSharp;
     using LeagueSharp.Common;
 
-    using Path = System.Collections.Generic.List<ClipperLib.IntPoint>;
-    using Paths = System.Collections.Generic.List<System.Collections.Generic.List<ClipperLib.IntPoint>>;
-    using GamePath = System.Collections.Generic.List<SharpDX.Vector2>;
+    using Path = List<ClipperLib.IntPoint>;
+    using Paths = List<List<ClipperLib.IntPoint>>;
+    using GamePath = List<SharpDX.Vector2>;
 
     using SharpDX;
 
@@ -31,7 +27,7 @@ namespace iLucian.Utils
         {
             #region The Required Variables
 
-            var positions = DashHelper.GetRotatedQPositions();
+            var positions = DashHelper.GetRotatedEPositions();
             var enemyPositions = DashHelper.GetEnemyPoints();
             var safePositions = positions.Where(pos => !enemyPositions.Contains(pos.To2D())).ToList();
             var bestPosition = ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, 450f);
@@ -56,12 +52,12 @@ namespace iLucian.Utils
             if (ObjectManager.Player.CountEnemiesInRange(1500f) <= 1)
             {
                 // Logic for 1 enemy near
-                var backwardsPosition =
-                    (ObjectManager.Player.ServerPosition.To2D() + 450f * ObjectManager.Player.Direction.To2D()).To3D();
+                var forwardPosition =
+                    (ObjectManager.Player.ServerPosition.To2D() - 450f * ObjectManager.Player.Direction.To2D()).To3D();
 
-                if (!backwardsPosition.UnderTurret(true))
+                if (!forwardPosition.UnderTurret(true))
                 {
-                    return backwardsPosition;
+                    return forwardPosition;
                 }
             }
 
@@ -75,17 +71,17 @@ namespace iLucian.Utils
                     enemiesNear.Any(
                         t =>
                         t.Health + 15
-                        < ObjectManager.Player.GetAutoAttackDamage(t) + Variables.Spell[Variables.Spells.Q].GetDamage(t)
+                        < ObjectManager.Player.GetAutoAttackDamage(t) * 2 + Variables.Spell[Variables.Spells.Q].GetDamage(t)
                         && t.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(t) + 80f))
                 {
-                    var QPosition =
+                    var ePosition =
                         ObjectManager.Player.ServerPosition.Extend(
                             highHealthEnemiesNear.OrderBy(t => t.Health).First().ServerPosition, 
                             450f);
 
-                    if (!QPosition.UnderTurret(true))
+                    if (!ePosition.UnderTurret(true))
                     {
-                        return QPosition;
+                        return ePosition;
                     }
                 }
             }
@@ -208,10 +204,10 @@ namespace iLucian.Utils
     class DashHelper
     {
         /// <summary>
-        /// Gets the rotated q positions.
+        /// Gets the rotated e positions.
         /// </summary>
         /// <returns></returns>
-        public static List<Vector3> GetRotatedQPositions()
+        public static List<Vector3> GetRotatedEPositions()
         {
             const int CurrentStep = 30;
 

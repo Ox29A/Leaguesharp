@@ -9,6 +9,10 @@ using Color = SharpDX.Color;
 
 namespace iLucian.MenuHelper
 {
+    using iLucian.Utils;
+
+    using LeagueSharp;
+
     class MenuGenerator
     {
         public static void Generate()
@@ -37,7 +41,8 @@ namespace iLucian.MenuHelper
                 comboOptions.AddStringList(
                     "com.ilucian.combo.eMode", 
                     "E Mode", 
-                    new[] { "Kite", "Side", "Cursor", "Enemy", "Fast Mode", "iSeries Reborn: Smart E" }, 5);
+                    new[] { "Kite", "Side", "Cursor", "Enemy", "Fast Mode", "VHR Logic - Smart E", "URF MODE" }, 5);
+                comboOptions.AddManaManager(ManaMeneger.Mode.Combo, new []{ SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new []{ 30, 30, 30 });
                 rootMenu.AddSubMenu(comboOptions);
             }
 
@@ -65,10 +70,10 @@ namespace iLucian.MenuHelper
                             "Don't Q: " + hero.ChampionName);
                     }
                 }
-
+                harassOptions.AddSubMenu(harassWhitelist);
                 harassOptions.AddBool("com.ilucian.harass.w", "Use W", true);
-                harassOptions.AddSlider("com.ilucian.harass.minMana", "Min Mana Percent", 80, 10, 100);
                 harassOptions.AddSubMenu(autoHarassMenu);
+                harassOptions.AddManaManager(ManaMeneger.Mode.Harass, new[] { SpellSlot.Q, SpellSlot.W}, new[] { 30, 30});
                 rootMenu.AddSubMenu(harassOptions);
             }
 
@@ -90,6 +95,7 @@ namespace iLucian.MenuHelper
 
             var miscOptions = new Menu(":: iLucian - Misc Options", "com.ilucian.misc");
             {
+                miscOptions.AddBool("com.ilucian.misc.antiVayne", "Anti Vayne Condemn", true);
                 miscOptions.AddBool("com.ilucian.misc.usePrediction", "Use W Pred", true);
                 miscOptions.AddBool("com.ilucian.misc.forcePassive", "Force Passive Target", true);
                 miscOptions.AddBool("com.ilucian.misc.gapcloser", "Use E For Gapcloser", true);

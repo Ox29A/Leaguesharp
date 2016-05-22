@@ -189,7 +189,7 @@
                 // } HM???
             }
 
-            if (ObjectManager.Player.HasBuff("SummonerExhaustSlow"))
+            if (ObjectManager.Player.HasBuff("SummonerExhaust"))
             {
                 baseDamage *= 0.55f;
             }

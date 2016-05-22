@@ -47,7 +47,7 @@
 
             if (Variables.Menu.IsEnabled("com.ilucian.harass.auto.q") && Variables.Spell[Variables.Spells.Q].IsReady())
             {
-                if (Variables.Spell[Variables.Spells.Q].IsReady()
+                if (Variables.Spell[Variables.Spells.Q].IsEnabledAndReady(ManaMeneger.Mode.Harass)
                     && Variables.Spell[Variables.Spells.Q].IsInRange(target) && target.IsValidTarget())
                 {
                     Variables.Spell[Variables.Spells.Q].Cast(target);
@@ -141,7 +141,7 @@
         {
             Console.WriteLine("Loaded Lucian");
             MenuGenerator.Generate();
-            AutoCleanse.Initialize();
+            AutoCleanse.OnLoad();
             LoadSpells();
             LoadEvents();
 
@@ -193,13 +193,13 @@
                 return;
             }
 
-            if (!gapcloser.Sender.IsEnemy || !(gapcloser.End.Distance(ObjectManager.Player.ServerPosition) < 350)) return;
+            if (!gapcloser.Sender.IsEnemy || !(gapcloser.End.Distance(ObjectManager.Player.ServerPosition) < 200))
+                return;
 
             var extendedPosition = ObjectManager.Player.ServerPosition.Extend(
                 Game.CursorPos, 
                 Variables.Spell[Variables.Spells.E].Range);
-            if (extendedPosition.IsSafe(Variables.Spell[Variables.Spells.E].Range)
-                && extendedPosition.CountAlliesInRange(650f) > 0)
+            if (extendedPosition.IsSafe(Variables.Spell[Variables.Spells.E].Range))
             {
                 Variables.Spell[Variables.Spells.E].Cast(extendedPosition);
             }
@@ -275,6 +275,10 @@
                         Variables.Spell[Variables.Spells.E].Cast(bestPosition);
                     }
 
+                    break;
+
+                case 6: // URF
+                    Variables.Spell[Variables.Spells.E].Cast(ObjectManager.Player.Position.Extend(Game.CursorPos, 475));
                     break;
             }
         }
@@ -402,6 +406,8 @@
                         Variables.LastECast = LeagueSharp.Common.Utils.TickCount;
                     }
                 };
+
+            Obj_AI_Base.OnProcessSpellCast += OnSpellCast;
         }
 
         private void LoadSpells()
@@ -432,7 +438,7 @@
                         if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)
                             && Variables.Menu.Item("com.ilucian.combo.q").GetValue<bool>() && !Variables.HasPassive())
                         {
-                            if (Variables.Spell[Variables.Spells.Q].IsReady()
+                            if (Variables.Spell[Variables.Spells.Q].IsEnabledAndReady(ManaMeneger.Mode.Combo)
                                 && Variables.Spell[Variables.Spells.Q].IsInRange(target)
                                 && !ObjectManager.Player.IsDashing())
                             {
@@ -443,7 +449,7 @@
                         if (!ObjectManager.Player.IsDashing()
                             && Variables.Menu.Item("com.ilucian.combo.w").GetValue<bool>())
                         {
-                            if (Variables.Spell[Variables.Spells.W].IsReady() && !Variables.HasPassive())
+                            if (Variables.Spell[Variables.Spells.W].IsEnabledAndReady(ManaMeneger.Mode.Combo) && !Variables.HasPassive())
                             {
                                 if (Variables.Menu.IsEnabled("com.ilucian.misc.usePrediction"))
                                 {
@@ -473,12 +479,10 @@
                 case Orbwalking.OrbwalkingMode.Mixed:
                     if (Orbwalking.IsAutoAttack(args.SData.Name) && target.IsValid)
                     {
-                        if (ObjectManager.Player.ManaPercent
-                            < Variables.Menu.Item("com.ilucian.harass.minMana").GetValue<Slider>().Value) return;
                         if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)
                             && Variables.Menu.Item("com.ilucian.harass.q").GetValue<bool>())
                         {
-                            if (Variables.Spell[Variables.Spells.Q].IsReady()
+                            if (Variables.Spell[Variables.Spells.Q].IsEnabledAndReady(ManaMeneger.Mode.Harass)
                                 && Variables.Spell[Variables.Spells.Q].IsInRange(target))
                             {
                                 Variables.Spell[Variables.Spells.Q].Cast(target);
@@ -488,7 +492,7 @@
                         if (!ObjectManager.Player.IsDashing()
                             && Variables.Menu.Item("com.ilucian.harass.w").GetValue<bool>())
                         {
-                            if (Variables.Spell[Variables.Spells.W].IsReady())
+                            if (Variables.Spell[Variables.Spells.W].IsEnabledAndReady(ManaMeneger.Mode.Harass))
                             {
                                 if (Variables.Menu.IsEnabled("com.ilucian.misc.usePrediction"))
                                 {
@@ -530,7 +534,7 @@
             if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)
                 && Variables.Menu.IsEnabled("com.ilucian.harass.q"))
             {
-                if (Variables.Spell[Variables.Spells.Q].IsReady()
+                if (Variables.Spell[Variables.Spells.Q].IsEnabledAndReady(ManaMeneger.Mode.Harass)
                     && Variables.Spell[Variables.Spells.Q].IsInRange(target))
                 {
                     Variables.Spell[Variables.Spells.Q].Cast(target);
@@ -539,7 +543,7 @@
 
             if (!ObjectManager.Player.IsDashing() && Variables.Menu.IsEnabled("com.ilucian.harass.w"))
             {
-                if (Variables.Spell[Variables.Spells.W].IsReady())
+                if (Variables.Spell[Variables.Spells.W].IsEnabledAndReady(ManaMeneger.Mode.Harass))
                 {
                     if (Variables.Menu.IsEnabled("com.ilucian.misc.usePrediction"))
                     {
@@ -612,6 +616,22 @@
                 if (!Variables.HasPassive() && Orbwalking.InAutoAttackRange(firstMinion))
                 {
                     Variables.Spell[Variables.Spells.Q].Cast(firstMinion);
+                }
+            }
+        }
+
+        private void OnSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (Variables.Menu.IsEnabled("com.ilucian.misc.antiVayne") && sender.IsEnemy && sender.IsChampion("Vayne")
+                && args.Slot == SpellSlot.E)
+            {
+                var predictedPosition = ObjectManager.Player.ServerPosition.Extend(sender.Position, -425);
+                var dashPosition = ObjectManager.Player.Position.Extend(Game.CursorPos, 450);
+                var dashCondemnCheck = dashPosition.Extend(sender.Position, -425);
+
+                if (Variables.Spell[Variables.Spells.E].IsReady() && predictedPosition.IsWall() && !dashCondemnCheck.IsWall())
+                {
+                    Variables.Spell[Variables.Spells.E].Cast(dashPosition);
                 }
             }
         }
