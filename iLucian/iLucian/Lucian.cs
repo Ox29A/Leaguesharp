@@ -438,7 +438,7 @@
                         if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)
                             && Variables.Menu.Item("com.ilucian.combo.q").GetValue<bool>() && !Variables.HasPassive())
                         {
-                            if (Variables.Spell[Variables.Spells.Q].IsEnabledAndReady(ManaMeneger.Mode.Combo)
+                            if (Variables.Spell[Variables.Spells.Q].IsReady()
                                 && Variables.Spell[Variables.Spells.Q].IsInRange(target)
                                 && !ObjectManager.Player.IsDashing())
                             {
@@ -449,7 +449,51 @@
                         if (!ObjectManager.Player.IsDashing()
                             && Variables.Menu.Item("com.ilucian.combo.w").GetValue<bool>())
                         {
-                            if (Variables.Spell[Variables.Spells.W].IsEnabledAndReady(ManaMeneger.Mode.Combo) && !Variables.HasPassive())
+                            if (Variables.Spell[Variables.Spells.W].IsReady() && !Variables.HasPassive())
+                            {
+                                if (Variables.Menu.IsEnabled("com.ilucian.misc.usePrediction"))
+                                {
+                                    var prediction = Variables.Spell[Variables.Spells.W].GetPrediction(target);
+                                    if (prediction.Hitchance >= HitChance.High)
+                                    {
+                                        Variables.Spell[Variables.Spells.W].Cast(prediction.CastPosition);
+                                    }
+                                }
+                                else
+                                {
+                                    if (target.Distance(ObjectManager.Player) < 600)
+                                    {
+                                        Variables.Spell[Variables.Spells.W].Cast(target.Position);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+
+                    if (!sender.IsDead && !Variables.HasPassive() && !Variables.Spell[Variables.Spells.Q].IsReady())
+                    {
+                        CastE(target);
+                    }
+
+                    break;
+                case Orbwalking.OrbwalkingMode.Mixed:
+                    if (Orbwalking.IsAutoAttack(args.SData.Name) && target.IsValid)
+                    {
+                        if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)
+                            && Variables.Menu.Item("com.ilucian.harass.q").GetValue<bool>())
+                        {
+                            if (Variables.Spell[Variables.Spells.Q].IsReady()
+                                && Variables.Spell[Variables.Spells.Q].IsInRange(target))
+                            {
+                                Variables.Spell[Variables.Spells.Q].Cast(target);
+                            }
+                        }
+
+                        if (!ObjectManager.Player.IsDashing()
+                            && Variables.Menu.Item("com.ilucian.harass.w").GetValue<bool>())
+                        {
+                            if (Variables.Spell[Variables.Spells.W].IsReady())
                             {
                                 if (Variables.Menu.IsEnabled("com.ilucian.misc.usePrediction"))
                                 {
@@ -467,49 +511,7 @@
                                     }
                                 }
                             }
-                        }
-                    }
-
-                    if (!sender.IsDead && !Variables.HasPassive() && !Variables.Spell[Variables.Spells.Q].IsReady())
-                    {
-                        CastE(target);
-                    }
-
-                    break;
-                case Orbwalking.OrbwalkingMode.Mixed:
-                    if (Orbwalking.IsAutoAttack(args.SData.Name) && target.IsValid)
-                    {
-                        if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)
-                            && Variables.Menu.Item("com.ilucian.harass.q").GetValue<bool>())
-                        {
-                            if (Variables.Spell[Variables.Spells.Q].IsEnabledAndReady(ManaMeneger.Mode.Harass)
-                                && Variables.Spell[Variables.Spells.Q].IsInRange(target))
-                            {
-                                Variables.Spell[Variables.Spells.Q].Cast(target);
-                            }
-                        }
-
-                        if (!ObjectManager.Player.IsDashing()
-                            && Variables.Menu.Item("com.ilucian.harass.w").GetValue<bool>())
-                        {
-                            if (Variables.Spell[Variables.Spells.W].IsEnabledAndReady(ManaMeneger.Mode.Harass))
-                            {
-                                if (Variables.Menu.IsEnabled("com.ilucian.misc.usePrediction"))
-                                {
-                                    var prediction = Variables.Spell[Variables.Spells.W].GetPrediction(target);
-                                    if (prediction.Hitchance >= HitChance.High)
-                                    {
-                                        Variables.Spell[Variables.Spells.W].Cast(prediction.CastPosition);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (target.Distance(ObjectManager.Player) < 600)
-                                {
-                                    Variables.Spell[Variables.Spells.W].Cast(target.Position);
-                                }
-                            }
+                          
                         }
                     }
 
