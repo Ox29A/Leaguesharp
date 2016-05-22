@@ -429,7 +429,7 @@
 
             var target = args.Target as Obj_AI_Hero;
 
-            if (target == null || Variables.LastECast < 200) return;
+            if (target == null || Variables.LastECast < 250) return;
             switch (Variables.Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
