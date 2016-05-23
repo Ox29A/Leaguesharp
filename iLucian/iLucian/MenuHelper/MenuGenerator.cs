@@ -33,6 +33,7 @@ namespace iLucian.MenuHelper
                 comboOptions.AddBool("com.ilucian.combo.qExtended", "Use Extended Q", true);
                 comboOptions.AddBool("com.ilucian.combo.w", "Use W", true);
                 comboOptions.AddBool("com.ilucian.combo.e", "Use E", true);
+                comboOptions.AddBool("com.ilucian.combo.startE", "Start Combo With E", true);
                 comboOptions.AddKeybind(
                     "com.ilucian.combo.forceR", 
                     "Semi Ult Key", 

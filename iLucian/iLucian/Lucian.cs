@@ -431,45 +431,89 @@
                 case Orbwalking.OrbwalkingMode.Combo:
                     if (Orbwalking.IsAutoAttack(args.SData.Name) && target.IsValid)
                     {
-                        if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)
-                            && Variables.Menu.Item("com.ilucian.combo.q").GetValue<bool>() && !Variables.HasPassive())
+                        if (Variables.Menu.IsEnabled("com.ilucian.combo.startE") && Variables.Spell[Variables.Spells.E].IsReady())
                         {
-                            if (Variables.Spell[Variables.Spells.Q].IsReady()
-                                && Variables.Spell[Variables.Spells.Q].IsInRange(target)
-                                && !ObjectManager.Player.IsDashing())
+                            if (!sender.IsDead && !Variables.HasPassive())
                             {
-                                Variables.Spell[Variables.Spells.Q].Cast(target);
+                                CastE(target);
+                            }
+
+                            if (!Variables.Spell[Variables.Spells.E].IsReady() && target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range) && Variables.Menu.Item("com.ilucian.combo.q").GetValue<bool>() && !Variables.HasPassive())
+                            {
+                                if (Variables.Spell[Variables.Spells.Q].IsReady()
+                                    && Variables.Spell[Variables.Spells.Q].IsInRange(target)
+                                    && !ObjectManager.Player.IsDashing())
+                                {
+                                    Variables.Spell[Variables.Spells.Q].Cast(target);
+                                }
+                            }
+                            if (!Variables.Spell[Variables.Spells.E].IsReady() && !ObjectManager.Player.IsDashing()
+                               && Variables.Menu.Item("com.ilucian.combo.w").GetValue<bool>())
+                            {
+                                if (Variables.Spell[Variables.Spells.W].IsReady() && !Variables.HasPassive())
+                                {
+                                    if (Variables.Menu.IsEnabled("com.ilucian.misc.usePrediction"))
+                                    {
+                                        var prediction = Variables.Spell[Variables.Spells.W].GetPrediction(target);
+                                        if (prediction.Hitchance >= HitChance.High)
+                                        {
+                                            Variables.Spell[Variables.Spells.W].Cast(prediction.CastPosition);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (target.Distance(ObjectManager.Player) < 600)
+                                        {
+                                            Variables.Spell[Variables.Spells.W].Cast(target.Position);
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)
+                                && Variables.Menu.Item("com.ilucian.combo.q").GetValue<bool>()
+                                && !Variables.HasPassive())
+                            {
+                                if (Variables.Spell[Variables.Spells.Q].IsReady()
+                                    && Variables.Spell[Variables.Spells.Q].IsInRange(target)
+                                    && !ObjectManager.Player.IsDashing())
+                                {
+                                    Variables.Spell[Variables.Spells.Q].Cast(target);
+                                }
+                            }
+
+                            if (!ObjectManager.Player.IsDashing()
+                                && Variables.Menu.Item("com.ilucian.combo.w").GetValue<bool>())
+                            {
+                                if (Variables.Spell[Variables.Spells.W].IsReady() && !Variables.HasPassive())
+                                {
+                                    if (Variables.Menu.IsEnabled("com.ilucian.misc.usePrediction"))
+                                    {
+                                        var prediction = Variables.Spell[Variables.Spells.W].GetPrediction(target);
+                                        if (prediction.Hitchance >= HitChance.High)
+                                        {
+                                            Variables.Spell[Variables.Spells.W].Cast(prediction.CastPosition);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (target.Distance(ObjectManager.Player) < 600)
+                                        {
+                                            Variables.Spell[Variables.Spells.W].Cast(target.Position);
+                                        }
+                                    }
+
+                                }
                             }
                         }
 
-                        if (!ObjectManager.Player.IsDashing()
-                            && Variables.Menu.Item("com.ilucian.combo.w").GetValue<bool>())
+                        if (!sender.IsDead && !Variables.HasPassive() && !Variables.Spell[Variables.Spells.Q].IsReady())
                         {
-                            if (Variables.Spell[Variables.Spells.W].IsReady() && !Variables.HasPassive())
-                            {
-                                if (Variables.Menu.IsEnabled("com.ilucian.misc.usePrediction"))
-                                {
-                                    var prediction = Variables.Spell[Variables.Spells.W].GetPrediction(target);
-                                    if (prediction.Hitchance >= HitChance.High)
-                                    {
-                                        Variables.Spell[Variables.Spells.W].Cast(prediction.CastPosition);
-                                    }
-                                }
-                                else
-                                {
-                                    if (target.Distance(ObjectManager.Player) < 600)
-                                    {
-                                        Variables.Spell[Variables.Spells.W].Cast(target.Position);
-                                    }
-                                }
-
-                            }
+                            CastE(target);
                         }
-                    }
-
-                    if (!sender.IsDead && !Variables.HasPassive() && !Variables.Spell[Variables.Spells.Q].IsReady())
-                    {
-                        CastE(target);
                     }
 
                     break;
