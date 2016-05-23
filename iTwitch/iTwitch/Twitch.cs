@@ -113,7 +113,7 @@
             {
                 if (menu.Item("com.itwitch.misc.saveManaE").GetValue<bool>() && ObjectManager.Player.Mana <= Spells[SpellSlot.E].ManaCost + Spells[SpellSlot.W].ManaCost)
                 {
-                    
+                    return;
                 }
                 var wTarget = TargetSelector.GetTarget(Spells[SpellSlot.W].Range, TargetSelector.DamageType.Physical);
                 if (wTarget.IsValidTarget(Spells[SpellSlot.W].Range) && !ObjectManager.Player.HasBuff("TwitchHideInShadows"))
