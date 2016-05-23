@@ -399,7 +399,7 @@
                 {
                     if (sender.Owner.IsMe && args.Slot == SpellSlot.E)
                     {
-                        Variables.LastECast = LeagueSharp.Common.Utils.TickCount;
+                        Variables.LastECast = Environment.TickCount;
                     }
                 };
 
@@ -423,9 +423,9 @@
         {
             if (!sender.IsMe) return;
 
-            var target = args.Target as Obj_AI_Hero;
+            var target = TargetSelector.GetTarget(Variables.Spell[Variables.Spells.Q].Range, TargetSelector.DamageType.Physical);
 
-            if (target == null || Variables.LastECast < 250) return;
+            if (target == null || Environment.TickCount - Variables.LastECast < 250) return;
             switch (Variables.Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
