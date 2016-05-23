@@ -112,7 +112,7 @@
             if (menu.Item("com.itwitch.combo.useW").GetValue<bool>() && Spells[SpellSlot.W].IsReady())
             {
                 var wTarget = TargetSelector.GetTarget(Spells[SpellSlot.W].Range, TargetSelector.DamageType.Physical);
-                if (wTarget.IsValidTarget(Spells[SpellSlot.W].Range))
+                if (wTarget.IsValidTarget(Spells[SpellSlot.W].Range) && !ObjectManager.Player.HasBuff("TwitchHideInShadows"))
                 {
                     var prediction = Spells[SpellSlot.W].GetPrediction(wTarget);
                     if (prediction.Hitchance >= HitChance.High)
