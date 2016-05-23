@@ -571,10 +571,9 @@
                 CastExtendedQ();
             }
 
-            if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)
-                && Variables.Menu.IsEnabled("com.ilucian.harass.q"))
+            if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range) && Variables.Menu.IsEnabled("com.ilucian.harass.q"))
             {
-                if (Variables.Spell[Variables.Spells.Q].IsEnabledAndReady(ManaMeneger.Mode.Harass)
+                if (Variables.Spell[Variables.Spells.Q].IsReady()
                     && Variables.Spell[Variables.Spells.Q].IsInRange(target))
                 {
                     Variables.Spell[Variables.Spells.Q].Cast(target);
@@ -583,7 +582,7 @@
 
             if (!ObjectManager.Player.IsDashing() && Variables.Menu.IsEnabled("com.ilucian.harass.w"))
             {
-                if (Variables.Spell[Variables.Spells.W].IsEnabledAndReady(ManaMeneger.Mode.Harass))
+                if (Variables.Spell[Variables.Spells.W].IsReady())
                 {
                     if (Variables.Menu.IsEnabled("com.ilucian.misc.usePrediction"))
                     {
