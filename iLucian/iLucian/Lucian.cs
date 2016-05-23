@@ -96,10 +96,10 @@
 
             unitList.AddRange(minions);
 
-            if (Variables.Menu.IsEnabled("com.ilucian.misc.extendChamps"))
+            /*if (Variables.Menu.IsEnabled("com.ilucian.misc.extendChamps"))
             {
                 unitList.AddRange(champions);
-            }
+            }*/
 
             return unitList;
         }
@@ -275,10 +275,6 @@
                         Variables.Spell[Variables.Spells.E].Cast(bestPosition);
                     }
 
-                    break;
-
-                case 6: // URF
-                    Variables.Spell[Variables.Spells.E].Cast(ObjectManager.Player.Position.Extend(Game.CursorPos, 475));
                     break;
             }
         }
