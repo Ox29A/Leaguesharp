@@ -566,8 +566,6 @@
                 TargetSelector.DamageType.Physical);
 
             if (target == null || Variables.HasPassive()) return;
-            if (ObjectManager.Player.ManaPercent
-                < Variables.Menu.Item("com.ilucian.harass.minMana").GetValue<Slider>().Value) return;
             if (Variables.Menu.IsEnabled("com.ilucian.harass.qExtended"))
             {
                 CastExtendedQ();
