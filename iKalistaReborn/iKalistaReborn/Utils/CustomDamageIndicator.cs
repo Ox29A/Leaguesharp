@@ -1,71 +1,99 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
 
 namespace iKalistaReborn.Utils
 {
     internal class CustomDamageIndicator
     {
-        private const int BarWidth = 104;
-        private const int LineThickness = 9;
-        private static Utility.HpBarDamageIndicator.DamageToUnitDelegate _damageToUnit;
-        private static readonly Vector2 BarOffset = new Vector2(10, 25);
-        private static System.Drawing.Color drawingColor;
+        private static int height;
 
-        public static System.Drawing.Color DrawingColor
+        private static int width;
+
+        private static int xOffset;
+
+        private static int yOffset;
+
+        public static Color EnemyColor = Kalista.Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Color;
+
+        public static Color JungleColor = Kalista.Menu.Item("com.ikalista.drawing.eDamageJ").GetValue<Circle>().Color;
+
+        private static DamageToUnitDelegate damageToUnit;
+
+        public delegate float DamageToUnitDelegate(Obj_AI_Base minion);
+
+        public static DamageToUnitDelegate DamageToUnit
         {
-            get { return drawingColor; }
-            set { drawingColor = System.Drawing.Color.FromArgb(170, value); }
-        }
-
-        public static bool Enabled { get; set; }
-
-        public static void Initialize(Utility.HpBarDamageIndicator.DamageToUnitDelegate damageToUnit)
-        {
-            // Apply needed field delegate for damage calculation
-            _damageToUnit = damageToUnit;
-            DrawingColor = System.Drawing.Color.Green;
-            Enabled = true;
-
-            // Register event handlers
-            Drawing.OnDraw += Drawing_OnDraw;
-        }
-
-        private static void Drawing_OnDraw(EventArgs args)
-        {
-            if (Enabled)
+            get
             {
-                foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(u => u.IsValidTarget() && u.IsHPBarRendered)
-                    )
+                return damageToUnit;
+            }
+
+            set
+            {
+                if (damageToUnit == null)
                 {
-                    // Get damage to unit
-                    var damage = _damageToUnit(unit);
+                    Drawing.OnEndScene += OnEndScene;
+                }
 
-                    // Continue on 0 damage
-                    if (damage <= 0)
-                        continue;
+                damageToUnit = value;
+            }
+        }
 
-                    // Get remaining HP after damage applied in percent and the current percent of health
-                    var damagePercentage = ((unit.Health - damage) > 0 ? (unit.Health - damage) : 0)/unit.MaxHealth;
-                    var currentHealthPercentage = unit.Health/unit.MaxHealth;
+        private static void OnEndScene(EventArgs args)
+        {
+            if (Kalista.Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Active)
+            {
+                foreach (
+                    var hero in
+                        GameObjects.EnemyHeroes.Where(x => x.IsValidTarget() && x.IsHPBarRendered && x.HasRendBuff()))
+                {
+                    height = 9;
+                    width = 104;
+                    xOffset = hero.ChampionName == "Jhin" ? -9 : 2;
+                    yOffset = hero.ChampionName == "Jhin" ? -5 : 9;
 
-                    // Calculate start and end point of the bar indicator
-                    var startPoint = new Vector2(
-                        (int) (unit.HPBarPosition.X + BarOffset.X + damagePercentage*BarWidth),
-                        (int) (unit.HPBarPosition.Y + BarOffset.Y) - 5);
-                    var endPoint =
-                        new Vector2((int) (unit.HPBarPosition.X + BarOffset.X + currentHealthPercentage*BarWidth) + 1,
-                            (int) (unit.HPBarPosition.Y + BarOffset.Y) - 5);
-
-                    // Draw the line
-                    Drawing.DrawLine(startPoint, endPoint, LineThickness, DrawingColor);
+                    DrawLine(hero);
                 }
             }
+
+            if (Kalista.Menu.Item("com.ikalista.drawing.eDamageJ").GetValue<Circle>().Active)
+            {
+                foreach (
+                    var unit in
+                        GameObjects.Jungle.Where(
+                            x =>
+                            ObjectManager.Player.Distance(x) <= SpellManager.Spell[SpellSlot.E].Range
+                            && x.IsValidTarget() && x.IsHPBarRendered && x.HasRendBuff()))
+                {
+                    Render.Circle.DrawCircle(unit.Position, 500f, unit.IsMobKillable() ? Color.GreenYellow : Color.Red);
+                }
+            }
+        }
+
+        private static void DrawLine(Obj_AI_Base unit)
+        {
+            var damage = damageToUnit(unit);
+            if (damage <= 0) return;
+
+            var barPos = unit.HPBarPosition;
+
+            // Get remaining HP after damage applied in percent and the current percent of health
+            var percentHealthAfterDamage = Math.Max(0, unit.Health - damage)
+                                           / (unit.MaxHealth + unit.AllShield + unit.PhysicalShield + unit.MagicalShield);
+            var currentHealthPercentage = unit.Health
+                                          / (unit.MaxHealth + unit.AllShield + unit.PhysicalShield + unit.MagicalShield);
+
+            // Calculate start and end point of the bar indicator
+            var startPoint = barPos.X + xOffset + (percentHealthAfterDamage * width);
+            var endPoint = barPos.X + xOffset + (currentHealthPercentage * width);
+            var yPos = barPos.Y + yOffset;
+
+            // Draw the line
+            Drawing.DrawLine(startPoint, yPos, endPoint, yPos, height, unit is Obj_AI_Hero ? EnemyColor : JungleColor);
         }
     }
 }

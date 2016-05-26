@@ -162,7 +162,7 @@
         /// </returns>
         public static bool IsRendKillable(this Obj_AI_Base target)
         {
-            if (target.IsInvulnerable || target == null || !target.HasBuff("kalistaexpungemarker"))
+            if (target.IsInvulnerable || !target.HasBuff("kalistaexpungemarker"))
             {
                 return false;
             }
@@ -195,14 +195,6 @@
                 baseDamage *= 0.88;
             }
 
-            /*
-            // Bond Of Stone
-            if (targetHero.GetResolve(Resolve.BondofStone).IsValid())
-            {
-                baseDamage *= 0.96;
-            }
-            */
-
             // Alistar R
             if (target.HasBuff("FerociousHowl"))
             {
@@ -219,8 +211,7 @@
             if (target.HasBuff("BraumShieldRaise"))
             {
                 baseDamage *= 1
-                          - new[] { 0.3, 0.325, 0.35, 0.375, 0.4 }[
-                              target.Spellbook.GetSpell(SpellSlot.E).Level - 1];
+                              - new[] { 0.3, 0.325, 0.35, 0.375, 0.4 }[target.Spellbook.GetSpell(SpellSlot.E).Level - 1];
             }
 
             // Galio R
@@ -239,8 +230,7 @@
             if (target.HasBuff("GragasWSelf"))
             {
                 baseDamage *= 1
-                          - new[] { 0.1, 0.12, 0.14, 0.16, 0.18 }[
-                              target.Spellbook.GetSpell(SpellSlot.W).Level - 1];
+                              - new[] { 0.1, 0.12, 0.14, 0.16, 0.18 }[target.Spellbook.GetSpell(SpellSlot.W).Level - 1];
             }
 
             /*
@@ -266,8 +256,7 @@
             // MasterYi W
             if (target.HasBuff("Meditate"))
             {
-                baseDamage *= 1
-                          - new[] { 0.5, 0.55, 0.6, 0.65, 0.7 }[target.Spellbook.GetSpell(SpellSlot.W).Level - 1];
+                baseDamage *= 1 - new[] { 0.5, 0.55, 0.6, 0.65, 0.7 }[target.Spellbook.GetSpell(SpellSlot.W).Level - 1];
             }
 
             // Urgot R
@@ -280,12 +269,13 @@
             if (target.HasBuff("YorickUnholySymbiosis"))
             {
                 baseDamage *= 1
-                          - (ObjectManager.Get<Obj_AI_Minion>().Count(
-                              g =>
-                              g.Team == target.Team
-                              && (g.Name.Equals("Clyde") || g.Name.Equals("Inky") || g.Name.Equals("Blinky")
-                                  || (g.HasBuff("yorickunholysymbiosis")
-                                      && g.GetBuff("yorickunholysymbiosis").Caster == target))) * 0.05);
+                              - (ObjectManager.Get<Obj_AI_Minion>()
+                                     .Count(
+                                         g =>
+                                         g.Team == target.Team
+                                         && (g.Name.Equals("Clyde") || g.Name.Equals("Inky") || g.Name.Equals("Blinky")
+                                             || (g.HasBuff("yorickunholysymbiosis")
+                                                 && g.GetBuff("yorickunholysymbiosis").Caster == target))) * 0.05);
             }
 
             if (target is Obj_AI_Minion)

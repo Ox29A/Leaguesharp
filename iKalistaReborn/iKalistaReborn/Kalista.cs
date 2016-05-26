@@ -70,8 +70,8 @@ namespace iKalistaReborn
         {
             CreateMenu();
             LoadModules();
-            CustomDamageIndicator.Initialize(Helper.GetRendDamage);
             Prediction.Initialize(Menu);
+            CustomDamageIndicator.DamageToUnit = Helper.GetRendDamage;
             Game.OnUpdate += OnUpdate;
             Drawing.OnDraw += OnDraw;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
@@ -191,8 +191,11 @@ namespace iKalistaReborn
                 drawingMenu.AddBool("com.ikalista.drawing.spellRanges", "Draw Spell Ranges");
                 drawingMenu.AddBool("com.ikalista.drawing.shine", "Shine E Range tho", true);
                 drawingMenu.AddItem(
-                    new MenuItem("com.ikalista.drawing.eDamage", "Draw E Damage").SetValue(
+                    new MenuItem("com.ikalista.drawing.eDamage", "Draw E Damage on Enemies").SetValue(
                         new Circle(true, Color.DarkOliveGreen)));
+                drawingMenu.AddItem(
+                    new MenuItem("com.ikalista.drawing.eDamageJ", "Draw E Damage on Jungle Minions").SetValue(
+                        new Circle(true, Color.White)));
                 drawingMenu.AddItem(
                     new MenuItem("com.ikalista.drawing.damagePercent", "Draw Percent Damage").SetValue(
                         new Circle(true, Color.DarkOliveGreen)));
@@ -268,8 +271,8 @@ namespace iKalistaReborn
         /// <param name="args">even more gay</param>
         private void OnDraw(EventArgs args)
         {
-            CustomDamageIndicator.DrawingColor = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Color;
-            CustomDamageIndicator.Enabled = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Active;
+            //CustomDamageIndicator.DrawingColor = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Color;
+            //CustomDamageIndicator.Enabled = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Active;
 
             if (Menu.Item("com.ikalista.drawing.spellRanges").GetValue<bool>())
             {
@@ -352,7 +355,7 @@ namespace iKalistaReborn
             {
                 var minions = MinionManager.GetMinions(SpellManager.Spell[SpellSlot.E].Range).ToList();
                 if (minions.Count < 0) return;
-                var siegeMinion = minions.FirstOrDefault(x => x.Name.Contains("siege") && x.IsRendKillable());
+                var siegeMinion = minions.FirstOrDefault(x => x.CharData.BaseSkinName == "MinionSiege" && x.IsRendKillable());
 
                 if (Menu.Item("com.ikalista.laneclear.eSiege").GetValue<bool>() && siegeMinion != null)
                 {
