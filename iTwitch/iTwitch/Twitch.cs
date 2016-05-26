@@ -1,4 +1,4 @@
-﻿namespace iTwitch
+namespace iTwitch
 {
     using System;
     using System.Collections.Generic;
@@ -52,14 +52,14 @@
                 menu.AddSubMenu(owMenu);
             }
 
-            var comboMenu = new Menu(":: iTwith 2.0 - Combo Options", "com.itwitch.combo");
+            var comboMenu = new Menu(":: iTwitch 2.0 - Combo Options", "com.itwitch.combo");
             {
                 comboMenu.AddBool("com.itwitch.combo.useW", "Use W", true);
                 comboMenu.AddBool("com.itwitch.combo.useEKillable", "Use E Killable", true);
                 menu.AddSubMenu(comboMenu);
             }
 
-            var harassMenu = new Menu(":: iTwith 2.0 - Harass Options", "com.itwitch.harass");
+            var harassMenu = new Menu(":: iTwitch 2.0 - Harass Options", "com.itwitch.harass");
             {
                 harassMenu.AddBool("com.itwitch.harass.useW", "Use W");
                 harassMenu.AddBool("com.itwitch.harass.useEKillable", "Use E", true);
@@ -68,16 +68,16 @@
 
             var miscMenu = new Menu(":: iTwitch 2.0 - Misc Options", "com.itwitch.misc");
             {
-                miscMenu.AddBool("com.itwitch.misc.autoYo", "Yomuus with R", true);
+                miscMenu.AddBool("com.itwitch.misc.autoYo", "Youmuus with R", true);
                 miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
                 miscMenu.AddKeybind(
-                    "com.itwitch.misc.recall", 
+                    "com.itwitch.misc.recall",
                     "Stealth Recall", 
                     new Tuple<uint, KeyBindType>("T".ToCharArray()[0], KeyBindType.Press));
                 menu.AddSubMenu(miscMenu);
             }
 
-            var drawingMenu = new Menu(":: iTwith 2.0 - Drawing Options", "com.itwitch.drawing");
+            var drawingMenu = new Menu(":: iTwitch 2.0 - Drawing Options", "com.itwitch.drawing");
             {
                 drawingMenu.AddBool("com.itwitch.drawing.drawQTime", "Draw Q Time", true);
                 drawingMenu.AddBool("com.itwitch.drawing.drawEStacks", "Draw E Stacks", true);
@@ -96,25 +96,13 @@
 
         public void OnCombo()
         {
-            if (menu.Item("com.itwitch.combo.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
-            {
-                var killableTarget =
-                    HeroManager.Enemies.FirstOrDefault(
-                        x =>
-                        x.IsValidTarget(Spells[SpellSlot.E].Range) && Spells[SpellSlot.E].IsInRange(x)
-                        && x.IsPoisonKillable());
-                if (killableTarget != null)
-                {
-                    Spells[SpellSlot.E].Cast();
-                }
-            }
-
             if (menu.Item("com.itwitch.combo.useW").GetValue<bool>() && Spells[SpellSlot.W].IsReady())
             {
                 if (menu.Item("com.itwitch.misc.saveManaE").GetValue<bool>() && ObjectManager.Player.Mana <= Spells[SpellSlot.E].ManaCost + Spells[SpellSlot.W].ManaCost)
                 {
                     return;
                 }
+
                 var wTarget = TargetSelector.GetTarget(Spells[SpellSlot.W].Range, TargetSelector.DamageType.Physical);
                 if (wTarget.IsValidTarget(Spells[SpellSlot.W].Range) && !ObjectManager.Player.HasBuff("TwitchHideInShadows"))
                 {
@@ -172,19 +160,6 @@
 
         public void OnHarass()
         {
-            if (menu.Item("com.itwitch.harass.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
-            {
-                var target =
-                    HeroManager.Enemies.FirstOrDefault(
-                        x =>
-                        x.IsValidTarget(Spells[SpellSlot.E].Range) && Spells[SpellSlot.E].IsInRange(x)
-                        && x.IsPoisonKillable());
-                if (target != null)
-                {
-                    Spells[SpellSlot.E].Cast();
-                }
-            }
-
             if (menu.Item("com.itwitch.harass.useW").GetValue<bool>() && Spells[SpellSlot.W].IsReady())
             {
                 var wTarget = TargetSelector.GetTarget(Spells[SpellSlot.W].Range, TargetSelector.DamageType.Physical);
@@ -253,6 +228,17 @@
             if (menu.Item("com.itwitch.misc.recall").GetValue<KeyBind>().Active)
             {
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
+            }
+
+            if (menu.Item("com.itwitch.combo.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
+            {
+                if (HeroManager.Enemies.Any(
+					x =>
+						x.IsPoisonKillable() &&
+						x.IsValidTarget(Spells[SpellSlot.E].Range)))
+                {
+                    Spells[SpellSlot.E].Cast();
+                }
             }
 
             switch (orbwalker.ActiveMode)
