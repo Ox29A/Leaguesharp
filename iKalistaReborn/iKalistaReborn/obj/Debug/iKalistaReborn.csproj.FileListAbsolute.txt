@@ -1,2 +1,0 @@
-C:\Users\Corey\Desktop\Assemblies\iKalistaReborn\iKalistaReborn\bin\Release\iKalistaReborn.exe.config
-C:\Users\Corey\Desktop\Assemblies\Leaguesharp\iKalistaReborn\iKalistaReborn\bin\Release\iKalistaReborn.exe.config
