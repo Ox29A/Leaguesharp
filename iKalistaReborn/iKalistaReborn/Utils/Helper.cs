@@ -162,46 +162,143 @@
         /// </returns>
         public static bool IsRendKillable(this Obj_AI_Base target)
         {
-            if (target == null) return false;
-
-            var baseDamage = SpellManager.Spell[SpellSlot.E].GetDamage(target);
-
-            if (target is Obj_AI_Hero)
+            if (target.IsInvulnerable || target == null || !target.HasBuff("kalistaexpungemarker"))
             {
-                if (target.HasUndyingBuff() || target.Health < 1 || target.HasBuffOfType(BuffType.SpellShield)) return false;
+                return false;
+            }
 
-                if (target.HasBuff("meditate"))
-                {
-                    baseDamage *= 0.5f - 0.05f * target.Spellbook.GetSpell(SpellSlot.W).Level;
-                }
+            double baseDamage = SpellManager.Spell[SpellSlot.E].GetDamage(target);
+
+            // Exhaust
+            if (ObjectManager.Player.HasBuff("SummonerExhaust"))
+            {
+                baseDamage *= 0.6;
+            }
+
+            // Urgot P
+            if (ObjectManager.Player.HasBuff("urgotentropypassive"))
+            {
+                baseDamage *= 0.85;
+            }
+
+            // Bond Of Stone
+            var bondofstoneBuffCount = target.GetBuffCount("MasteryWardenOfTheDawn");
+            if (bondofstoneBuffCount > 0)
+            {
+                baseDamage *= 1 - (0.06 * bondofstoneBuffCount);
+            }
+
+            // Phantom Dancer
+            var phantomdancerBuff = ObjectManager.Player.GetBuff("itemphantomdancerdebuff");
+            if (phantomdancerBuff != null && phantomdancerBuff.Caster == target)
+            {
+                baseDamage *= 0.88;
+            }
+
+            /*
+            // Bond Of Stone
+            if (targetHero.GetResolve(Resolve.BondofStone).IsValid())
+            {
+                baseDamage *= 0.96;
+            }
+            */
+
+            // Alistar R
+            if (target.HasBuff("FerociousHowl"))
+            {
+                baseDamage *= 0.6 - new[] { 0.1, 0.2, 0.3 }[target.Spellbook.GetSpell(SpellSlot.R).Level - 1];
+            }
+
+            // Amumu E
+            if (target.HasBuff("Tantrum"))
+            {
+                baseDamage -= new[] { 2, 4, 6, 8, 10 }[target.Spellbook.GetSpell(SpellSlot.E).Level - 1];
+            }
+
+            // Braum E
+            if (target.HasBuff("BraumShieldRaise"))
+            {
+                baseDamage *= 1
+                          - new[] { 0.3, 0.325, 0.35, 0.375, 0.4 }[
+                              target.Spellbook.GetSpell(SpellSlot.E).Level - 1];
+            }
+
+            // Galio R
+            if (target.HasBuff("GalioIdolOfDurand"))
+            {
+                baseDamage *= 0.5;
+            }
+
+            // Garen W
+            if (target.HasBuff("GarenW"))
+            {
+                baseDamage *= 0.7;
+            }
+
+            // Gragas W
+            if (target.HasBuff("GragasWSelf"))
+            {
+                baseDamage *= 1
+                          - new[] { 0.1, 0.12, 0.14, 0.16, 0.18 }[
+                              target.Spellbook.GetSpell(SpellSlot.W).Level - 1];
+            }
+
+            /*
+            // Kassadin P
+            if (target.HasBuff("VoidStone") && damageType == DamageType.Magical)
+            {
+                baseDamage *= 0.85;
+            }
+            */
+
+            // Katarina E
+            if (target.HasBuff("KatarinaEReduction"))
+            {
+                baseDamage *= 0.85;
+            }
+
+            // Maokai R
+            if (target.HasBuff("MaokaiDrainDefense"))
+            {
+                baseDamage *= 0.8;
+            }
+
+            // MasterYi W
+            if (target.HasBuff("Meditate"))
+            {
+                baseDamage *= 1
+                          - new[] { 0.5, 0.55, 0.6, 0.65, 0.7 }[target.Spellbook.GetSpell(SpellSlot.W).Level - 1];
+            }
+
+            // Urgot R
+            if (target.HasBuff("urgotswapdef"))
+            {
+                baseDamage *= 1 - new[] { 0.3, 0.4, 0.5 }[target.Spellbook.GetSpell(SpellSlot.R).Level - 1];
+            }
+
+            // Yorick P
+            if (target.HasBuff("YorickUnholySymbiosis"))
+            {
+                baseDamage *= 1
+                          - (ObjectManager.Get<Obj_AI_Minion>().Count(
+                              g =>
+                              g.Team == target.Team
+                              && (g.Name.Equals("Clyde") || g.Name.Equals("Inky") || g.Name.Equals("Blinky")
+                                  || (g.HasBuff("yorickunholysymbiosis")
+                                      && g.GetBuff("yorickunholysymbiosis").Caster == target))) * 0.05);
             }
 
             if (target is Obj_AI_Minion)
             {
-                if (target.Name.Contains("Baron") && ObjectManager.Player.HasBuff("barontarget"))
+                if (target.Name.Contains("Baron"))
                 {
                     baseDamage *= 0.5f;
                 }
-
-                // if (target.Name.Contains("Dragon") && ObjectManager.Player.HasBuff("s5test_dragonslayerbuff"))
-                // {
-                // baseDamage *= (1f - (0.07f*ObjectManager.Player.GetBuffCount("s5test_dragonslayerbuff")));
-                // } HM???
             }
 
-            if (ObjectManager.Player.HasBuff("SummonerExhaust"))
-            {
-                baseDamage *= 0.55f;
-            }
-
-            return baseDamage > target.GetHealthWithShield();
+            return (float)baseDamage > target.GetHealthWithShield();
         }
 
         #endregion
-
-        /*public static bool IsRendKillable(this Obj_AI_Hero target)
-        {
-            return IsRendKillable((Obj_AI_Base) target) >= GetHealthWithShield(target) && !HasUndyingBuff(target) && !target.HasBuffOfType(BuffType.SpellShield);
-        }*/
     }
 }
