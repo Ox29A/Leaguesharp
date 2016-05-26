@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace iKalistaReborn.Utils
+﻿namespace iKalistaReborn.Utils
 {
+    using System.Linq;
     using System.Text.RegularExpressions;
 
     using LeagueSharp;
@@ -19,8 +14,8 @@ namespace iKalistaReborn.Utils
         /// </summary>
         private static readonly string[] LargeNameRegex =
             {
-                "SRU_Murkwolf[0-9.]{1,}", "SRU_Gromp", "SRU_Blue[0-9.]{1,}",
-                "SRU_Razorbeak[0-9.]{1,}", "SRU_Red[0-9.]{1,}",
+                "SRU_Murkwolf[0-9.]{1,}", "SRU_Gromp", "SRU_Blue[0-9.]{1,}", 
+                "SRU_Razorbeak[0-9.]{1,}", "SRU_Red[0-9.]{1,}", 
                 "SRU_Krug[0-9]{1,}"
             };
 
@@ -33,6 +28,7 @@ namespace iKalistaReborn.Utils
         ///     The small name regex list.
         /// </summary>
         private static readonly string[] SmallNameRegex = { "SRU_[a-zA-Z](.*?)Mini", "Sru_Crab" };
+
         #endregion
 
         #region Public Methods and Operators
@@ -89,17 +85,17 @@ namespace iKalistaReborn.Utils
         /// <summary>
         ///     The unknown type.
         /// </summary>
-        Unknown,
+        Unknown, 
 
         /// <summary>
         ///     The small type.
         /// </summary>
-        Small,
+        Small, 
 
         /// <summary>
         ///     The large type.
         /// </summary>
-        Large,
+        Large, 
 
         /// <summary>
         ///     The legendary type.
