@@ -172,10 +172,10 @@ namespace iKalistaReborn
             {
                 jungleStealMenu.AddBool("com.ikalista.jungleSteal.enabled", "Use Rend To Steal Jungle Minions", true);
 
-                foreach (var minion in JungleMinions)
-                {
-                    jungleStealMenu.AddBool(minion.Key, minion.Value, true);
-                }
+                jungleStealMenu.AddBool("com.ikalista.jungleSteal.small", "Kill Small Minions", true);
+                jungleStealMenu.AddBool("com.ikalista.jungleSteal.large", "Kill Large Minions", true);
+                jungleStealMenu.AddBool("com.ikalista.jungleSteal.legendary", "Kill Legendary Minions", true);
+
 
                 Menu.AddSubMenu(jungleStealMenu);
             }

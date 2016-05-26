@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Linq;
+
 using DZLib.Modules;
+
 using iKalistaReborn.Utils;
+
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -21,8 +24,8 @@ namespace iKalistaReborn.Modules
 
         public bool ShouldGetExecuted()
         {
-            return SpellManager.Spell[SpellSlot.E].IsReady() &&
-                   Kalista.Menu.Item("com.ikalista.jungleSteal.enabled").GetValue<bool>();
+            return SpellManager.Spell[SpellSlot.E].IsReady()
+                   && Kalista.Menu.Item("com.ikalista.jungleSteal.enabled").GetValue<bool>();
         }
 
         public ModuleType GetModuleType()
@@ -32,17 +35,22 @@ namespace iKalistaReborn.Modules
 
         public void OnExecute()
         {
-            var attackableMinion =
-                MinionManager.GetMinions(ObjectManager.Player.ServerPosition, SpellManager.Spell[SpellSlot.E].Range,
-                    MinionTypes.All, MinionTeam.Neutral,
-                    MinionOrderTypes.MaxHealth).FirstOrDefault(x => !x.Name.Contains("Mini"));
+            var small =
+                GameObjects.JungleSmall.Any(
+                    x => SpellManager.Spell[SpellSlot.E].CanCast(x) && x.IsMobKillable() && x.IsValid);
+            var large =
+                GameObjects.JungleLarge.Any(
+                    x => SpellManager.Spell[SpellSlot.E].CanCast(x) && x.IsMobKillable() && x.IsValid);
+            var legendary =
+                GameObjects.JungleLegendary.Any(
+                    x => SpellManager.Spell[SpellSlot.E].CanCast(x) && x.IsMobKillable() && x.IsValid);
 
-            if (attackableMinion == null || !attackableMinion.HasRendBuff() || !attackableMinion.IsMobKillable() ||
-                !Kalista.Menu.Item(attackableMinion.CharData.BaseSkinName).GetValue<bool>())
-                return;
-
-            Console.WriteLine("Minion Killable: " + attackableMinion.CharData.BaseSkinName);
-            SpellManager.Spell[SpellSlot.E].Cast();
+            if ((small && Kalista.Menu.Item("com.ikalista.jungleSteal.small").GetValue<bool>())
+                || (large && Kalista.Menu.Item("com.ikalista.jungleSteal.large").GetValue<bool>())
+                || (legendary && Kalista.Menu.Item("com.ikalista.jungleSteal.legendary").GetValue<bool>()))
+            {
+                SpellManager.Spell[SpellSlot.E].Cast();
+            }
         }
     }
 }
