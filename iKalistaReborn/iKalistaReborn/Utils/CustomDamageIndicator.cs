@@ -1,99 +1,103 @@
 ﻿using System;
-using System.Drawing;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 using LeagueSharp;
 using LeagueSharp.Common;
 
+using SharpDX;
+
 namespace iKalistaReborn.Utils
 {
+    using System.Drawing;
+
     internal class CustomDamageIndicator
     {
-        private static int height;
+        private const int BarWidth = 104;
 
-        private static int width;
+        private const int LineThickness = 9;
 
-        private static int xOffset;
+        private static Utility.HpBarDamageIndicator.DamageToUnitDelegate _damageToUnit;
 
-        private static int yOffset;
+        private static readonly Vector2 BarOffset = new Vector2(10, 25);
 
-        public static Color EnemyColor = Kalista.Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Color;
+        private static Color drawingColor;
 
-        public static Color JungleColor = Kalista.Menu.Item("com.ikalista.drawing.eDamageJ").GetValue<Circle>().Color;
-
-        private static DamageToUnitDelegate damageToUnit;
-
-        public delegate float DamageToUnitDelegate(Obj_AI_Base minion);
-
-        public static DamageToUnitDelegate DamageToUnit
+        public static Color DrawingColor
         {
             get
             {
-                return damageToUnit;
+                return drawingColor;
             }
 
             set
             {
-                if (damageToUnit == null)
-                {
-                    Drawing.OnEndScene += OnEndScene;
-                }
-
-                damageToUnit = value;
+                drawingColor = System.Drawing.Color.FromArgb(170, value);
             }
         }
 
-        private static void OnEndScene(EventArgs args)
+        public static bool Enabled { get; set; }
+
+        public static bool EnabledJ { get; set; }
+
+        public static void Initialize(Utility.HpBarDamageIndicator.DamageToUnitDelegate damageToUnit)
         {
-            if (Kalista.Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Active)
-            {
-                foreach (
-                    var hero in
-                        GameObjects.EnemyHeroes.Where(x => x.IsValidTarget() && x.IsHPBarRendered && x.HasRendBuff()))
-                {
-                    height = 9;
-                    width = 104;
-                    xOffset = hero.ChampionName == "Jhin" ? -9 : 2;
-                    yOffset = hero.ChampionName == "Jhin" ? -5 : 9;
+            // Apply needed field delegate for damage calculation
+            _damageToUnit = damageToUnit;
+            DrawingColor = System.Drawing.Color.Green;
+            Enabled = true;
 
-                    DrawLine(hero);
-                }
-            }
-
-            if (Kalista.Menu.Item("com.ikalista.drawing.eDamageJ").GetValue<Circle>().Active)
-            {
-                foreach (
-                    var unit in
-                        GameObjects.Jungle.Where(
-                            x =>
-                            ObjectManager.Player.Distance(x) <= SpellManager.Spell[SpellSlot.E].Range
-                            && x.IsValidTarget() && x.IsHPBarRendered && x.HasRendBuff()))
-                {
-                    Render.Circle.DrawCircle(unit.Position, 500f, unit.IsMobKillable() ? Color.GreenYellow : Color.Red);
-                }
-            }
+            // Register event handlers
+            Drawing.OnDraw += Drawing_OnDraw;
         }
 
-        private static void DrawLine(Obj_AI_Base unit)
+        private static void Drawing_OnDraw(EventArgs args)
         {
-            var damage = damageToUnit(unit);
-            if (damage <= 0) return;
+            if (Enabled)
+            {
+                foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(u => u.IsValidTarget() && u.IsHPBarRendered)
+                    )
+                {
+                    // Get damage to unit
+                    var damage = _damageToUnit(unit);
 
-            var barPos = unit.HPBarPosition;
+                    // Continue on 0 damage
+                    if (damage <= 0) continue;
 
-            // Get remaining HP after damage applied in percent and the current percent of health
-            var percentHealthAfterDamage = Math.Max(0, unit.Health - damage)
-                                           / (unit.MaxHealth + unit.AllShield + unit.PhysicalShield + unit.MagicalShield);
-            var currentHealthPercentage = unit.Health
-                                          / (unit.MaxHealth + unit.AllShield + unit.PhysicalShield + unit.MagicalShield);
+                    // Get remaining HP after damage applied in percent and the current percent of health
+                    var damagePercentage = ((unit.Health - damage) > 0 ? (unit.Health - damage) : 0) / unit.MaxHealth;
+                    var currentHealthPercentage = unit.Health / unit.MaxHealth;
 
-            // Calculate start and end point of the bar indicator
-            var startPoint = barPos.X + xOffset + (percentHealthAfterDamage * width);
-            var endPoint = barPos.X + xOffset + (currentHealthPercentage * width);
-            var yPos = barPos.Y + yOffset;
+                    // Calculate start and end point of the bar indicator
+                    var startPoint = new Vector2(
+                        (int)(unit.HPBarPosition.X + BarOffset.X + damagePercentage * BarWidth), 
+                        (int)(unit.HPBarPosition.Y + BarOffset.Y) - 5);
+                    var endPoint =
+                        new Vector2(
+                            (int)(unit.HPBarPosition.X + BarOffset.X + currentHealthPercentage * BarWidth) + 1, 
+                            (int)(unit.HPBarPosition.Y + BarOffset.Y) - 5);
 
-            // Draw the line
-            Drawing.DrawLine(startPoint, yPos, endPoint, yPos, height, unit is Obj_AI_Hero ? EnemyColor : JungleColor);
+                    // Draw the line
+                    Drawing.DrawLine(startPoint, endPoint, LineThickness, DrawingColor);
+                }
+            }
+
+            if (EnabledJ)
+            {
+                foreach (var unit in
+                    GameObjects.Jungle.Where(
+                        x =>
+                        ObjectManager.Player.Distance(x) <= SpellManager.Spell[SpellSlot.E].Range && x.IsValidTarget()
+                        && x.IsHPBarRendered && x.HasRendBuff()))
+                {
+                    Render.Circle.DrawCircle(
+                        unit.Position, 
+                        500f, 
+                        unit.IsMobKillable() ? System.Drawing.Color.GreenYellow : System.Drawing.Color.Red);
+                }
+            }
         }
     }
 }

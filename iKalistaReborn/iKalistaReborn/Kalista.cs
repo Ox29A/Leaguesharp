@@ -71,7 +71,7 @@ namespace iKalistaReborn
             CreateMenu();
             LoadModules();
             Prediction.Initialize(Menu);
-            CustomDamageIndicator.DamageToUnit = Helper.GetRendDamage;
+            CustomDamageIndicator.Initialize(Helper.GetRendDamage);
             Game.OnUpdate += OnUpdate;
             Drawing.OnDraw += OnDraw;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
@@ -194,8 +194,11 @@ namespace iKalistaReborn
                     new MenuItem("com.ikalista.drawing.eDamage", "Draw E Damage on Enemies").SetValue(
                         new Circle(true, Color.DarkOliveGreen)));
                 drawingMenu.AddItem(
-                    new MenuItem("com.ikalista.drawing.eDamageJ", "Draw E Damage on Jungle Minions").SetValue(
-                        new Circle(true, Color.White)));
+                    new MenuItem("com.ikalista.drawing.eDamageJ", "Draw E Damage Circle on jungle mobs").SetValue(
+                        new Circle(true, Color.White)).SetTooltip("Red = Not Killable, Green = Killable ?? w" + ""
+                                                                  + "" + "" + "" + "" + "" + "" + "" + "" + ""
+                                                                  + "" + "" + "" + "" + "" + "" + "" + "" + ""
+                                                                  + "" + "" + "in win"));
                 drawingMenu.AddItem(
                     new MenuItem("com.ikalista.drawing.damagePercent", "Draw Percent Damage").SetValue(
                         new Circle(true, Color.DarkOliveGreen)));
@@ -271,8 +274,9 @@ namespace iKalistaReborn
         /// <param name="args">even more gay</param>
         private void OnDraw(EventArgs args)
         {
-            //CustomDamageIndicator.DrawingColor = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Color;
-            //CustomDamageIndicator.Enabled = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Active;
+            CustomDamageIndicator.DrawingColor = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Color;
+            CustomDamageIndicator.Enabled = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Active;
+            CustomDamageIndicator.EnabledJ = Menu.Item("com.ikalista.drawing.eDamageJ").GetValue<Circle>().Active;
 
             if (Menu.Item("com.ikalista.drawing.spellRanges").GetValue<bool>())
             {
