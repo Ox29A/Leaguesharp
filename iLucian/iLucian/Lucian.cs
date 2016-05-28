@@ -16,6 +16,7 @@
     using SharpDX;
 
     using ActiveGapcloser = DZLib.Core.ActiveGapcloser;
+    using Color = System.Drawing.Color;
 
     class Lucian
     {
@@ -404,6 +405,13 @@
                 };
 
             Obj_AI_Base.OnProcessSpellCast += OnSpellCast;
+            Drawing.OnDraw += args =>
+                {
+                    if (Variables.Menu.IsEnabled("com.ilucian.misc.drawQ"))
+                    {
+                        Render.Circle.DrawCircle(ObjectManager.Player.Position, Variables.Spell[Variables.Spells.Q2].Range, Color.BlueViolet);
+                    }
+                };
         }
 
         private void LoadSpells()

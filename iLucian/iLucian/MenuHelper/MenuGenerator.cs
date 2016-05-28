@@ -103,6 +103,7 @@ namespace iLucian.MenuHelper
                 miscOptions.AddBool("com.ilucian.misc.eqKs", "EQ - Killsteal", true);
                 miscOptions.AddBool("com.ilucian.misc.useChampions", "Use EQ on Champions", true);
                 miscOptions.AddBool("com.ilucian.misc.extendChamps", "Use Ext Q on Champions", true);
+                miscOptions.AddBool("com.ilucian.misc.drawQ", "Draw Ext Q Range", true);
                 var dmgAfterComboItem =
                     new MenuItem("com.ilucian.misc.drawDamage", "Draw Damage After Combo").SetValue(true);
                 {
