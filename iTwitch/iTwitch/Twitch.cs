@@ -26,7 +26,7 @@ namespace iTwitch
                                                                          {
                                                                              { SpellSlot.Q, new Spell(SpellSlot.Q) }, 
                                                                              { SpellSlot.W, new Spell(SpellSlot.W, 950f) }, 
-                                                                             { SpellSlot.E, new Spell(SpellSlot.E, 1150f) },
+                                                                             { SpellSlot.E, new Spell(SpellSlot.E, 1100) },
                                                                              { SpellSlot.R, new Spell(SpellSlot.R) },
                                                                          };
 
