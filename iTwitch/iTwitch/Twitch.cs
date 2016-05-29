@@ -26,8 +26,8 @@ namespace iTwitch
                                                                          {
                                                                              { SpellSlot.Q, new Spell(SpellSlot.Q) }, 
                                                                              { SpellSlot.W, new Spell(SpellSlot.W, 950f) }, 
-                                                                             { SpellSlot.E, new Spell(SpellSlot.E, 1100) },
-                                                                             { SpellSlot.R, new Spell(SpellSlot.R) },
+                                                                             { SpellSlot.E, new Spell(SpellSlot.E, 1100) }, 
+                                                                             { SpellSlot.R, new Spell(SpellSlot.R) }, 
                                                                          };
 
         #endregion
@@ -44,7 +44,9 @@ namespace iTwitch
 
         public void LoadMenu()
         {
-            menu = new Menu("iTwitch 2.0 - Hawk Mode", "com.itwitch", true).SetFontStyle(FontStyle.Bold, SharpDX.Color.AliceBlue);
+            menu = new Menu("iTwitch 2.0 - Hawk Mode", "com.itwitch", true).SetFontStyle(
+                FontStyle.Bold, 
+                SharpDX.Color.AliceBlue);
 
             var owMenu = new Menu(":: Orbwalker", "com.itwitch.orbwalker");
             {
@@ -70,8 +72,11 @@ namespace iTwitch
             {
                 miscMenu.AddBool("com.itwitch.misc.autoYo", "Youmuus with R", true);
                 miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
+                miscMenu.AddItem(
+                    new MenuItem("com.itwitch.misc.eDamage", "Draw E Damage on Enemies").SetValue(
+                        new Circle(true, Color.DarkOliveGreen)));
                 miscMenu.AddKeybind(
-                    "com.itwitch.misc.recall",
+                    "com.itwitch.misc.recall", 
                     "Stealth Recall", 
                     new Tuple<uint, KeyBindType>("T".ToCharArray()[0], KeyBindType.Press));
                 menu.AddSubMenu(miscMenu);
@@ -98,13 +103,15 @@ namespace iTwitch
         {
             if (menu.Item("com.itwitch.combo.useW").GetValue<bool>() && Spells[SpellSlot.W].IsReady())
             {
-                if (menu.Item("com.itwitch.misc.saveManaE").GetValue<bool>() && ObjectManager.Player.Mana <= Spells[SpellSlot.E].ManaCost + Spells[SpellSlot.W].ManaCost)
+                if (menu.Item("com.itwitch.misc.saveManaE").GetValue<bool>()
+                    && ObjectManager.Player.Mana <= Spells[SpellSlot.E].ManaCost + Spells[SpellSlot.W].ManaCost)
                 {
                     return;
                 }
 
                 var wTarget = TargetSelector.GetTarget(Spells[SpellSlot.W].Range, TargetSelector.DamageType.Physical);
-                if (wTarget.IsValidTarget(Spells[SpellSlot.W].Range) && !ObjectManager.Player.HasBuff("TwitchHideInShadows"))
+                if (wTarget.IsValidTarget(Spells[SpellSlot.W].Range)
+                    && !ObjectManager.Player.HasBuff("TwitchHideInShadows"))
                 {
                     var prediction = Spells[SpellSlot.W].GetPrediction(wTarget);
                     if (prediction.Hitchance >= HitChance.High)
@@ -118,6 +125,8 @@ namespace iTwitch
         public void OnGameLoad(EventArgs args)
         {
             if (ObjectManager.Player.ChampionName != "Twitch") return;
+
+            CustomDamageIndicator.Initialize(Extensions.GetPoisonDamage);
 
             LoadSpells();
             LoadMenu();
@@ -180,6 +189,9 @@ namespace iTwitch
 
         private void OnDraw(EventArgs args)
         {
+            CustomDamageIndicator.DrawingColor = menu.Item("com.itwitch.misc.eDamage").GetValue<Circle>().Color;
+            CustomDamageIndicator.Enabled = menu.Item("com.itwitch.misc.eDamage").GetValue<Circle>().Active;
+
             if (menu.Item("com.itwitch.drawing.drawQTime").GetValue<bool>()
                 && ObjectManager.Player.HasBuff("TwitchHideInShadows"))
             {
@@ -232,10 +244,7 @@ namespace iTwitch
 
             if (menu.Item("com.itwitch.combo.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
             {
-                if (HeroManager.Enemies.Any(
-					x =>
-						x.IsPoisonKillable() &&
-						x.IsValidTarget(Spells[SpellSlot.E].Range)))
+                if (HeroManager.Enemies.Any(x => x.IsPoisonKillable() && x.IsValidTarget(Spells[SpellSlot.E].Range)))
                 {
                     Spells[SpellSlot.E].Cast();
                 }
