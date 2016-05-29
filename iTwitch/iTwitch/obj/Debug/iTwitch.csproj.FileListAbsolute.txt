@@ -1,3 +1,22 @@
 C:\Users\Mobby\Desktop\New Projects\Leaguesharp\iTwitch\iTwitch\bin\Debug\iTwitch.exe.config
 C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\iTwitch.exe.config
 C:\Users\Corey\Desktop\Assemblies\Leaguesharp\iTwitch\iTwitch\bin\Debug\iTwitch.exe.config
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\iTwitch.exe
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\iTwitch.pdb
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\clipper_library.dll
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\DZLib.dll
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\LeagueSharp.Common.dll
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\LeagueSharp.Data.dll
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\LeagueSharp.dll
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\LeagueSharp.Sandbox.dll
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\SharpDX.Direct3D9.dll
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\SharpDX.dll
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\SPrediction.dll
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\DZLib.pdb
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\LeagueSharp.Common.pdb
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\LeagueSharp.Data.pdb
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\SPrediction.pdb
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\obj\Debug\iTwitch.csprojResolveAssemblyReference.cache
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\obj\Debug\iTwitch.exe
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\obj\Debug\iTwitch.pdb
