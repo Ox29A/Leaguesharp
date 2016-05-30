@@ -72,9 +72,6 @@ namespace iTwitch
             {
                 miscMenu.AddBool("com.itwitch.misc.autoYo", "Youmuus with R", true);
                 miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
-                miscMenu.AddItem(
-                    new MenuItem("com.itwitch.misc.eDamage", "Draw E Damage on Enemies").SetValue(
-                        new Circle(true, Color.DarkOliveGreen)));
                 miscMenu.AddKeybind(
                     "com.itwitch.misc.recall", 
                     "Stealth Recall", 
@@ -84,10 +81,15 @@ namespace iTwitch
 
             var drawingMenu = new Menu(":: iTwitch 2.0 - Drawing Options", "com.itwitch.drawing");
             {
+                drawingMenu.AddBool("com.itwitch.drawing.drawERange", "Draw E Range", true);
+                drawingMenu.AddBool("com.itwitch.drawing.drawRRange", "Draw R Range", true);
                 drawingMenu.AddBool("com.itwitch.drawing.drawQTime", "Draw Q Time", true);
                 drawingMenu.AddBool("com.itwitch.drawing.drawEStacks", "Draw E Stacks", true);
                 drawingMenu.AddBool("com.itwitch.drawing.drawEStackT", "Draw E Stack Time", true);
                 drawingMenu.AddBool("com.itwitch.drawing.drawRTime", "Draw R Time", true);
+                drawingMenu.AddItem(
+                    new MenuItem("com.itwitch.drawing.eDamage", "Draw E Damage on Enemies").SetValue(
+                        new Circle(true, Color.DarkOliveGreen)));
                 menu.AddSubMenu(drawingMenu);
             }
 
@@ -189,8 +191,18 @@ namespace iTwitch
 
         private void OnDraw(EventArgs args)
         {
-            CustomDamageIndicator.DrawingColor = menu.Item("com.itwitch.misc.eDamage").GetValue<Circle>().Color;
-            CustomDamageIndicator.Enabled = menu.Item("com.itwitch.misc.eDamage").GetValue<Circle>().Active;
+            CustomDamageIndicator.DrawingColor = menu.Item("com.itwitch.drawing.eDamage").GetValue<Circle>().Color;
+            CustomDamageIndicator.Enabled = menu.Item("com.itwitch.drawing.eDamage").GetValue<Circle>().Active;
+
+            if (menu.Item("com.itwitch.drawing.drawRRange").GetValue<bool>())
+            {
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, Spells[SpellSlot.R].Range, Color.BlueViolet);
+            }
+
+            if (menu.Item("com.itwitch.drawing.drawERange").GetValue<bool>())
+            {
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, Spells[SpellSlot.E].Range, Color.BlueViolet);
+            }
 
             if (menu.Item("com.itwitch.drawing.drawQTime").GetValue<bool>()
                 && ObjectManager.Player.HasBuff("TwitchHideInShadows"))
