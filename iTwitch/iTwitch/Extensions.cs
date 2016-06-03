@@ -21,7 +21,7 @@
 
         public static float GetPoisonDamage(Obj_AI_Base target)
         {
-            if (target == null || !target.HasBuff("twitchdeadlyvenom"))
+            if (target == null || !target.HasBuff("twitchdeadlyvenom") || target.IsInvulnerable || target.HasBuff("KindredRNoDeathBuff"))
             {
                 return 0;
             }
