@@ -1,2 +1,3 @@
 C:\Users\Corey\Desktop\Assemblies\Leaguesharp\iLucian\iLucian\bin\Debug\iLucian.exe.config
 C:\Users\Corey\Desktop\Assemblies\iLucian\iLucian\bin\Debug\iLucian.exe.config
+C:\Users\Corey\Desktop\Assemblies\iLucian\iLucian\obj\Debug\iLucian.csprojResolveAssemblyReference.cache

@@ -48,7 +48,7 @@
 
             if (Variables.Menu.IsEnabled("com.ilucian.harass.auto.q") && Variables.Spell[Variables.Spells.Q].IsReady())
             {
-                if (Variables.Spell[Variables.Spells.Q].IsEnabledAndReady(ManaMeneger.Mode.Harass)
+                if (Variables.Spell[Variables.Spells.Q].IsReady()
                     && Variables.Spell[Variables.Spells.Q].IsInRange(target) && target.IsValidTarget())
                 {
                     Variables.Spell[Variables.Spells.Q].Cast(target);
