@@ -101,7 +101,6 @@
             {
                 unitList.AddRange(champions);
             }*/
-
             return unitList;
         }
 
@@ -187,15 +186,14 @@
 
         #region Methods
 
-        private static void OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        private static void OnEnemyGapcloser(LeagueSharp.Common.ActiveGapcloser gapcloser)
         {
             if (!Variables.Menu.IsEnabled("com.ilucian.misc.gapcloser"))
             {
                 return;
             }
 
-            if (!gapcloser.Sender.IsEnemy || !(gapcloser.End.Distance(ObjectManager.Player.ServerPosition) < 200))
-                return;
+            if (!gapcloser.Sender.IsEnemy || !(gapcloser.End.Distance(ObjectManager.Player.ServerPosition) < 300)) return;
 
             var extendedPosition = ObjectManager.Player.ServerPosition.Extend(
                 Game.CursorPos, 
@@ -395,7 +393,7 @@
         {
             Game.OnUpdate += OnUpdate;
             Obj_AI_Base.OnDoCast += OnDoCast;
-            DZAntigapcloser.OnEnemyGapcloser += OnEnemyGapcloser;
+            AntiGapcloser.OnEnemyGapcloser += OnEnemyGapcloser;
             Spellbook.OnCastSpell += (sender, args) =>
                 {
                     if (sender.Owner.IsMe && args.Slot == SpellSlot.E)
@@ -409,7 +407,10 @@
                 {
                     if (Variables.Menu.IsEnabled("com.ilucian.misc.drawQ"))
                     {
-                        Render.Circle.DrawCircle(ObjectManager.Player.Position, Variables.Spell[Variables.Spells.Q2].Range, Color.BlueViolet);
+                        Render.Circle.DrawCircle(
+                            ObjectManager.Player.Position, 
+                            Variables.Spell[Variables.Spells.Q2].Range, 
+                            Color.BlueViolet);
                     }
                 };
         }
@@ -431,7 +432,9 @@
         {
             if (!sender.IsMe) return;
 
-            var target = TargetSelector.GetTarget(Variables.Spell[Variables.Spells.Q].Range, TargetSelector.DamageType.Physical);
+            var target = TargetSelector.GetTarget(
+                Variables.Spell[Variables.Spells.Q].Range, 
+                TargetSelector.DamageType.Physical);
 
             if (target == null || Environment.TickCount - Variables.LastECast < 250) return;
             switch (Variables.Orbwalker.ActiveMode)
@@ -439,14 +442,18 @@
                 case Orbwalking.OrbwalkingMode.Combo:
                     if (Orbwalking.IsAutoAttack(args.SData.Name) && target.IsValid)
                     {
-                        if (Variables.Menu.IsEnabled("com.ilucian.combo.startE") && Variables.Spell[Variables.Spells.E].IsReady())
+                        if (Variables.Menu.IsEnabled("com.ilucian.combo.startE")
+                            && Variables.Spell[Variables.Spells.E].IsReady())
                         {
                             if (!sender.IsDead && !Variables.HasPassive())
                             {
                                 CastE(target);
                             }
 
-                            if (!Variables.Spell[Variables.Spells.E].IsReady() && target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range) && Variables.Menu.Item("com.ilucian.combo.q").GetValue<bool>() && !Variables.HasPassive())
+                            if (!Variables.Spell[Variables.Spells.E].IsReady()
+                                && target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)
+                                && Variables.Menu.Item("com.ilucian.combo.q").GetValue<bool>()
+                                && !Variables.HasPassive())
                             {
                                 if (Variables.Spell[Variables.Spells.Q].IsReady()
                                     && Variables.Spell[Variables.Spells.Q].IsInRange(target)
@@ -455,8 +462,9 @@
                                     Variables.Spell[Variables.Spells.Q].Cast(target);
                                 }
                             }
+
                             if (!Variables.Spell[Variables.Spells.E].IsReady() && !ObjectManager.Player.IsDashing()
-                               && Variables.Menu.Item("com.ilucian.combo.w").GetValue<bool>())
+                                && Variables.Menu.Item("com.ilucian.combo.w").GetValue<bool>())
                             {
                                 if (Variables.Spell[Variables.Spells.W].IsReady() && !Variables.HasPassive())
                                 {
@@ -475,7 +483,6 @@
                                             Variables.Spell[Variables.Spells.W].Cast(target.Position);
                                         }
                                     }
-
                                 }
                             }
                         }
@@ -513,7 +520,6 @@
                                             Variables.Spell[Variables.Spells.W].Cast(target.Position);
                                         }
                                     }
-
                                 }
                             }
                         }
@@ -559,7 +565,6 @@
                                     }
                                 }
                             }
-                          
                         }
                     }
 
@@ -579,7 +584,8 @@
                 CastExtendedQ();
             }
 
-            if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range) && Variables.Menu.IsEnabled("com.ilucian.harass.q"))
+            if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)
+                && Variables.Menu.IsEnabled("com.ilucian.harass.q"))
             {
                 if (Variables.Spell[Variables.Spells.Q].IsReady()
                     && Variables.Spell[Variables.Spells.Q].IsInRange(target))
@@ -676,7 +682,8 @@
                 var dashPosition = ObjectManager.Player.Position.Extend(Game.CursorPos, 450);
                 var dashCondemnCheck = dashPosition.Extend(sender.Position, -425);
 
-                if (Variables.Spell[Variables.Spells.E].IsReady() && predictedPosition.IsWall() && !dashCondemnCheck.IsWall())
+                if (Variables.Spell[Variables.Spells.E].IsReady() && predictedPosition.IsWall()
+                    && !dashCondemnCheck.IsWall())
                 {
                     Variables.Spell[Variables.Spells.E].Cast(dashPosition);
                 }

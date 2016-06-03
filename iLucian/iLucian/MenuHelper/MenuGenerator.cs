@@ -43,7 +43,6 @@ namespace iLucian.MenuHelper
                     "com.ilucian.combo.eMode", 
                     "E Mode", 
                     new[] { "Kite", "Side", "Cursor", "Enemy", "Fast Mode", "VHR Logic - Smart E" }, 5);
-                comboOptions.AddManaManager(ManaMeneger.Mode.Combo, new []{ SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new []{ 30, 30, 30 });
                 rootMenu.AddSubMenu(comboOptions);
             }
 
@@ -74,7 +73,6 @@ namespace iLucian.MenuHelper
                 harassOptions.AddSubMenu(harassWhitelist);
                 harassOptions.AddBool("com.ilucian.harass.w", "Use W", true);
                 harassOptions.AddSubMenu(autoHarassMenu);
-                harassOptions.AddManaManager(ManaMeneger.Mode.Harass, new[] { SpellSlot.Q, SpellSlot.W}, new[] { 30, 30});
                 rootMenu.AddSubMenu(harassOptions);
             }
 
