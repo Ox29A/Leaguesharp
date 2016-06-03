@@ -86,7 +86,6 @@
     <Compile Include="Utils\AutoCleanse.cs" />
     <Compile Include="Utils\EPosition.cs" />
     <Compile Include="Utils\Jungle.cs" />
-    <Compile Include="Utils\ManaMeneger.cs" />
     <Compile Include="Utils\MathHelper.cs" />
     <Compile Include="Variables.cs" />
   </ItemGroup>
