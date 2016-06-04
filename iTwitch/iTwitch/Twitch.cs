@@ -71,6 +71,8 @@ namespace iTwitch
             var miscMenu = new Menu(":: iTwitch 2.0 - Misc Options", "com.itwitch.misc");
             {
                 miscMenu.AddBool("com.itwitch.misc.autoYo", "Youmuus with R", true);
+                miscMenu.AddBool("com.itwitch.misc.noWTurret", "Don't W Under Tower", true);
+                miscMenu.AddSlider("com.itwitch.misc.noWAA", "No W if x aa can kill", 2, 0, 10);
                 miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
                 miscMenu.AddKeybind(
                     "com.itwitch.misc.recall", 
@@ -111,7 +113,17 @@ namespace iTwitch
                     return;
                 }
 
+                if (menu.Item("com.itwitch.misc.noWTurret").GetValue<bool>() && ObjectManager.Player.UnderTurret(true))
+                {
+                    return;
+                }
+
                 var wTarget = TargetSelector.GetTarget(Spells[SpellSlot.W].Range, TargetSelector.DamageType.Physical);
+
+                if (wTarget.Health
+                    < ObjectManager.Player.GetAutoAttackDamage(wTarget, true)
+                    * menu.Item("com.itwitch.misc.noWAA").GetValue<Slider>().Value) return;
+
                 if (wTarget.IsValidTarget(Spells[SpellSlot.W].Range)
                     && !ObjectManager.Player.HasBuff("TwitchHideInShadows"))
                 {
