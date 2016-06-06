@@ -147,8 +147,6 @@ namespace iSivir
                     (int)(args.StartPosition.Distance(ObjectManager.Player.Position) / 2000f + Game.Ping / 2f), 
                     () => Spells[SpellSlot.E].Cast());
             }
-
-            Game.PrintChat(args.SData.Name);
         }
 
         private void OnSpellCast(Obj_AI_Base sender1, GameObjectProcessSpellCastEventArgs args)
