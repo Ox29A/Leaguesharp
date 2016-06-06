@@ -131,6 +131,7 @@ namespace iSivir
             Orbwalking.AfterAttack += OnAfterAttack;
             Obj_AI_Base.OnProcessSpellCast += OnSpellCast;
             GameObject.OnCreate += OnCreateObject;
+            Spellbook.OnCastSpell += OnSpell;
         }
 
         private void OnCreateObject(GameObject sender, EventArgs arguments)
@@ -338,6 +339,14 @@ namespace iSivir
             }
 
             menu.AddToMainMenu();
+        }
+        
+        private static void OnSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
+        {
+            if (args.Slot == SpellSlot.W)
+            {
+                Orbwalking.LastAATick = 0;
+            }
         }
 
         private void LoadSpells()
