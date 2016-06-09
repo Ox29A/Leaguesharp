@@ -42,7 +42,8 @@ namespace iLucian.MenuHelper
                 comboOptions.AddStringList(
                     "com.ilucian.combo.eMode", 
                     "E Mode", 
-                    new[] { "Kite", "Side", "Cursor", "Enemy", "Fast Mode", "VHR Logic - Smart E" }, 5);
+                    new[] { "Kite", "Side", "Cursor", "Enemy", "Fast Mode", "VHR Logic - Smart E" }, 
+                    5);
                 rootMenu.AddSubMenu(comboOptions);
             }
 
@@ -57,6 +58,12 @@ namespace iLucian.MenuHelper
                         .Permashow(true, "iLucian | Auto Harass", Color.Aqua);
                     autoHarassMenu.AddBool("com.ilucian.harass.auto.q", "Use Q", true);
                     autoHarassMenu.AddBool("com.ilucian.harass.auto.qExtended", "Use Extended Q", true);
+                    autoHarassMenu.AddSlider(
+                        "com.ilucian.harass.auto.autoharass.mana", 
+                        "Min Mana % for auto harasss", 
+                        70, 
+                        0, 
+                        100);
                 }
 
                 harassOptions.AddBool("com.ilucian.harass.q", "Use Q", true);
@@ -70,8 +77,10 @@ namespace iLucian.MenuHelper
                             "Don't Q: " + hero.ChampionName);
                     }
                 }
-                harassOptions.AddSubMenu(harassWhitelist);
+
                 harassOptions.AddBool("com.ilucian.harass.w", "Use W", true);
+                harassOptions.AddSlider("com.ilucian.harass.mana", "Min Mana % for harass", 70, 0, 100);
+                harassOptions.AddSubMenu(harassWhitelist);
                 harassOptions.AddSubMenu(autoHarassMenu);
                 rootMenu.AddSubMenu(harassOptions);
             }
@@ -80,7 +89,7 @@ namespace iLucian.MenuHelper
             {
                 laneclearOptions.AddBool("com.ilucian.laneclear.q", "Use Q", true);
                 laneclearOptions.AddSlider("com.ilucian.laneclear.qMinions", "Cast Q on x minions", 3, 1, 10);
-                //TODO turret laneclear :^)
+                laneclearOptions.AddSlider("com.ilucian.laneclear.mana", "Min Mana % for laneclear", 70, 0, 100);
                 rootMenu.AddSubMenu(laneclearOptions);
             }
 
@@ -89,12 +98,20 @@ namespace iLucian.MenuHelper
                 jungleclearOptions.AddBool("com.ilucian.jungleclear.q", "Use Q", true);
                 jungleclearOptions.AddBool("com.ilucian.jungleclear.w", "Use W", true);
                 jungleclearOptions.AddBool("com.ilucian.jungleclear.e", "Use E", true);
+                jungleclearOptions.AddSlider("com.ilucian.jungleclear.mana", "Min Mana % for jungleclear", 70, 0, 100);
                 rootMenu.AddSubMenu(jungleclearOptions);
+            }
+
+            var gapcloserMenu = new Menu(":: iLucian - Gapcloser Options", "com.ilucian.antigap");
+            {
+                CustomizableAntiGapcloser.AddToMenu(gapcloserMenu);
+                rootMenu.AddSubMenu(gapcloserMenu);
             }
 
             var miscOptions = new Menu(":: iLucian - Misc Options", "com.ilucian.misc");
             {
                 miscOptions.AddBool("com.ilucian.misc.antiVayne", "Anti Vayne Condemn", true);
+                miscOptions.AddBool("com.ilucian.misc.antiMelee", "Anti Melee (E)", true);
                 miscOptions.AddBool("com.ilucian.misc.usePrediction", "Use W Pred", true);
                 miscOptions.AddBool("com.ilucian.misc.forcePassive", "Force Passive Target", true);
                 miscOptions.AddBool("com.ilucian.misc.gapcloser", "Use E For Gapcloser", true);

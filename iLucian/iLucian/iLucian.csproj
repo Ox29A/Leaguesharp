@@ -34,37 +34,37 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="clipper_library">
-      <HintPath>..\..\..\PlaySharp\System\clipper_library.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\clipper_library.dll</HintPath>
     </Reference>
     <Reference Include="DZLib">
-      <HintPath>..\..\..\PlaySharp\System\DZLib.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\DZLib.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp">
-      <HintPath>..\..\..\PlaySharp\System\LeagueSharp.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
-      <HintPath>..\..\..\PlaySharp\System\LeagueSharp.Common.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\LeagueSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Data">
-      <HintPath>..\..\..\PlaySharp\System\LeagueSharp.Data.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\LeagueSharp.Data.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Sandbox">
-      <HintPath>..\..\..\PlaySharp\System\LeagueSharp.Sandbox.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\LeagueSharp.Sandbox.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\PlaySharp\System\Newtonsoft.Json.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>..\..\..\PlaySharp\System\SharpDX.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
-      <HintPath>..\..\..\PlaySharp\System\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.XInput">
-      <HintPath>C:\Users\Corey\Desktop\LeagueSharp\System\SharpDX.XInput.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\SharpDX.XInput.dll</HintPath>
     </Reference>
     <Reference Include="SPrediction">
-      <HintPath>..\..\..\PlaySharp\System\SPrediction.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\SPrediction.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
