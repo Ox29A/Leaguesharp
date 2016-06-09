@@ -435,10 +435,12 @@
                 Variables.Spell[Variables.Spells.Q].Range, 
                 TargetSelector.DamageType.Physical);
 
-            if (target == null || Environment.TickCount - Variables.LastECast < 250) return;
             switch (Variables.Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
+
+                    if (target == null || Environment.TickCount - Variables.LastECast < 250) return;
+
                     if (Orbwalking.IsAutoAttack(args.SData.Name) && target.IsValid)
                     {
                         if (Variables.Menu.IsEnabled("com.ilucian.combo.startE")
@@ -531,6 +533,9 @@
 
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
+
+                    if (target == null || Environment.TickCount - Variables.LastECast < 250) return;
+
                     if (Orbwalking.IsAutoAttack(args.SData.Name) && target.IsValid)
                     {
                         if (target.IsValidTarget(Variables.Spell[Variables.Spells.Q].Range)
@@ -570,23 +575,23 @@
                     break;
 
                 case Orbwalking.OrbwalkingMode.LaneClear:
-                    if (!Variables.HasPassive() && Orbwalking.IsAutoAttack(args.SData.Name)
+                    if (Orbwalking.IsAutoAttack(args.SData.Name)
                         && args.Target is Obj_AI_Minion && args.Target.IsValid
                         && ((Obj_AI_Minion)args.Target).Team == GameObjectTeam.Neutral)
                     {
                         if (ObjectManager.Player.ManaPercent
-                            < Variables.Menu.Item("com.ilucian.jungleclear.mana").GetValue<Slider>().Value) return;
+                            < Variables.Menu.Item("com.ilucian.jungleclear.mana").GetValue<Slider>().Value || Variables.HasPassive()) return;
 
-                        if (Variables.Spell[Variables.Spells.Q].IsReady()
-                            && Variables.Menu.IsEnabled("com.ilucian.jungleclear.q"))
-                        {
-                            Variables.Spell[Variables.Spells.Q].Cast((Obj_AI_Minion)args.Target);
-                        }
+                            if (Variables.Spell[Variables.Spells.Q].IsReady()
+                                && Variables.Menu.IsEnabled("com.ilucian.jungleclear.q"))
+                            {
+                                Variables.Spell[Variables.Spells.Q].Cast((Obj_AI_Minion)args.Target);
+                            }
 
                         if (Variables.Spell[Variables.Spells.W].IsReady()
                             && Variables.Menu.IsEnabled("com.ilucian.jungleclear.w"))
                         {
-                            Variables.Spell[Variables.Spells.W].Cast((Obj_AI_Minion)args.Target);
+                            Variables.Spell[Variables.Spells.W].Cast(((Obj_AI_Minion)args.Target).Position);
                         }
 
                         if (Variables.Spell[Variables.Spells.E].IsReady()
