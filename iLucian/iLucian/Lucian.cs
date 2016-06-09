@@ -568,6 +568,36 @@
                     }
 
                     break;
+
+                case Orbwalking.OrbwalkingMode.LaneClear:
+                    if (!Variables.HasPassive() && Orbwalking.IsAutoAttack(args.SData.Name)
+                        && args.Target is Obj_AI_Minion && args.Target.IsValid
+                        && ((Obj_AI_Minion)args.Target).Team == GameObjectTeam.Neutral)
+                    {
+                        if (ObjectManager.Player.ManaPercent
+                            < Variables.Menu.Item("com.ilucian.jungleclear.mana").GetValue<Slider>().Value) return;
+
+                        if (Variables.Spell[Variables.Spells.Q].IsReady()
+                            && Variables.Menu.IsEnabled("com.ilucian.jungleclear.q"))
+                        {
+                            Variables.Spell[Variables.Spells.Q].Cast((Obj_AI_Minion)args.Target);
+                        }
+
+                        if (Variables.Spell[Variables.Spells.W].IsReady()
+                            && Variables.Menu.IsEnabled("com.ilucian.jungleclear.w"))
+                        {
+                            Variables.Spell[Variables.Spells.W].Cast((Obj_AI_Minion)args.Target);
+                        }
+
+                        if (Variables.Spell[Variables.Spells.E].IsReady()
+                            && Variables.Menu.IsEnabled("com.ilucian.jungleclear.e"))
+                        {
+                            Variables.Spell[Variables.Spells.E].Cast(
+                                ObjectManager.Player.Position.Extend(Game.CursorPos, 475));
+                        }
+                    }
+
+                    break;
             }
         }
 
@@ -615,34 +645,6 @@
                         }
                     }
                 }
-            }
-        }
-
-        private void OnJungleclear()
-        {
-            var jungleMob =
-                MinionManager.GetMinions(
-                    Orbwalking.GetRealAutoAttackRange(ObjectManager.Player), 
-                    MinionTypes.All, 
-                    MinionTeam.Neutral, 
-                    MinionOrderTypes.MaxHealth).FirstOrDefault(x => x.IsValid);
-
-            if (jungleMob == null || Variables.HasPassive()
-                || ObjectManager.Player.ManaPercent
-                < Variables.Menu.Item("com.ilucian.jungleclear.mana").GetValue<Slider>().Value) return;
-            if (Variables.Spell[Variables.Spells.Q].IsReady() && Variables.Menu.IsEnabled("com.ilucian.jungleclear.q"))
-            {
-                Variables.Spell[Variables.Spells.Q].Cast(jungleMob);
-            }
-
-            if (Variables.Spell[Variables.Spells.W].IsReady() && Variables.Menu.IsEnabled("com.ilucian.jungleclear.w"))
-            {
-                Variables.Spell[Variables.Spells.W].Cast(jungleMob);
-            }
-
-            if (Variables.Spell[Variables.Spells.E].IsReady() && Variables.Menu.IsEnabled("com.ilucian.jungleclear.e"))
-            {
-                Variables.Spell[Variables.Spells.E].Cast(ObjectManager.Player.Position.Extend(Game.CursorPos, 475));
             }
         }
 
@@ -724,6 +726,7 @@
                 SemiUlt();
                 ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             }
+
             if (!Variables.Menu.Item("com.ilucian.combo.forceR").GetValue<KeyBind>().Active
                 && !ObjectManager.Player.HasBuff("LucianR"))
             {
@@ -758,7 +761,6 @@
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     OnLaneclear();
-                    OnJungleclear();
                     break;
                 case Orbwalking.OrbwalkingMode.LastHit:
                     break;
