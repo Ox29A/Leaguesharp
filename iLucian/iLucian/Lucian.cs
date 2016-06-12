@@ -149,17 +149,17 @@
             Game.PrintChat("[iLucian] -> Don't forget to upvote on assembly database.");
         }
 
-        public void SemiUlt()
+        private static void SemiUlt()
         {
-            var target = TargetSelector.SelectedTarget != null
-                             ? TargetSelector.GetSelectedTarget()
-                             : TargetSelector.GetTarget(
-                                 Variables.Spell[Variables.Spells.R].Range, 
-                                 TargetSelector.DamageType.Physical);
-            if (target.IsValid && Variables.Spell[Variables.Spells.R].IsReady()
-                && !ObjectManager.Player.HasBuff("LucianR") && !target.IsDead && !target.IsZombie)
+            ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+            foreach (
+                var enemy in
+                    HeroManager.Enemies.Where(
+                        x =>
+                        x.IsValidTarget(Variables.Spell[Variables.Spells.R].Range)
+                        && Variables.Spell[Variables.Spells.R].GetPrediction(x).CollisionObjects.Count == 0))
             {
-                Variables.Spell[Variables.Spells.R].Cast(target.Position);
+                Variables.Spell[Variables.Spells.R].Cast(enemy);
             }
         }
 
@@ -575,18 +575,18 @@
                     break;
 
                 case Orbwalking.OrbwalkingMode.LaneClear:
-                    if (Orbwalking.IsAutoAttack(args.SData.Name)
-                        && args.Target is Obj_AI_Minion && args.Target.IsValid
+                    if (Orbwalking.IsAutoAttack(args.SData.Name) && args.Target is Obj_AI_Minion && args.Target.IsValid
                         && ((Obj_AI_Minion)args.Target).Team == GameObjectTeam.Neutral)
                     {
                         if (ObjectManager.Player.ManaPercent
-                            < Variables.Menu.Item("com.ilucian.jungleclear.mana").GetValue<Slider>().Value || Variables.HasPassive()) return;
+                            < Variables.Menu.Item("com.ilucian.jungleclear.mana").GetValue<Slider>().Value
+                            || Variables.HasPassive()) return;
 
-                            if (Variables.Spell[Variables.Spells.Q].IsReady()
-                                && Variables.Menu.IsEnabled("com.ilucian.jungleclear.q"))
-                            {
-                                Variables.Spell[Variables.Spells.Q].Cast((Obj_AI_Minion)args.Target);
-                            }
+                        if (Variables.Spell[Variables.Spells.Q].IsReady()
+                            && Variables.Menu.IsEnabled("com.ilucian.jungleclear.q"))
+                        {
+                            Variables.Spell[Variables.Spells.Q].Cast((Obj_AI_Minion)args.Target);
+                        }
 
                         if (Variables.Spell[Variables.Spells.W].IsReady()
                             && Variables.Menu.IsEnabled("com.ilucian.jungleclear.w"))
@@ -724,16 +724,20 @@
                 }
             }
 
-            if (Variables.Menu.Item("com.ilucian.combo.forceR").GetValue<KeyBind>().Active
-                && ObjectManager.Player.HasBuff("LucianR"))
+            if (Variables.Menu.Item("com.ilucian.combo.forceR").GetValue<KeyBind>().Active)
             {
-                Variables.Orbwalker.SetAttack(false);
                 SemiUlt();
                 ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             }
 
-            if (!Variables.Menu.Item("com.ilucian.combo.forceR").GetValue<KeyBind>().Active
-                && !ObjectManager.Player.HasBuff("LucianR"))
+            if (ObjectManager.Player.HasBuff("LucianR")
+                && Variables.Menu.Item("com.ilucian.combo.forceR").GetValue<KeyBind>().Active)
+            {
+                Variables.Orbwalker.SetAttack(false);
+            }
+
+            if (!ObjectManager.Player.HasBuff("LucianR")
+                || !Variables.Menu.Item("com.ilucian.combo.forceR").GetValue<KeyBind>().Active)
             {
                 Variables.Orbwalker.SetAttack(true);
             }

@@ -45,7 +45,7 @@
                 return true;
             }
 
-            if (target.Buffs.Any(b=> b.IsValid && b.Name == "kindredrnodeathbuff"))
+            if (target.Buffs.Any(b => b.IsValid && b.Name == "kindredrnodeathbuff"))
             {
                 return true;
             }
@@ -56,7 +56,9 @@
 
         public static float GetPoisonDamage(Obj_AI_Base target)
         {
-            if (target == null || !target.HasBuff("twitchdeadlyvenom") || target.IsInvulnerable || target.HasUndyingBuff() || target.HasBuff("KindredRNoDeathBuff") || target.HasBuffOfType(BuffType.SpellShield))
+            if (target == null || !target.HasBuff("twitchdeadlyvenom") || target.IsInvulnerable
+                || target.HasUndyingBuff() || target.HasBuff("KindredRNoDeathBuff")
+                || target.HasBuffOfType(BuffType.SpellShield))
             {
                 return 0;
             }
