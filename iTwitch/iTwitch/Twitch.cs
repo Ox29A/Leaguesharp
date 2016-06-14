@@ -74,6 +74,8 @@ namespace iTwitch
                 miscMenu.AddBool("com.itwitch.misc.noWTurret", "Don't W Under Tower", true);
                 miscMenu.AddSlider("com.itwitch.misc.noWAA", "No W if x aa can kill", 2, 0, 10);
                 miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
+                miscMenu.AddBool("com.itwitch.misc.Exploit", "Use Exploit", false).SetTooltip("Will Instant Q After Kill"));
+                miscMenu.AddBool("com.itwitch.misc.EAAQ", "E AA Q", false).SetTooltip("Will cast E if killable by E + AA then Q"));
                 miscMenu.AddKeybind(
                     "com.itwitch.misc.recall", 
                     "Stealth Recall", 
@@ -102,7 +104,46 @@ namespace iTwitch
         {
             Spells[SpellSlot.W].SetSkillshot(0.25f, 120f, 1400f, false, SkillshotType.SkillshotCircle);
         }
+        
+        private static void Exploit() // nechrito was here
+        {
+            var target = TargetSelector.GetTarget(Player.AttackRange, TargetSelector.DamageType.Physical);
+            if (target == null || !target.IsValidTarget() || target.IsInvulnerable) return;
 
+            if (!menu.Item("com.itwitch.misc.Exploit").GetValue<bool>()) return;
+            if (!Spells[SpellSlot.Q].IsReady()) return;
+
+            if (Spells[SpellSlot.E].IsReady() && menu.Item("com.itwitch.misc.EQAA").GetValue<bool>())
+            {
+                if (!target.IsFacing(Player))
+                {
+                 //   Game.PrintChat("Target is not facing, will now return");
+                    return;
+                }
+                if (target.Distance(Player) >= Player.AttackRange)
+                {
+                 //   Game.PrintChat("Out of AA Range, will now return");
+                    return;
+                }
+
+                if (target.Health <= Player.GetAutoAttackDamage(target) *1.33 + GetDamage(target))
+                {
+                      Spells[SpellSlot.E].Cast(target);
+                //    Game.PrintChat("Casting E to then cast AA Q");
+                }
+            }
+
+            if (target.Health < Player.GetAutoAttackDamage(target, true) && Player.IsWindingUp)
+            {
+                Spells[SpellSlot.Q].IsReady()
+                do
+                {
+                      Game.PrinChat("Exploit Active")
+               //     Game.PrintChat("Casting Q");
+                } while (Spells[SpellSlot.Q].Cast());
+            }
+           
+        }
         public void OnCombo()
         {
             if (menu.Item("com.itwitch.combo.useW").GetValue<bool>() && Spells[SpellSlot.W].IsReady())
@@ -265,7 +306,7 @@ namespace iTwitch
             {
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
             }
-
+            Exploit();
             if (menu.Item("com.itwitch.combo.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
             {
                 if (HeroManager.Enemies.Any(x => x.IsPoisonKillable() && x.IsValidTarget(Spells[SpellSlot.E].Range)))
