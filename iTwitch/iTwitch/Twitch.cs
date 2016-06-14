@@ -74,8 +74,9 @@ namespace iTwitch
                 miscMenu.AddBool("com.itwitch.misc.noWTurret", "Don't W Under Tower", true);
                 miscMenu.AddSlider("com.itwitch.misc.noWAA", "No W if x aa can kill", 2, 0, 10);
                 miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
-                miscMenu.AddBool("com.itwitch.misc.Exploit", "Use exploit").SetTooltip("Will Instant Q After Kill");
-                miscMenu.AddBool("com.itwitch.misc.EAAQ", "E AA Q").SetTooltip("Will cast E if killable by E + AA then Q");
+                miscMenu.AddBool("com.itwitch.misc.Exploit", "Use Exploit").SetTooltip("Will Instant Q After Kill");
+                miscMenu.AddBool("com.itwitch.misc.EAAQ", "E AA Q")
+                    .SetTooltip("Will cast E if killable by E + AA then Q");
                 miscMenu.AddKeybind(
                     "com.itwitch.misc.recall", 
                     "Stealth Recall", 
@@ -104,35 +105,32 @@ namespace iTwitch
         {
             Spells[SpellSlot.W].SetSkillshot(0.25f, 120f, 1400f, false, SkillshotType.SkillshotCircle);
         }
-        
-        private void Exploit() // nechrito was here and left errors zzz
+
+        private void Exploit()
         {
             var target = TargetSelector.GetTarget(ObjectManager.Player.AttackRange, TargetSelector.DamageType.Physical);
             if (target == null || !target.IsValidTarget() || target.IsInvulnerable) return;
 
-            if (!menu.Item("com.itwitch.misc.Exploit").GetValue<bool>()) return;
-            if (!Spells[SpellSlot.Q].IsReady()) return;
-
-            if (Spells[SpellSlot.E].IsReady() && menu.Item("com.itwitch.misc.EQAA").GetValue<bool>())
+            if (Spells[SpellSlot.E].IsReady() && menu.Item("com.itwitch.misc.EAAQ").GetValue<bool>())
             {
-                if (!target.IsFacing(ObjectManager.Player) || target.Distance(ObjectManager.Player) >= ObjectManager.Player.AttackRange)
+                if (target.Distance(ObjectManager.Player) >= ObjectManager.Player.AttackRange || !target.IsFacing(ObjectManager.Player))
                 {
                     return;
                 }
 
-                if (target.Health <= ObjectManager.Player.GetAutoAttackDamage(target) *1.33 + target.GetPoisonDamage())
+                if (target.Health <= ObjectManager.Player.GetAutoAttackDamage(target) * 1.33 + target.GetPoisonDamage())
                 {
-                      Spells[SpellSlot.E].Cast(target);
+                    Spells[SpellSlot.E].Cast();
                 }
             }
 
-            if (target.Health + target.PhysicalShield < ObjectManager.Player.GetAutoAttackDamage(target, true) && ObjectManager.Player.IsWindingUp)
+            if (target.Health + target.PhysicalShield < ObjectManager.Player.GetAutoAttackDamage(target, true)
+                && ObjectManager.Player.IsWindingUp)
             {
                 Spells[SpellSlot.Q].Cast();
-                Game.PrintChat("Exploited Q");
             }
-           
         }
+
         public void OnCombo()
         {
             if (menu.Item("com.itwitch.combo.useW").GetValue<bool>() && Spells[SpellSlot.W].IsReady())
@@ -291,11 +289,13 @@ namespace iTwitch
 
         private void OnUpdate(EventArgs args)
         {
+            if (menu.Item("com.itwitch.misc.Exploit").GetValue<bool>()) Exploit();
+
             if (menu.Item("com.itwitch.misc.recall").GetValue<KeyBind>().Active)
             {
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
             }
-            this.Exploit();
+
             if (menu.Item("com.itwitch.combo.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
             {
                 if (HeroManager.Enemies.Any(x => x.IsPoisonKillable() && x.IsValidTarget(Spells[SpellSlot.E].Range)))
