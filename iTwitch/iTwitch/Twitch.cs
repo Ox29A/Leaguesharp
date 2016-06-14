@@ -138,7 +138,7 @@ namespace iTwitch
                 Spells[SpellSlot.Q].IsReady()
                 do
                 {
-                      Game.PrinChat("Exploit Active")
+                      Game.PrintChat("Exploit Active")
                //     Game.PrintChat("Casting Q");
                 } while (Spells[SpellSlot.Q].Cast());
             }
