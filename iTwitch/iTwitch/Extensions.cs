@@ -54,7 +54,7 @@
             return false;
         }
 
-        public static float GetPoisonDamage(Obj_AI_Base target)
+        public static float GetPoisonDamage(this Obj_AI_Base target)
         {
             if (target == null || !target.HasBuff("twitchdeadlyvenom") || target.IsInvulnerable
                 || target.HasUndyingBuff() || target.HasBuff("KindredRNoDeathBuff")
