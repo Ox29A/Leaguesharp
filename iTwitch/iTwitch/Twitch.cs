@@ -75,8 +75,6 @@ namespace iTwitch
                 miscMenu.AddSlider("com.itwitch.misc.noWAA", "No W if x aa can kill", 2, 0, 10);
                 miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
                 miscMenu.AddBool("com.itwitch.misc.Exploit", "Use Exploit").SetTooltip("Will Instant Q After Kill");
-                miscMenu.AddBool("com.itwitch.misc.EAAQ", "E AA Q")
-                    .SetTooltip("Will cast E if killable by E + AA then Q");
                 miscMenu.AddKeybind(
                     "com.itwitch.misc.recall", 
                     "Stealth Recall", 
@@ -104,31 +102,6 @@ namespace iTwitch
         public void LoadSpells()
         {
             Spells[SpellSlot.W].SetSkillshot(0.25f, 120f, 1400f, false, SkillshotType.SkillshotCircle);
-        }
-
-        private void Exploit()
-        {
-            var target = TargetSelector.GetTarget(ObjectManager.Player.AttackRange, TargetSelector.DamageType.Physical);
-            if (target == null || !target.IsValidTarget() || target.IsInvulnerable) return;
-
-            if (Spells[SpellSlot.E].IsReady() && menu.Item("com.itwitch.misc.EAAQ").GetValue<bool>())
-            {
-                if (target.Distance(ObjectManager.Player) >= ObjectManager.Player.AttackRange || !target.IsFacing(ObjectManager.Player))
-                {
-                    return;
-                }
-
-                if (target.Health <= ObjectManager.Player.GetAutoAttackDamage(target) * 1.33 + target.GetPoisonDamage())
-                {
-                    Spells[SpellSlot.E].Cast();
-                }
-            }
-
-            if (target.Health + target.PhysicalShield < ObjectManager.Player.GetAutoAttackDamage(target, true)
-                && ObjectManager.Player.IsWindingUp)
-            {
-                Spells[SpellSlot.Q].Cast();
-            }
         }
 
         public void OnCombo()
@@ -207,6 +180,15 @@ namespace iTwitch
 
             Game.OnUpdate += OnUpdate;
             Drawing.OnDraw += OnDraw;
+            Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
+        }
+
+        private void OnProcessSpell(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (!menu.Item("com.itwitch.misc.Exploit").GetValue<bool>())
+                return;
+
+            //TODO exploit
         }
 
         public void OnHarass()
@@ -289,8 +271,6 @@ namespace iTwitch
 
         private void OnUpdate(EventArgs args)
         {
-            if (menu.Item("com.itwitch.misc.Exploit").GetValue<bool>()) Exploit();
-
             if (menu.Item("com.itwitch.misc.recall").GetValue<KeyBind>().Active)
             {
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
