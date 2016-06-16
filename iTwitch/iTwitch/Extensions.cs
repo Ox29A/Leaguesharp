@@ -200,7 +200,6 @@
 
         public static float GetRealHealth(this Obj_AI_Base target)
         {
-            Console.WriteLine("Shield: "+target.PhysicalShield);
             return target.Health; //+ (target.PhysicalShield > 0 ? target.PhysicalShield : 0); broken ok
         }
 

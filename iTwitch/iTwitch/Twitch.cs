@@ -75,6 +75,8 @@ namespace iTwitch
                 miscMenu.AddSlider("com.itwitch.misc.noWAA", "No W if x aa can kill", 2, 0, 10);
                 miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
                 miscMenu.AddBool("com.itwitch.misc.Exploit", "Use Exploit").SetTooltip("Will Instant Q After Kill");
+                miscMenu.AddBool("com.itwitch.misc.EAAQ", "E AA Q")
+                    .SetTooltip("Will cast E if killable by E + AA then Q");
                 miscMenu.AddKeybind(
                     "com.itwitch.misc.recall", 
                     "Stealth Recall", 
@@ -121,7 +123,8 @@ namespace iTwitch
 
                 var wTarget = TargetSelector.GetTarget(Spells[SpellSlot.W].Range, TargetSelector.DamageType.Physical);
 
-                if (wTarget.Health
+                if (wTarget != null
+                    && wTarget.Health
                     < ObjectManager.Player.GetAutoAttackDamage(wTarget, true)
                     * menu.Item("com.itwitch.misc.noWAA").GetValue<Slider>().Value) return;
 
@@ -180,15 +183,6 @@ namespace iTwitch
 
             Game.OnUpdate += OnUpdate;
             Drawing.OnDraw += OnDraw;
-            Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
-        }
-
-        private void OnProcessSpell(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
-        {
-            if (!menu.Item("com.itwitch.misc.Exploit").GetValue<bool>())
-                return;
-
-            //TODO exploit
         }
 
         public void OnHarass()
@@ -204,6 +198,32 @@ namespace iTwitch
                         Spells[SpellSlot.W].Cast(prediction.CastPosition);
                     }
                 }
+            }
+        }
+
+        private void Exploit()
+        {
+            var target = TargetSelector.GetTarget(ObjectManager.Player.HasBuff("TwitchFullAutomatic") ? 850 : 550, TargetSelector.DamageType.Physical);
+            if (target == null || !target.IsValidTarget() || target.IsInvulnerable || !Spells[SpellSlot.Q].IsReady()) return;
+
+            if (Spells[SpellSlot.E].IsReady() && menu.Item("com.itwitch.misc.EAAQ").GetValue<bool>())
+            {
+                var realRange = ObjectManager.Player.HasBuff("TwitchFullAutomatic") ? 850 : 550;
+                if (target.Distance(ObjectManager.Player) > realRange)
+                {
+                    return;
+                }
+
+                if (target.Health <= ObjectManager.Player.GetAutoAttackDamage(target) * (1.15) + Spells[SpellSlot.E].GetDamage(target) * (1.35))
+                {
+                    Spells[SpellSlot.E].Cast();
+                }
+            }
+
+            if (target.Health <= ObjectManager.Player.GetAutoAttackDamage(target, true)
+                && ObjectManager.Player.IsWindingUp)
+            {
+                Spells[SpellSlot.Q].Cast();
             }
         }
 
@@ -276,8 +296,12 @@ namespace iTwitch
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
             }
 
+            if (menu.Item("com.itwitch.misc.Exploit").GetValue<bool>()) Exploit();
+
             if (menu.Item("com.itwitch.combo.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
             {
+                if (menu.Item("com.itwitch.misc.EAAQ").GetValue<bool>() && Spells[SpellSlot.Q].IsReady()) return;
+
                 if (HeroManager.Enemies.Any(x => x.IsPoisonKillable() && x.IsValidTarget(Spells[SpellSlot.E].Range)))
                 {
                     Spells[SpellSlot.E].Cast();
