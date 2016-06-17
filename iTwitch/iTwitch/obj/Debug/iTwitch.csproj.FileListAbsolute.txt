@@ -20,3 +20,4 @@ C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\SPrediction.pdb
 C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\obj\Debug\iTwitch.csprojResolveAssemblyReference.cache
 C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\obj\Debug\iTwitch.exe
 C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\obj\Debug\iTwitch.pdb
+C:\Users\Daniel\Documents\Visual Studio 2013\Projects\Leaguesharp_iJava\iTwitch\iTwitch\bin\Debug\iTwitch.exe.config

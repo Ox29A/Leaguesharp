@@ -183,6 +183,19 @@ namespace iTwitch
 
             Game.OnUpdate += OnUpdate;
             Drawing.OnDraw += OnDraw;
+            Orbwalking.AfterAttack += AfterAttack;
+        }
+
+        private void AfterAttack(AttackableUnit unit, AttackableUnit target)
+        {
+            if (unit.IsMe && target is Obj_AI_Hero && target.IsValidTarget() && menu.Item("com.itwitch.misc.Exploit").GetValue<bool>())
+            {
+                var tg = target as Obj_AI_Hero;
+                if (tg?.Health + 5 <= ObjectManager.Player.GetAutoAttackDamage(tg, true))
+                {
+                    Spells[SpellSlot.Q].Cast();
+                }
+            }
         }
 
         public void OnHarass()
@@ -220,11 +233,6 @@ namespace iTwitch
                 }
             }
 
-            if (target.Health <= ObjectManager.Player.GetAutoAttackDamage(target, true)
-                && ObjectManager.Player.IsWindingUp)
-            {
-                Spells[SpellSlot.Q].Cast();
-            }
         }
 
         #endregion
