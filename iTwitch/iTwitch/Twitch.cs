@@ -183,7 +183,27 @@ namespace iTwitch
 
             Game.OnUpdate += OnUpdate;
             Drawing.OnDraw += OnDraw;
-            Orbwalking.AfterAttack += AfterAttack;
+            Orbwalking.OnAttack += AfterAttack;
+            Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
+        }
+
+        private void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (args.Target != null && sender != null && sender.IsAlly && args.Target.IsEnemy)
+            {
+                var senderHero = sender as Obj_AI_Hero;
+                var targetHero = args.Target as Obj_AI_Hero;
+                if (targetHero != null && senderHero != null && targetHero.Buffs.Any(b => b.Name.ToLower().Equals("twitchdeadlyvenom")))
+                {
+                    var spelldamage = senderHero.GetSpellDamage(targetHero, args.Slot);
+                    if ((spelldamage / targetHero.Health) * 100f >= targetHero.HealthPercent 
+                        || spelldamage >= targetHero.Health 
+                        || senderHero.GetAutoAttackDamage(targetHero, true) >= targetHero.Health)
+                    {
+                        Spells[SpellSlot.Q].Cast();
+                    }
+                }
+            }
         }
 
         private void AfterAttack(AttackableUnit unit, AttackableUnit target)
@@ -191,7 +211,7 @@ namespace iTwitch
             if (unit.IsMe && target is Obj_AI_Hero && target.IsValidTarget() && menu.Item("com.itwitch.misc.Exploit").GetValue<bool>())
             {
                 var tg = target as Obj_AI_Hero;
-                if (tg?.Health + 5 <= ObjectManager.Player.GetAutoAttackDamage(tg, true))
+                if (tg?.Health + 5 <= ObjectManager.Player.GetAutoAttackDamage(tg, true) && tg.Buffs.Any(b => b.Name.ToLower().Equals("twitchdeadlyvenom")))
                 {
                     Spells[SpellSlot.Q].Cast();
                 }
