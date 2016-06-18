@@ -189,7 +189,7 @@ namespace iTwitch
 
         private void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (args.Target != null && sender != null && sender.IsAlly && args.Target.IsEnemy)
+            if (args.Target != null && sender != null && sender.IsAlly && args.Target.IsEnemy && menu.Item("com.itwitch.misc.Exploit").GetValue<bool>())
             {
                 var senderHero = sender as Obj_AI_Hero;
                 var targetHero = args.Target as Obj_AI_Hero;
