@@ -198,6 +198,11 @@
             return target.GetBuffCount("TwitchDeadlyVenom");
         }
 
+        public static bool HasPoisonBuff(this Obj_AI_Hero target)
+        {
+            return target.HasBuff("TwitchDeadlyVenom");
+        }
+
         public static float GetRealHealth(this Obj_AI_Base target)
         {
             return target.Health; //+ (target.PhysicalShield > 0 ? target.PhysicalShield : 0); broken ok

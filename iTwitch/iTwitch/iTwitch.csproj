@@ -35,16 +35,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="clipper_library">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\LeagueSharp\System\clipper_library.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\clipper_library.dll</HintPath>
     </Reference>
     <Reference Include="DZLib">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\LeagueSharp\System\DZLib.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\DZLib.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\LeagueSharp\System\LeagueSharp.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\LeagueSharp\System\LeagueSharp.Common.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\LeagueSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Data">
       <HintPath>C:\Program Files (x86)\PlaySharp\System\LeagueSharp.Data.dll</HintPath>
@@ -56,13 +56,13 @@
       <HintPath>C:\Program Files (x86)\PlaySharp\System\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\LeagueSharp\System\SharpDX.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
       <HintPath>C:\Program Files (x86)\PlaySharp\System\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="SPrediction">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\LeagueSharp\System\SPrediction.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\PlaySharp\System\SPrediction.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
