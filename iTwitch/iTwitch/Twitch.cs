@@ -57,10 +57,7 @@ namespace iTwitch
             var comboMenu = new Menu(":: iTwitch 2.0 - Combo Options", "com.itwitch.combo");
             {
                 comboMenu.AddBool("com.itwitch.combo.useW", "Use W", true);
-                comboMenu.AddBool("com.itwitch.combo.useEKillable", "Use E Killable", true)
-                    .SetTooltip("Exploit will interrupt with this unless you uncheck E Early!");
-                comboMenu.AddBool("com.itwitch.combo.eDeath", "E Before Death", true);
-                comboMenu.AddSlider("com.itwitch.combo.eDeathC", "Min Stacks to E Death", 6, 1, 6);
+                comboMenu.AddBool("com.itwitch.combo.useEKillable", "Use E Killable", true);
                 menu.AddSubMenu(comboMenu);
             }
 
@@ -77,9 +74,9 @@ namespace iTwitch
                 miscMenu.AddBool("com.itwitch.misc.noWTurret", "Don't W Under Tower", true);
                 miscMenu.AddSlider("com.itwitch.misc.noWAA", "No W if x aa can kill", 2, 0, 10);
                 miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
-                miscMenu.AddBool("com.itwitch.misc.Exploit", "Use Exploit")
-                    .SetTooltip("Will Instant Q After Kill, Must be an AA");
-                miscMenu.AddBool("com.itwitch.misc.eEarly", "Auto E Early for AA", true);
+                miscMenu.AddBool("com.itwitch.misc.Exploit", "Use Exploit").SetTooltip("Will Instant Q After Kill");
+                miscMenu.AddBool("com.itwitch.misc.EAAQ", "E AA Q")
+                    .SetTooltip("Will cast E if killable by E + AA then Q");
                 miscMenu.AddKeybind(
                     "com.itwitch.misc.recall", 
                     "Stealth Recall", 
@@ -192,17 +189,15 @@ namespace iTwitch
 
         private void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (args.Target != null && sender != null && sender.IsAlly && args.Target.IsEnemy
-                && menu.Item("com.itwitch.misc.Exploit").GetValue<bool>())
+            if (args.Target != null && sender != null && sender.IsAlly && args.Target.IsEnemy && menu.Item("com.itwitch.misc.Exploit").GetValue<bool>())
             {
                 var senderHero = sender as Obj_AI_Hero;
                 var targetHero = args.Target as Obj_AI_Hero;
-                if (targetHero != null && senderHero != null
-                    && targetHero.Buffs.Any(b => b.Name.ToLower().Equals("twitchdeadlyvenom")))
+                if (targetHero != null && senderHero != null && targetHero.Buffs.Any(b => b.Name.ToLower().Equals("twitchdeadlyvenom")))
                 {
                     var spelldamage = senderHero.GetSpellDamage(targetHero, args.Slot);
-                    if ((spelldamage / targetHero.Health) * 100f >= targetHero.HealthPercent
-                        || spelldamage >= targetHero.Health
+                    if ((spelldamage / targetHero.Health) * 100f >= targetHero.HealthPercent 
+                        || spelldamage >= targetHero.Health 
                         || senderHero.GetAutoAttackDamage(targetHero, true) >= targetHero.Health)
                     {
                         Spells[SpellSlot.Q].Cast();
@@ -213,12 +208,10 @@ namespace iTwitch
 
         private void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            if (unit.IsMe && target is Obj_AI_Hero && target.IsValidTarget()
-                && menu.Item("com.itwitch.misc.Exploit").GetValue<bool>())
+            if (unit.IsMe && target is Obj_AI_Hero && target.IsValidTarget() && menu.Item("com.itwitch.misc.Exploit").GetValue<bool>())
             {
-                var tg = (Obj_AI_Hero)target;
-                if (tg.Health + 5 <= ObjectManager.Player.GetAutoAttackDamage(tg, true)
-                    && tg.Buffs.Any(b => b.Name.ToLower().Equals("twitchdeadlyvenom")))
+                var tg = target as Obj_AI_Hero;
+                if (tg?.Health + 5 <= ObjectManager.Player.GetAutoAttackDamage(tg, true) && tg.Buffs.Any(b => b.Name.ToLower().Equals("twitchdeadlyvenom")))
                 {
                     Spells[SpellSlot.Q].Cast();
                 }
@@ -239,6 +232,27 @@ namespace iTwitch
                     }
                 }
             }
+        }
+
+        private void Exploit()
+        {
+            var target = TargetSelector.GetTarget(ObjectManager.Player.HasBuff("TwitchFullAutomatic") ? 850 : 550, TargetSelector.DamageType.Physical);
+            if (target == null || !target.IsValidTarget() || target.IsInvulnerable || !Spells[SpellSlot.Q].IsReady()) return;
+
+            if (Spells[SpellSlot.E].IsReady() && menu.Item("com.itwitch.misc.EAAQ").GetValue<bool>())
+            {
+                var realRange = ObjectManager.Player.HasBuff("TwitchFullAutomatic") ? 850 : 550;
+                if (target.Distance(ObjectManager.Player) > realRange)
+                {
+                    return;
+                }
+
+                if (target.Health <= ObjectManager.Player.GetAutoAttackDamage(target) * (1.15) + Spells[SpellSlot.E].GetDamage(target) * (1.35))
+                {
+                    Spells[SpellSlot.E].Cast();
+                }
+            }
+
         }
 
         #endregion
@@ -310,61 +324,13 @@ namespace iTwitch
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
             }
 
-            if (menu.Item("com.itwitch.combo.eDeath").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
-            {
-                const int HealthPercent = 5; // TODO menu item?
-                var enemies =
-                    HeroManager.Enemies.Count(x => ObjectManager.Player.Distance(x) <= Spells[SpellSlot.E].Range);
+            if (menu.Item("com.itwitch.misc.Exploit").GetValue<bool>()) Exploit();
 
-                if (ObjectManager.Player.HealthPercent < HealthPercent && enemies >= 2)
-                {
-                    var selectedTarget =
-                        HeroManager.Enemies.Where(x => Spells[SpellSlot.E].IsInRange(x) && x.HasPoisonBuff())
-                            .OrderBy(x => Spells[SpellSlot.E].GetDamage(x))
-                            .FirstOrDefault();
-
-                    if (selectedTarget != null)
-                    {
-                        var currentStacks = selectedTarget.GetPoisonStacks();
-                        var damagePercent = Math.Ceiling(currentStacks * 100 / selectedTarget.Health);
-
-                        if (damagePercent >= selectedTarget.HealthPercent
-                            || currentStacks >= menu.Item("com.itwitch.combo.eDeathC").GetValue<Slider>().Value)
-                        {
-                            Spells[SpellSlot.E].Cast();
-                        }
-                    }
-                }
-            }
-
-            if (menu.Item("com.itwitch.misc.eEarly").GetValue<bool>())
-            {
-                var target = TargetSelector.GetTarget(Spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
-                if (target == null || !target.IsValidTarget() || target.IsInvulnerable || target.IsDead
-                    || !target.IsFacing(ObjectManager.Player)
-                    || target.Distance(ObjectManager.Player) > ObjectManager.Player.AttackRange - 50) return;
-
-                var damage = Spells[SpellSlot.E].GetDamage(target);
-
-                if (target.Health <= ObjectManager.Player.GetAutoAttackDamage(target) + damage)
-                {
-                    Spells[SpellSlot.E].Cast();
-                }
-            }
-
-            // if (menu.Item("com.itwitch.misc.Exploit").GetValue<bool>()) Exploit();
             if (menu.Item("com.itwitch.combo.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
             {
-                var killableTarget =
-                    HeroManager.Enemies.FirstOrDefault(
-                        x => x.IsPoisonKillable() && x.IsValidTarget(Spells[SpellSlot.E].Range));
-                if (menu.Item("com.itwitch.misc.eEarly").GetValue<bool>() && Spells[SpellSlot.Q].IsReady()
-                    && killableTarget.Distance(ObjectManager.Player) < ObjectManager.Player.AttackRange - 50)
-                {
-                    return;
-                }
+                if (menu.Item("com.itwitch.misc.EAAQ").GetValue<bool>() && Spells[SpellSlot.Q].IsReady()) return;
 
-                if (killableTarget != null)
+                if (HeroManager.Enemies.Any(x => x.IsPoisonKillable() && x.IsValidTarget(Spells[SpellSlot.E].Range)))
                 {
                     Spells[SpellSlot.E].Cast();
                 }
