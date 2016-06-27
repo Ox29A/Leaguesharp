@@ -298,7 +298,10 @@ namespace iSivir
                     {
                         if (HeroManager.Enemies.Any(x => x.ChampionName == spell.ChampionName))
                         {
-                            autoShield.AddBool(spell.SpellName, spell.ChampionName + ": " + spell.Slot, true);
+                            autoShield.AddBool(
+                                spell.SpellName, 
+                                spell.ChampionName + ": " + spell.SpellName + " (" + spell.Slot + ")", 
+                                true);
                         }
                     }
 
