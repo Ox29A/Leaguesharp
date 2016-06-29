@@ -200,7 +200,7 @@
 
         public static float GetRealHealth(this Obj_AI_Base target)
         {
-            return target.Health; //+ (target.PhysicalShield > 0 ? target.PhysicalShield : 0); broken ok
+            return target.Health + (target.PhysicalShield > 0 ? target.PhysicalShield : 0);
         }
 
         public static float GetRemainingBuffTime(this Obj_AI_Base target, string buffName)
