@@ -74,7 +74,6 @@ namespace iTwitch
                 miscMenu.AddBool("com.itwitch.misc.noWTurret", "Don't W Under Tower", true);
                 miscMenu.AddSlider("com.itwitch.misc.noWAA", "No W if x aa can kill", 2, 0, 10);
                 miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
-                miscMenu.AddBool("com.itwitch.misc.Exploit", "Use Exploit").SetTooltip("Will Instant Q After Kill");
                 miscMenu.AddBool("com.itwitch.misc.EAAQ", "E AA Q")
                     .SetTooltip("Will cast E if killable by E + AA then Q");
                 miscMenu.AddKeybind(
@@ -189,33 +188,12 @@ namespace iTwitch
 
         private void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (args.Target != null && sender != null && sender.IsAlly && args.Target.IsEnemy && menu.Item("com.itwitch.misc.Exploit").GetValue<bool>())
-            {
-                var senderHero = sender as Obj_AI_Hero;
-                var targetHero = args.Target as Obj_AI_Hero;
-                if (targetHero != null && senderHero != null && targetHero.Buffs.Any(b => b.Name.ToLower().Equals("twitchdeadlyvenom")))
-                {
-                    var spelldamage = senderHero.GetSpellDamage(targetHero, args.Slot);
-                    if ((spelldamage / targetHero.Health) * 100f >= targetHero.HealthPercent 
-                        || spelldamage >= targetHero.Health 
-                        || senderHero.GetAutoAttackDamage(targetHero, true) >= targetHero.Health)
-                    {
-                        Spells[SpellSlot.Q].Cast();
-                    }
-                }
-            }
+
         }
 
         private void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            if (unit.IsMe && target is Obj_AI_Hero && target.IsValidTarget() && menu.Item("com.itwitch.misc.Exploit").GetValue<bool>())
-            {
-                var tg = target as Obj_AI_Hero;
-                if (tg?.Health + 5 <= ObjectManager.Player.GetAutoAttackDamage(tg, true) && tg.Buffs.Any(b => b.Name.ToLower().Equals("twitchdeadlyvenom")))
-                {
-                    Spells[SpellSlot.Q].Cast();
-                }
-            }
+
         }
 
         public void OnHarass()
@@ -232,27 +210,6 @@ namespace iTwitch
                     }
                 }
             }
-        }
-
-        private void Exploit()
-        {
-            var target = TargetSelector.GetTarget(ObjectManager.Player.HasBuff("TwitchFullAutomatic") ? 850 : 550, TargetSelector.DamageType.Physical);
-            if (target == null || !target.IsValidTarget() || target.IsInvulnerable || !Spells[SpellSlot.Q].IsReady()) return;
-
-            if (Spells[SpellSlot.E].IsReady() && menu.Item("com.itwitch.misc.EAAQ").GetValue<bool>())
-            {
-                var realRange = ObjectManager.Player.HasBuff("TwitchFullAutomatic") ? 850 : 550;
-                if (target.Distance(ObjectManager.Player) > realRange)
-                {
-                    return;
-                }
-
-                if (target.Health <= ObjectManager.Player.GetAutoAttackDamage(target) * (1.15) + Spells[SpellSlot.E].GetDamage(target) * (1.35))
-                {
-                    Spells[SpellSlot.E].Cast();
-                }
-            }
-
         }
 
         #endregion
@@ -323,8 +280,6 @@ namespace iTwitch
             {
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
             }
-
-            if (menu.Item("com.itwitch.misc.Exploit").GetValue<bool>()) Exploit();
 
             if (menu.Item("com.itwitch.combo.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
             {
