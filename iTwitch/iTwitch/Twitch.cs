@@ -44,7 +44,7 @@ namespace iTwitch
 
         public void LoadMenu()
         {
-            menu = new Menu("iTwitch 2.0 - Hawk Mode", "com.itwitch", true).SetFontStyle(
+            menu = new Menu("iTwitch 2.0", "com.itwitch", true).SetFontStyle(
                 FontStyle.Bold, 
                 SharpDX.Color.AliceBlue);
 
