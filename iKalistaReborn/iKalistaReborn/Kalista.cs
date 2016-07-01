@@ -1,4 +1,4 @@
-﻿ /*
+﻿/*
     TODO: 
 
     1. it doesnt rend the big super minions would be helpful for laneclear later
@@ -12,7 +12,6 @@
     5. rend minions u cant get with aa
 
 */
-
 namespace iKalistaReborn
 {
     using System;
@@ -57,6 +56,8 @@ namespace iKalistaReborn
                                                                          { "SRU_Murkwolf", "Wolves" }, 
                                                                          { "SRU_Krug", "Krug" }
                                                                      };
+
+        public static float LastAutoAttack;
 
         public static Menu Menu;
 
@@ -176,13 +177,13 @@ namespace iKalistaReborn
                 jungleStealMenu.AddBool("com.ikalista.jungleSteal.large", "Kill Large Minions", true);
                 jungleStealMenu.AddBool("com.ikalista.jungleSteal.legendary", "Kill Legendary Minions", true);
 
-
                 Menu.AddSubMenu(jungleStealMenu);
             }
 
             var miscMenu = new Menu("iKalista: Reborn - Misc", "com.ikalista.misc");
             {
                 miscMenu.AddBool("com.ikalista.misc.forceW", "Focus Enemy With W");
+                miscMenu.AddBool("com.ikalista.misc.exploit", "Exploit");
                 Menu.AddSubMenu(miscMenu);
             }
 
@@ -222,6 +223,22 @@ namespace iKalistaReborn
 
         private void OnCombo()
         {
+            if (Menu.Item("com.ikalista.misc.exploit").GetValue<bool>())
+            {
+                var target = TargetSelector.GetTarget(
+                    ObjectManager.Player.AttackRange, 
+                    TargetSelector.DamageType.Physical);
+                if (target.IsValidTarget(ObjectManager.Player.AttackRange))
+                {
+                    if (Environment.TickCount - LastAutoAttack <= 250) ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+                    if (Environment.TickCount - LastAutoAttack >= 50)
+                    {
+                        ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, target);
+                        LastAutoAttack = Environment.TickCount;
+                    }
+                }
+            }
+
             if (Menu.Item("com.ikalista.combo.orbwalkMinions").GetValue<bool>())
             {
                 var targets =
@@ -254,12 +271,13 @@ namespace iKalistaReborn
                 return;
             }
 
-            var target = TargetSelector.GetTarget(
+            var spearTarget = TargetSelector.GetTarget(
                 SpellManager.Spell[SpellSlot.Q].Range, 
                 TargetSelector.DamageType.Physical);
-            var prediction = SpellManager.Spell[SpellSlot.Q].GetSPrediction(target);
-            if (prediction.HitChance >= HitChance.High && target.IsValidTarget(SpellManager.Spell[SpellSlot.Q].Range)
-                && !ObjectManager.Player.IsDashing() && !ObjectManager.Player.IsWindingUp)
+            var prediction = SpellManager.Spell[SpellSlot.Q].GetSPrediction(spearTarget);
+            if (prediction.HitChance >= HitChance.High
+                && spearTarget.IsValidTarget(SpellManager.Spell[SpellSlot.Q].Range) && !ObjectManager.Player.IsDashing()
+                && !ObjectManager.Player.IsWindingUp)
             {
                 SpellManager.Spell[SpellSlot.Q].Cast(prediction.CastPosition);
             }
@@ -356,7 +374,8 @@ namespace iKalistaReborn
             {
                 var minions = MinionManager.GetMinions(SpellManager.Spell[SpellSlot.E].Range).ToList();
                 if (minions.Count < 0) return;
-                var siegeMinion = minions.FirstOrDefault(x => x.CharData.BaseSkinName == "MinionSiege" && x.IsRendKillable());
+                var siegeMinion =
+                    minions.FirstOrDefault(x => x.CharData.BaseSkinName == "MinionSiege" && x.IsRendKillable());
 
                 if (Menu.Item("com.ikalista.laneclear.eSiege").GetValue<bool>() && siegeMinion != null)
                 {
