@@ -34,7 +34,7 @@ namespace iTwitch
 
         #region Fields
 
-        private Menu menu;
+        public static Menu Menu;
 
         private Orbwalking.Orbwalker orbwalker;
 
@@ -44,28 +44,28 @@ namespace iTwitch
 
         public void LoadMenu()
         {
-            menu = new Menu("iTwitch 2.0", "com.itwitch", true).SetFontStyle(
+            Menu = new Menu("iTwitch 2.0", "com.itwitch", true).SetFontStyle(
                 FontStyle.Bold, 
                 SharpDX.Color.AliceBlue);
 
             var owMenu = new Menu(":: Orbwalker", "com.itwitch.orbwalker");
             {
                 orbwalker = new Orbwalking.Orbwalker(owMenu);
-                menu.AddSubMenu(owMenu);
+                Menu.AddSubMenu(owMenu);
             }
 
             var comboMenu = new Menu(":: iTwitch 2.0 - Combo Options", "com.itwitch.combo");
             {
                 comboMenu.AddBool("com.itwitch.combo.useW", "Use W", true);
                 comboMenu.AddBool("com.itwitch.combo.useEKillable", "Use E Killable", true);
-                menu.AddSubMenu(comboMenu);
+                Menu.AddSubMenu(comboMenu);
             }
 
             var harassMenu = new Menu(":: iTwitch 2.0 - Harass Options", "com.itwitch.harass");
             {
                 harassMenu.AddBool("com.itwitch.harass.useW", "Use W");
                 harassMenu.AddBool("com.itwitch.harass.useEKillable", "Use E", true);
-                menu.AddSubMenu(harassMenu);
+                Menu.AddSubMenu(harassMenu);
             }
 
             var miscMenu = new Menu(":: iTwitch 2.0 - Misc Options", "com.itwitch.misc");
@@ -80,7 +80,7 @@ namespace iTwitch
                     "com.itwitch.misc.recall", 
                     "Stealth Recall", 
                     new Tuple<uint, KeyBindType>("T".ToCharArray()[0], KeyBindType.Press));
-                menu.AddSubMenu(miscMenu);
+                Menu.AddSubMenu(miscMenu);
             }
 
             var drawingMenu = new Menu(":: iTwitch 2.0 - Drawing Options", "com.itwitch.drawing");
@@ -94,10 +94,10 @@ namespace iTwitch
                 drawingMenu.AddItem(
                     new MenuItem("com.itwitch.drawing.eDamage", "Draw E Damage on Enemies").SetValue(
                         new Circle(true, Color.DarkOliveGreen)));
-                menu.AddSubMenu(drawingMenu);
+                Menu.AddSubMenu(drawingMenu);
             }
 
-            menu.AddToMainMenu();
+            Menu.AddToMainMenu();
         }
 
         public void LoadSpells()
@@ -107,15 +107,15 @@ namespace iTwitch
 
         public void OnCombo()
         {
-            if (menu.Item("com.itwitch.combo.useW").GetValue<bool>() && Spells[SpellSlot.W].IsReady())
+            if (Menu.Item("com.itwitch.combo.useW").GetValue<bool>() && Spells[SpellSlot.W].IsReady())
             {
-                if (menu.Item("com.itwitch.misc.saveManaE").GetValue<bool>()
+                if (Menu.Item("com.itwitch.misc.saveManaE").GetValue<bool>()
                     && ObjectManager.Player.Mana <= Spells[SpellSlot.E].ManaCost + Spells[SpellSlot.W].ManaCost)
                 {
                     return;
                 }
 
-                if (menu.Item("com.itwitch.misc.noWTurret").GetValue<bool>() && ObjectManager.Player.UnderTurret(true))
+                if (Menu.Item("com.itwitch.misc.noWTurret").GetValue<bool>() && ObjectManager.Player.UnderTurret(true))
                 {
                     return;
                 }
@@ -125,7 +125,7 @@ namespace iTwitch
                 if (wTarget != null
                     && wTarget.Health
                     < ObjectManager.Player.GetAutoAttackDamage(wTarget, true)
-                    * menu.Item("com.itwitch.misc.noWAA").GetValue<Slider>().Value) return;
+                    * Menu.Item("com.itwitch.misc.noWAA").GetValue<Slider>().Value) return;
 
                 if (wTarget.IsValidTarget(Spells[SpellSlot.W].Range)
                     && !ObjectManager.Player.HasBuff("TwitchHideInShadows"))
@@ -151,7 +151,7 @@ namespace iTwitch
             Spellbook.OnCastSpell += (sender, eventArgs) =>
                 {
                     if (eventArgs.Slot == SpellSlot.Recall && Spells[SpellSlot.Q].IsReady()
-                        && menu.Item("com.itwitch.misc.recall").GetValue<KeyBind>().Active)
+                        && Menu.Item("com.itwitch.misc.recall").GetValue<KeyBind>().Active)
                     {
                         Spells[SpellSlot.Q].Cast();
                         Utility.DelayAction.Add(
@@ -161,7 +161,7 @@ namespace iTwitch
                         return;
                     }
 
-                    if (eventArgs.Slot == SpellSlot.R && menu.Item("com.itwitch.misc.autoYo").GetValue<bool>())
+                    if (eventArgs.Slot == SpellSlot.R && Menu.Item("com.itwitch.misc.autoYo").GetValue<bool>())
                     {
                         if (!HeroManager.Enemies.Any(x => ObjectManager.Player.Distance(x) <= Spells[SpellSlot.R].Range)) return;
 
@@ -171,7 +171,7 @@ namespace iTwitch
                         }
                     }
 
-                    if (menu.Item("com.itwitch.misc.saveManaE").GetValue<bool>() && eventArgs.Slot == SpellSlot.W)
+                    if (Menu.Item("com.itwitch.misc.saveManaE").GetValue<bool>() && eventArgs.Slot == SpellSlot.W)
                     {
                         if (ObjectManager.Player.Mana <= Spells[SpellSlot.E].ManaCost + 10)
                         {
@@ -198,7 +198,7 @@ namespace iTwitch
 
         public void OnHarass()
         {
-            if (menu.Item("com.itwitch.harass.useW").GetValue<bool>() && Spells[SpellSlot.W].IsReady())
+            if (Menu.Item("com.itwitch.harass.useW").GetValue<bool>() && Spells[SpellSlot.W].IsReady())
             {
                 var wTarget = TargetSelector.GetTarget(Spells[SpellSlot.W].Range, TargetSelector.DamageType.Physical);
                 if (wTarget.IsValidTarget(Spells[SpellSlot.W].Range))
@@ -218,20 +218,19 @@ namespace iTwitch
 
         private void OnDraw(EventArgs args)
         {
-            CustomDamageIndicator.DrawingColor = menu.Item("com.itwitch.drawing.eDamage").GetValue<Circle>().Color;
-            CustomDamageIndicator.Enabled = menu.Item("com.itwitch.drawing.eDamage").GetValue<Circle>().Active;
+            CustomDamageIndicator.Enabled = Menu.Item("com.itwitch.drawing.eDamage").GetValue<Circle>().Active;
 
-            if (menu.Item("com.itwitch.drawing.drawRRange").GetValue<bool>())
+            if (Menu.Item("com.itwitch.drawing.drawRRange").GetValue<bool>())
             {
                 Render.Circle.DrawCircle(ObjectManager.Player.Position, Spells[SpellSlot.R].Range, Color.BlueViolet);
             }
 
-            if (menu.Item("com.itwitch.drawing.drawERange").GetValue<bool>())
+            if (Menu.Item("com.itwitch.drawing.drawERange").GetValue<bool>())
             {
                 Render.Circle.DrawCircle(ObjectManager.Player.Position, Spells[SpellSlot.E].Range, Color.BlueViolet);
             }
 
-            if (menu.Item("com.itwitch.drawing.drawQTime").GetValue<bool>()
+            if (Menu.Item("com.itwitch.drawing.drawQTime").GetValue<bool>()
                 && ObjectManager.Player.HasBuff("TwitchHideInShadows"))
             {
                 var position = new Vector3(
@@ -243,7 +242,7 @@ namespace iTwitch
                     Color.AntiqueWhite);
             }
 
-            if (menu.Item("com.itwitch.drawing.drawRTime").GetValue<bool>()
+            if (Menu.Item("com.itwitch.drawing.drawRTime").GetValue<bool>()
                 && ObjectManager.Player.HasBuff("TwitchFullAutomatic"))
             {
                 ObjectManager.Player.Position.DrawTextOnScreen(
@@ -251,7 +250,7 @@ namespace iTwitch
                     Color.AntiqueWhite);
             }
 
-            if (menu.Item("com.itwitch.drawing.drawEStacks").GetValue<bool>())
+            if (Menu.Item("com.itwitch.drawing.drawEStacks").GetValue<bool>())
             {
                 foreach (var source in
                     HeroManager.Enemies.Where(x => x.HasBuff("TwitchDeadlyVenom") && !x.IsDead && x.IsVisible))
@@ -261,7 +260,7 @@ namespace iTwitch
                 }
             }
 
-            if (menu.Item("com.itwitch.drawing.drawEStackT").GetValue<bool>())
+            if (Menu.Item("com.itwitch.drawing.drawEStackT").GetValue<bool>())
             {
                 foreach (var source in
                     HeroManager.Enemies.Where(x => x.HasBuff("TwitchDeadlyVenom") && !x.IsDead && x.IsVisible))
@@ -276,14 +275,14 @@ namespace iTwitch
 
         private void OnUpdate(EventArgs args)
         {
-            if (menu.Item("com.itwitch.misc.recall").GetValue<KeyBind>().Active)
+            if (Menu.Item("com.itwitch.misc.recall").GetValue<KeyBind>().Active)
             {
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
             }
 
-            if (menu.Item("com.itwitch.combo.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
+            if (Menu.Item("com.itwitch.combo.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
             {
-                if (menu.Item("com.itwitch.misc.EAAQ").GetValue<bool>() && Spells[SpellSlot.Q].IsReady()) return;
+                if (Menu.Item("com.itwitch.misc.EAAQ").GetValue<bool>() && Spells[SpellSlot.Q].IsReady()) return;
 
                 if (HeroManager.Enemies.Any(x => x.IsPoisonKillable() && x.IsValidTarget(Spells[SpellSlot.E].Range)))
                 {

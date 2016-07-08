@@ -45,6 +45,11 @@
                     .ToList();
         }
 
+        public static ColorBGRA ToSharpDxColor(this System.Drawing.Color c)
+        {
+            return new ColorBGRA(c.R, c.G, c.B, c.A);
+        }
+
         /// <summary>
         ///     Gets the targets current health including shield damage
         /// </summary>
@@ -54,7 +59,9 @@
         /// <returns>
         ///     The <see cref="float" />.
         /// </returns>
-        public static float GetHealthWithShield(this Obj_AI_Base target) => target.Health; //+ target.PhysicalShield > 0 ? target.PhysicalShield : 0; // TODO shield when fixed.
+        public static float GetHealthWithShield(this Obj_AI_Base target) => target.Health;
+
+        // + target.PhysicalShield > 0 ? target.PhysicalShield : 0; // TODO shield when fixed.
 
         /// <summary>
         ///     Gets the rend buff
@@ -277,12 +284,10 @@
                                                  && g.GetBuff("yorickunholysymbiosis").Caster == target))) * 0.05);
             }
 
-            if (target is Obj_AI_Minion)
+            if (!(target is Obj_AI_Minion)) return (float)baseDamage > target.GetHealthWithShield();
+            if (target.Name.Contains("Baron"))
             {
-                if (target.Name.Contains("Baron"))
-                {
-                    baseDamage *= 0.5f;
-                }
+                baseDamage *= 0.5f;
             }
 
             return (float)baseDamage > target.GetHealthWithShield();

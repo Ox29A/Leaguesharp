@@ -8,98 +8,60 @@
 
     using SharpDX;
 
-    using Color = System.Drawing.Color;
-
     class CustomDamageIndicator
     {
-        #region Constants
+        public delegate float DamageToUnitDelegate(Obj_AI_Hero hero);
 
-        private const int BarWidth = 104;
+        private const int XOffset = 10;
 
-        private const int LineThickness = 9;
+        private const int YOffset = 20;
 
-        #endregion
+        private const int Width = 103;
 
-        #region Static Fields
+        private const int Height = 8;
 
-        private static readonly Vector2 BarOffset = new Vector2(10, 25);
+        private static DamageToUnitDelegate damageToUnit;
 
-        private static Utility.HpBarDamageIndicator.DamageToUnitDelegate _damageToUnit;
-
-        private static Color drawingColor;
-
-        #endregion
-
-        #region Public Properties
-
-        public static Color DrawingColor
-        {
-            get
-            {
-                return drawingColor;
-            }
-
-            set
-            {
-                drawingColor = Color.FromArgb(170, value);
-            }
-        }
+        private static readonly Render.Rectangle DamageBar = new Render.Rectangle(0, 0, 1, 8, Color.White);
 
         public static bool Enabled { get; set; }
 
-        public static bool EnabledJ { get; set; }
+        public static System.Drawing.Color DrawingColor
+            => Twitch.Menu.Item("com.itwitch.drawing.eDamage").GetValue<Circle>().Color;
 
-        #endregion
-
-        #region Public Methods and Operators
-
-        public static void Initialize(Utility.HpBarDamageIndicator.DamageToUnitDelegate damageToUnit)
+        public static void Initialize(DamageToUnitDelegate dmg)
         {
-            // Apply needed field delegate for damage calculation
-            _damageToUnit = damageToUnit;
-            DrawingColor = Color.Green;
-            Enabled = true;
-
-            // Register event handlers
+            damageToUnit = dmg;
             Drawing.OnDraw += Drawing_OnDraw;
         }
 
-        #endregion
-
-        #region Methods
-
         private static void Drawing_OnDraw(EventArgs args)
         {
-            if (Enabled)
+            if (!Enabled)
             {
-                foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(u => u.IsValidTarget() && u.IsHPBarRendered)
-                    )
-                {
-                    // Get damage to unit
-                    var damage = _damageToUnit(unit);
+                return;
+            }
 
-                    // Continue on 0 damage
-                    if (damage <= 0) continue;
+            foreach (var unit in HeroManager.Enemies.Where(h => h.IsValid && h.IsHPBarRendered))
+            {
+                var barPos = unit.HPBarPosition;
+                var damage = damageToUnit(unit);
+                var percentHealthAfterDamage = Math.Max(0, unit.Health - damage) / unit.MaxHealth;
 
-                    // Get remaining HP after damage applied in percent and the current percent of health
-                    var damagePercentage = ((unit.Health - damage) > 0 ? (unit.Health - damage) : 0) / unit.MaxHealth;
-                    var currentHealthPercentage = unit.Health / unit.MaxHealth;
+                var champOffset = unit.ChampionName == "Jhin" ? new Vector2(-8, -14) : Vector2.Zero;
+                var xPos = barPos.X + XOffset + champOffset.X;
+                var xPosDamage = xPos + Width * percentHealthAfterDamage;
+                var xPosCurrentHp = xPos + Width * unit.Health / unit.MaxHealth;
+                var yPos = barPos.Y + YOffset + champOffset.Y;
 
-                    // Calculate start and end point of the bar indicator
-                    var startPoint = new Vector2(
-                        (int)(unit.HPBarPosition.X + BarOffset.X + damagePercentage * BarWidth), 
-                        (int)(unit.HPBarPosition.Y + BarOffset.Y) - 5);
-                    var endPoint =
-                        new Vector2(
-                            (int)(unit.HPBarPosition.X + BarOffset.X + currentHealthPercentage * BarWidth) + 1, 
-                            (int)(unit.HPBarPosition.Y + BarOffset.Y) - 5);
-
-                    // Draw the line
-                    Drawing.DrawLine(startPoint, endPoint, LineThickness, DrawingColor);
-                }
+                var differenceInHp = xPosCurrentHp - xPosDamage;
+                DamageBar.Color = DrawingColor.ToSharpDxColor();
+                DamageBar.X = (int)(barPos.X + 9 + 107 * percentHealthAfterDamage);
+                DamageBar.Y = (int)yPos - 1;
+                DamageBar.Width = (int)Math.Round(differenceInHp);
+                DamageBar.Height = Height + 3;
+                DamageBar.OnEndScene();
             }
         }
-
-        #endregion
     }
 }

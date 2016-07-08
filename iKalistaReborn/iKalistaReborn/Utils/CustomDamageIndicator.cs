@@ -1,102 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using LeagueSharp;
-using LeagueSharp.Common;
-
-using SharpDX;
-
-namespace iKalistaReborn.Utils
+﻿namespace iKalistaReborn.Utils
 {
-    using System.Drawing;
+    using System;
+    using System.Linq;
 
-    internal class CustomDamageIndicator
+    using iKalistaReborn;
+
+    using LeagueSharp;
+    using LeagueSharp.Common;
+
+    using SharpDX;
+
+    class CustomDamageIndicator
     {
-        private const int BarWidth = 104;
+        public delegate float DamageToUnitDelegate(Obj_AI_Hero hero);
 
-        private const int LineThickness = 9;
+        private const int XOffset = 10;
 
-        private static Utility.HpBarDamageIndicator.DamageToUnitDelegate _damageToUnit;
+        private const int YOffset = 20;
 
-        private static readonly Vector2 BarOffset = new Vector2(10, 25);
+        private const int Width = 103;
 
-        private static Color drawingColor;
+        private const int Height = 8;
 
-        public static Color DrawingColor
-        {
-            get
-            {
-                return drawingColor;
-            }
+        private static DamageToUnitDelegate damageToUnit;
 
-            set
-            {
-                drawingColor = System.Drawing.Color.FromArgb(170, value);
-            }
-        }
+        private static readonly Render.Rectangle DamageBar = new Render.Rectangle(0, 0, 1, 8, Color.White);
 
         public static bool Enabled { get; set; }
 
-        public static bool EnabledJ { get; set; }
+        public static System.Drawing.Color DrawingColor
+            => Kalista.Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Color;
 
-        public static void Initialize(Utility.HpBarDamageIndicator.DamageToUnitDelegate damageToUnit)
+        public static void Initialize(DamageToUnitDelegate dmg)
         {
-            // Apply needed field delegate for damage calculation
-            _damageToUnit = damageToUnit;
-            DrawingColor = System.Drawing.Color.Green;
-            Enabled = true;
-
-            // Register event handlers
+            damageToUnit = dmg;
             Drawing.OnDraw += Drawing_OnDraw;
         }
 
         private static void Drawing_OnDraw(EventArgs args)
         {
-            if (Enabled)
+            if (!Enabled)
             {
-                foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(u => u.IsValidTarget() && u.IsHPBarRendered)
-                    )
-                {
-                    // Get damage to unit
-                    var damage = _damageToUnit(unit);
-
-                    // Continue on 0 damage
-                    if (damage <= 0) continue;
-
-                    // Get remaining HP after damage applied in percent and the current percent of health
-                    var damagePercentage = ((unit.Health - damage) > 0 ? (unit.Health - damage) : 0) / unit.MaxHealth;
-                    var currentHealthPercentage = unit.Health / unit.MaxHealth;
-
-                    // Calculate start and end point of the bar indicator
-                    var startPoint = new Vector2(
-                        (int)(unit.HPBarPosition.X + BarOffset.X + damagePercentage * BarWidth), 
-                        (int)(unit.HPBarPosition.Y + BarOffset.Y) - 5);
-                    var endPoint =
-                        new Vector2(
-                            (int)(unit.HPBarPosition.X + BarOffset.X + currentHealthPercentage * BarWidth) + 1, 
-                            (int)(unit.HPBarPosition.Y + BarOffset.Y) - 5);
-
-                    // Draw the line
-                    Drawing.DrawLine(startPoint, endPoint, LineThickness, DrawingColor);
-                }
+                return;
             }
 
-            if (EnabledJ)
+            foreach (var unit in HeroManager.Enemies.Where(h => h.IsValid && h.IsHPBarRendered))
             {
-                foreach (var unit in
-                    GameObjects.Jungle.Where(
-                        x =>
-                        ObjectManager.Player.Distance(x) <= SpellManager.Spell[SpellSlot.E].Range && x.IsValidTarget()
-                        && x.IsHPBarRendered && x.HasRendBuff()))
-                {
-                    Render.Circle.DrawCircle(
-                        unit.Position, 
-                        500f, 
-                        unit.IsMobKillable() ? System.Drawing.Color.GreenYellow : System.Drawing.Color.Red);
-                }
+                var barPos = unit.HPBarPosition;
+                var damage = damageToUnit(unit);
+                var percentHealthAfterDamage = Math.Max(0, unit.Health - damage) / unit.MaxHealth;
+
+                var champOffset = unit.ChampionName == "Jhin" ? new Vector2(-8, -14) : Vector2.Zero;
+                var xPos = barPos.X + XOffset + champOffset.X;
+                var xPosDamage = xPos + Width * percentHealthAfterDamage;
+                var xPosCurrentHp = xPos + Width * unit.Health / unit.MaxHealth;
+                var yPos = barPos.Y + YOffset + champOffset.Y;
+
+                var differenceInHp = xPosCurrentHp - xPosDamage;
+                DamageBar.Color = DrawingColor.ToSharpDxColor();
+                DamageBar.X = (int)(barPos.X + 9 + 107 * percentHealthAfterDamage);
+                DamageBar.Y = (int)yPos - 1;
+                DamageBar.Width = (int)Math.Round(differenceInHp);
+                DamageBar.Height = Height + 3;
+                DamageBar.OnEndScene();
             }
         }
     }

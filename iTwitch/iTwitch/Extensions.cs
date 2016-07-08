@@ -193,6 +193,11 @@
             return (float)baseDamage;
         }
 
+        public static ColorBGRA ToSharpDxColor(this Color c)
+        {
+            return new ColorBGRA(c.R, c.G, c.B, c.A);
+        }
+
         public static float GetPoisonStacks(this Obj_AI_Base target)
         {
             return target.GetBuffCount("TwitchDeadlyVenom");

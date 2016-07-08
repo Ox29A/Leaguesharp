@@ -195,9 +195,6 @@ namespace iKalistaReborn
                     new MenuItem("com.ikalista.drawing.eDamage", "Draw E Damage on Enemies").SetValue(
                         new Circle(true, Color.DarkOliveGreen)));
                 drawingMenu.AddItem(
-                    new MenuItem("com.ikalista.drawing.eDamageJ", "Draw E Damage Circle on jungle mobs").SetValue(
-                        new Circle(true, Color.White)).SetTooltip("Red = Not Killable, Green = Killable"));
-                drawingMenu.AddItem(
                     new MenuItem("com.ikalista.drawing.damagePercent", "Draw Percent Damage").SetValue(
                         new Circle(true, Color.DarkOliveGreen)));
                 Menu.AddSubMenu(drawingMenu);
