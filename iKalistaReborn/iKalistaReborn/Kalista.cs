@@ -286,9 +286,7 @@ namespace iKalistaReborn
         /// <param name="args">even more gay</param>
         private void OnDraw(EventArgs args)
         {
-            CustomDamageIndicator.DrawingColor = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Color;
             CustomDamageIndicator.Enabled = Menu.Item("com.ikalista.drawing.eDamage").GetValue<Circle>().Active;
-            CustomDamageIndicator.EnabledJ = Menu.Item("com.ikalista.drawing.eDamageJ").GetValue<Circle>().Active;
 
             if (Menu.Item("com.ikalista.drawing.spellRanges").GetValue<bool>())
             {
