@@ -42,7 +42,7 @@ namespace iKalistaReborn
         public static readonly List<IModule> Modules = new List<IModule>
                                                            {
                                                                new AutoRendModule(), new JungleStealModule(), 
-                                                               new AutoEModule(), new AutoELeavingModule()
+                                                               new AutoEModule(), new AutoELeavingModule(), new WallJumpModule()
                                                            };
 
         public static Dictionary<string, string> JungleMinions = new Dictionary<string, string>

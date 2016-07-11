@@ -54,12 +54,7 @@
                 return JungleType.Large;
             }
 
-            if (LegendaryNameRegex.Any(regex => Regex.IsMatch(minion.Name, regex)))
-            {
-                return JungleType.Legendary;
-            }
-
-            return JungleType.Unknown;
+            return LegendaryNameRegex.Any(regex => Regex.IsMatch(minion.Name, regex)) ? JungleType.Legendary : JungleType.Unknown;
         }
 
         /// <summary>
