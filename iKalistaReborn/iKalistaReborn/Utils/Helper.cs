@@ -59,9 +59,7 @@
         /// <returns>
         ///     The <see cref="float" />.
         /// </returns>
-        public static float GetHealthWithShield(this Obj_AI_Base target) => target.Health;
-
-        // + target.PhysicalShield > 0 ? target.PhysicalShield : 0; // TODO shield when fixed.
+        public static float GetHealthWithShield(this Obj_AI_Base target) => target.Health + target.PhysicalShield > 0 ? target.PhysicalShield : 0; // TODO shield when fixed.
 
         /// <summary>
         ///     Gets the rend buff
