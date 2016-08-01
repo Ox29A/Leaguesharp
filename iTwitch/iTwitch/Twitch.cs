@@ -282,8 +282,6 @@ namespace iTwitch
 
             if (Menu.Item("com.itwitch.combo.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
             {
-                if (Menu.Item("com.itwitch.misc.EAAQ").GetValue<bool>() && Spells[SpellSlot.Q].IsReady()) return;
-
                 if (HeroManager.Enemies.Any(x => x.IsPoisonKillable() && x.IsValidTarget(Spells[SpellSlot.E].Range)))
                 {
                     Spells[SpellSlot.E].Cast();

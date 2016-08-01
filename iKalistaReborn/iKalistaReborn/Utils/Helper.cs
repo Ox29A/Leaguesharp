@@ -9,6 +9,7 @@
     using SharpDX;
 
     using Collision = LeagueSharp.Common.Collision;
+    using Color = System.Drawing.Color;
 
     /// <summary>
     ///     The Helper class
@@ -45,7 +46,7 @@
                     .ToList();
         }
 
-        public static ColorBGRA ToSharpDxColor(this System.Drawing.Color c)
+        public static ColorBGRA ToSharpDxColor(this Color c)
         {
             return new ColorBGRA(c.R, c.G, c.B, c.A);
         }
@@ -59,7 +60,8 @@
         /// <returns>
         ///     The <see cref="float" />.
         /// </returns>
-        public static float GetHealthWithShield(this Obj_AI_Base target) => target.Health + target.PhysicalShield > 0 ? target.PhysicalShield : 0; // TODO shield when fixed.
+        public static float GetHealthWithShield(this Obj_AI_Base target)
+            => target.Health + target.PhysicalShield > 0 ? target.PhysicalShield : 0; // TODO shield when fixed.
 
         /// <summary>
         ///     Gets the rend buff

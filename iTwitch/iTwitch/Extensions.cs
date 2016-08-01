@@ -182,12 +182,12 @@
                                                  && g.GetBuff("yorickunholysymbiosis").Caster == target))) * 0.05);
             }
 
-            if (target is Obj_AI_Minion)
+            if (!(target is Obj_AI_Minion))
+                return (float)baseDamage;
+
+            if (target.Name.Contains("Baron"))
             {
-                if (target.Name.Contains("Baron"))
-                {
-                    baseDamage *= 0.5f;
-                }
+                baseDamage *= 0.5f;
             }
 
             return (float)baseDamage;
@@ -205,7 +205,7 @@
 
         public static float GetRealHealth(this Obj_AI_Base target)
         {
-            return target.Health + (target.PhysicalShield > 0 ? target.PhysicalShield : 0);
+            return target.Health + 10; //+ (target.PhysicalShield > 0 ? target.PhysicalShield : 0);
         }
 
         public static float GetRemainingBuffTime(this Obj_AI_Base target, string buffName)
