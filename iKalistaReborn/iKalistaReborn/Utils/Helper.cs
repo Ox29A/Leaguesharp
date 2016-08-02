@@ -181,8 +181,13 @@
                 baseDamage *= 0.6;
             }
 
+            if (target.HasBuff("FerociousHowl"))
+            {
+                baseDamage *= 0.6 - new[] { 0.1, 0.2, 0.3 }[target.Spellbook.GetSpell(SpellSlot.R).Level - 1];
+            }
+
             // Urgot P
-            if (ObjectManager.Player.HasBuff("urgotentropypassive"))
+            /*if (ObjectManager.Player.HasBuff("urgotentropypassive"))
             {
                 baseDamage *= 0.85;
             }
@@ -245,7 +250,7 @@
             {
                 baseDamage *= 0.85;
             }
-            */
+           
 
             // Katarina E
             if (target.HasBuff("KatarinaEReduction"))
@@ -282,7 +287,7 @@
                                          && (g.Name.Equals("Clyde") || g.Name.Equals("Inky") || g.Name.Equals("Blinky")
                                              || (g.HasBuff("yorickunholysymbiosis")
                                                  && g.GetBuff("yorickunholysymbiosis").Caster == target))) * 0.05);
-            }
+            }*/
 
             if (!(target is Obj_AI_Minion)) return (float)baseDamage > target.GetHealthWithShield();
             if (target.Name.Contains("Baron"))

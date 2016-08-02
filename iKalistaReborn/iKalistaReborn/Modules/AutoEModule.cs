@@ -32,17 +32,17 @@
                 var enemy =
                     HeroManager.Enemies.Where(hero => hero.HasRendBuff())
                         .MinOrDefault(hero => hero.Distance(ObjectManager.Player, true));
-                if (enemy?.Distance(ObjectManager.Player, true)
-                    < Math.Pow(SpellManager.Spell[SpellSlot.E].Range + 200, 2))
+                if (
+                    !(enemy?.Distance(ObjectManager.Player, true)
+                      < Math.Pow(SpellManager.Spell[SpellSlot.E].Range + 200, 2)))
+                    return;
+                if (
+                    ObjectManager.Get<Obj_AI_Minion>()
+                        .Any(
+                            x =>
+                            SpellManager.Spell[SpellSlot.E].IsInRange(x) && x.HasRendBuff() && x.IsRendKillable()))
                 {
-                    if (
-                        ObjectManager.Get<Obj_AI_Minion>()
-                            .Any(
-                                x =>
-                                SpellManager.Spell[SpellSlot.E].IsInRange(x) && x.HasRendBuff() && x.IsRendKillable()))
-                    {
-                        SpellManager.Spell[SpellSlot.E].Cast();
-                    }
+                    SpellManager.Spell[SpellSlot.E].Cast();
                 }
             }
         }

@@ -43,8 +43,7 @@ namespace iKalistaReborn
         /// </summary>
         public static readonly List<IModule> Modules = new List<IModule>
                                                            {
-                                                               new AutoRendModule(), new JungleStealModule(), 
-                                                               new AutoEModule(), new AutoELeavingModule(), 
+                                                               new AutoRendModule(), new JungleStealModule(), new AutoELeavingModule(), 
                                                                new WallJumpModule()
                                                            };
 
@@ -362,7 +361,6 @@ namespace iKalistaReborn
                 comboMenu.AddBool("com.ikalista.combo.useQ", "Use Q", true);
                 comboMenu.AddText("--", "------------------");
                 comboMenu.AddBool("com.ikalista.combo.useE", "Use E", true);
-                comboMenu.AddSlider("com.ikalista.combo.stacks", "Rend at X stacks", 10, 1, 20);
                 comboMenu.AddBool("com.ikalista.combo.eLeaving", "Use E Leaving", true);
                 comboMenu.AddSlider("com.ikalista.combo.ePercent", "Min Percent for E Leaving", 50, 10, 100);
                 comboMenu.AddBool("com.ikalista.combo.saveMana", "Save Mana for E", true);
@@ -488,8 +486,7 @@ namespace iKalistaReborn
 
             if (!SpellManager.Spell[SpellSlot.Q].IsReady() || !Menu.Item("com.ikalista.combo.useQ").GetValue<bool>()) return;
 
-            if (Menu.Item("com.ikalista.combo.saveMana").GetValue<bool>()
-                && ObjectManager.Player.Mana < SpellManager.Spell[SpellSlot.E].ManaCost * 2)
+            if (Menu.Item("com.ikalista.combo.saveMana").GetValue<bool>() && ObjectManager.Player.Mana < SpellManager.Spell[SpellSlot.E].ManaCost * 2)
             {
                 return;
             }
@@ -498,9 +495,8 @@ namespace iKalistaReborn
                 SpellManager.Spell[SpellSlot.Q].Range, 
                 TargetSelector.DamageType.Physical);
             var prediction = SpellManager.Spell[SpellSlot.Q].GetSPrediction(spearTarget);
-            if (prediction.HitChance >= HitChance.High
-                && spearTarget.IsValidTarget(SpellManager.Spell[SpellSlot.Q].Range) && !ObjectManager.Player.IsDashing()
-                && !ObjectManager.Player.IsWindingUp)
+            if (prediction.HitChance >= HitChance.Medium
+                && spearTarget.IsValidTarget(SpellManager.Spell[SpellSlot.Q].Range))
             {
                 SpellManager.Spell[SpellSlot.Q].Cast(prediction.CastPosition);
             }
