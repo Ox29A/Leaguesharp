@@ -60,7 +60,8 @@
         /// <returns>
         ///     The <see cref="float" />.
         /// </returns>
-        public static float GetHealthWithShield(this Obj_AI_Base target) => target.Health + target.PhysicalShield > 0 ? target.PhysicalShield : 0; // TODO shield when fixed.
+        public static float GetHealthWithShield(this Obj_AI_Base target)
+            => target.Health + target.PhysicalShield > 0 ? target.PhysicalShield : 0; // TODO shield when fixed.
 
         /// <summary>
         ///     Gets the rend buff
@@ -154,7 +155,7 @@
         /// <returns>
         ///     The <see cref="bool" />.
         /// </returns>
-        public static bool IsMobKillable(this Obj_AI_Base target) => IsRendKillable(target as Obj_AI_Minion);
+        public static bool IsMobKillable(this Obj_AI_Base target) => IsRendKillable(target);
 
         /// <summary>
         ///     Checks if the given target is killable
@@ -172,8 +173,10 @@
                 return false;
             }
 
-            double baseDamage = SpellManager.Spell[SpellSlot.E].GetDamage(target);
-            
+            double baseDamage = Kalista.Menu.Item("com.ikalista.misc.damage").GetValue<StringList>().SelectedIndex == 0
+                                    ? SpellManager.Spell[SpellSlot.E].GetDamage(target)
+                                    : Damages.GetRendDamage(target);
+
             return (float)baseDamage >= target.GetHealthWithShield();
         }
 

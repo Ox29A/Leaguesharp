@@ -406,7 +406,7 @@ namespace iKalistaReborn
             var miscMenu = new Menu("iKalista: Reborn - Misc", "com.ikalista.misc");
             {
                 miscMenu.AddBool("com.ikalista.misc.forceW", "Focus Enemy With W");
-                miscMenu.AddBool("com.ikalista.misc.exploit", "Exploit");
+                miscMenu.AddStringList("com.ikalista.misc.damage", "Damage Type", new []{ "Common", "Custom" });
                 Menu.AddSubMenu(miscMenu);
             }
 
