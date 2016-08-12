@@ -395,7 +395,6 @@ namespace iKalistaReborn
             var jungleStealMenu = new Menu("iKalista: Reborn - Jungle Steal", "com.ikalista.jungleSteal");
             {
                 jungleStealMenu.AddBool("com.ikalista.jungleSteal.enabled", "Use Rend To Steal Jungle Minions", true);
-
                 jungleStealMenu.AddBool("com.ikalista.jungleSteal.small", "Kill Small Minions", true);
                 jungleStealMenu.AddBool("com.ikalista.jungleSteal.large", "Kill Large Minions", true);
                 jungleStealMenu.AddBool("com.ikalista.jungleSteal.legendary", "Kill Legendary Minions", true);
@@ -545,9 +544,7 @@ namespace iKalistaReborn
 
             if (Menu.Item("com.ikalista.drawing.damagePercent").GetValue<Circle>().Active)
             {
-                foreach (
-                    var source in HeroManager.Enemies.Where(x => ObjectManager.Player.Distance(x) <= 2000f && !x.IsDead)
-                    )
+                foreach (var source in HeroManager.Enemies.Where(x => ObjectManager.Player.Distance(x) <= 2000f && !x.IsDead))
                 {
                     var currentPercentage = Math.Round(
                         Helper.GetRendDamage(source) * 100 / source.GetHealthWithShield(), 

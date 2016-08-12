@@ -91,103 +91,43 @@
                 baseDamage *= 0.88;
             }
 
-            /*
-            // Bond Of Stone
-            if (targetHero.GetResolve(Resolve.BondofStone).IsValid())
-            {
-                baseDamage *= 0.96;
-            }
-            */
-
             // Alistar R
             if (target.HasBuff("FerociousHowl"))
             {
                 baseDamage *= 0.6 - new[] { 0.1, 0.2, 0.3 }[target.Spellbook.GetSpell(SpellSlot.R).Level - 1];
             }
 
-            // Amumu E
             if (target.HasBuff("Tantrum"))
             {
                 baseDamage -= new[] { 2, 4, 6, 8, 10 }[target.Spellbook.GetSpell(SpellSlot.E).Level - 1];
             }
 
-            // Braum E
             if (target.HasBuff("BraumShieldRaise"))
             {
                 baseDamage *= 1
                               - new[] { 0.3, 0.325, 0.35, 0.375, 0.4 }[target.Spellbook.GetSpell(SpellSlot.E).Level - 1];
             }
 
-            // Galio R
             if (target.HasBuff("GalioIdolOfDurand"))
             {
                 baseDamage *= 0.5;
             }
 
-            // Garen W
             if (target.HasBuff("GarenW"))
             {
                 baseDamage *= 0.7;
             }
 
-            // Gragas W
             if (target.HasBuff("GragasWSelf"))
             {
                 baseDamage *= 1
                               - new[] { 0.1, 0.12, 0.14, 0.16, 0.18 }[target.Spellbook.GetSpell(SpellSlot.W).Level - 1];
             }
 
-            /*
-            // Kassadin P
-            if (target.HasBuff("VoidStone") && damageType == DamageType.Magical)
-            {
-                baseDamage *= 0.85;
-            }
-            */
-
             // Katarina E
             if (target.HasBuff("KatarinaEReduction"))
             {
                 baseDamage *= 0.85;
-            }
-
-            // Maokai R
-            if (target.HasBuff("MaokaiDrainDefense"))
-            {
-                baseDamage *= 0.8;
-            }
-
-            // MasterYi W
-            if (target.HasBuff("Meditate"))
-            {
-                baseDamage *= 1 - new[] { 0.5, 0.55, 0.6, 0.65, 0.7 }[target.Spellbook.GetSpell(SpellSlot.W).Level - 1];
-            }
-
-            // Urgot R
-            if (target.HasBuff("urgotswapdef"))
-            {
-                baseDamage *= 1 - new[] { 0.3, 0.4, 0.5 }[target.Spellbook.GetSpell(SpellSlot.R).Level - 1];
-            }
-
-            // Yorick P
-            if (target.HasBuff("YorickUnholySymbiosis"))
-            {
-                baseDamage *= 1
-                              - (ObjectManager.Get<Obj_AI_Minion>()
-                                     .Count(
-                                         g =>
-                                         g.Team == target.Team
-                                         && (g.Name.Equals("Clyde") || g.Name.Equals("Inky") || g.Name.Equals("Blinky")
-                                             || (g.HasBuff("yorickunholysymbiosis")
-                                                 && g.GetBuff("yorickunholysymbiosis").Caster == target))) * 0.05);
-            }
-
-            if (!(target is Obj_AI_Minion))
-                return (float)baseDamage;
-
-            if (target.Name.Contains("Baron"))
-            {
-                baseDamage *= 0.5f;
             }
 
             return (float)baseDamage;
@@ -205,7 +145,7 @@
 
         public static float GetRealHealth(this Obj_AI_Base target)
         {
-            return target.Health + 10; //+ (target.PhysicalShield > 0 ? target.PhysicalShield : 0);
+            return target.Health + (target.PhysicalShield > 0 ? target.PhysicalShield : 0);
         }
 
         public static float GetRemainingBuffTime(this Obj_AI_Base target, string buffName)

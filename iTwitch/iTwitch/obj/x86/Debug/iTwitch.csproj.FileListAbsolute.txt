@@ -18,3 +18,5 @@ C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\SPrediction.pdb
 C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\obj\x86\Debug\iTwitch.csprojResolveAssemblyReference.cache
 C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\obj\x86\Debug\iTwitch.exe
 C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\obj\x86\Debug\iTwitch.pdb
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\clipper_library.pdb
+C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\bin\Debug\LeagueSharp.Sandbox.pdb

@@ -44,9 +44,7 @@ namespace iTwitch
 
         public void LoadMenu()
         {
-            Menu = new Menu("iTwitch 2.0", "com.itwitch", true).SetFontStyle(
-                FontStyle.Bold, 
-                SharpDX.Color.AliceBlue);
+            Menu = new Menu("iTwitch 2.0", "com.itwitch", true).SetFontStyle(FontStyle.Bold, SharpDX.Color.AliceBlue);
 
             var owMenu = new Menu(":: Orbwalker", "com.itwitch.orbwalker");
             {
@@ -188,12 +186,10 @@ namespace iTwitch
 
         private void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-
         }
 
         private void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-
         }
 
         public void OnHarass()
@@ -282,6 +278,20 @@ namespace iTwitch
 
             if (Menu.Item("com.itwitch.combo.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
             {
+                /*foreach (
+                    var buff in
+                        TargetSelector.GetTarget(Spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical).Buffs)
+                {
+                    if (buff.DisplayName.Equals("TwitchDeadlyVenom"))
+                    {
+                        Console.WriteLine("Buff Name Same.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Changed to: " + buff.DisplayName);
+                    }
+                }*/
+
                 if (HeroManager.Enemies.Any(x => x.IsPoisonKillable() && x.IsValidTarget(Spells[SpellSlot.E].Range)))
                 {
                     Spells[SpellSlot.E].Cast();
