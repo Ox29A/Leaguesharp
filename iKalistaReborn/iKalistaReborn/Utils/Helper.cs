@@ -89,7 +89,11 @@
         public static int GetRendBuffCount(this Obj_AI_Base target)
             => target.Buffs.Count(x => x.Name == "kalistaexpungemarker");
 
-        public static float GetRendDamage(Obj_AI_Base target) => SpellManager.Spell[SpellSlot.E].GetDamage(target);
+        public static float GetRendDamage(Obj_AI_Base target)
+            =>
+                Kalista.Menu.Item("com.ikalista.misc.damage").GetValue<StringList>().SelectedIndex == 0
+                    ? SpellManager.Spell[SpellSlot.E].GetDamage(target)
+                    : Damages.GetRendDamage(target);
 
         /// <summary>
         ///     Checks if a target has the Expunge <see cref="BuffInstance" />
