@@ -1,4 +1,6 @@
-﻿namespace iKalistaReborn.Utils
+﻿using LeagueSharp;
+
+namespace iKalistaReborn.Utils
 {
     using System.Collections.Generic;
     using System.Linq;

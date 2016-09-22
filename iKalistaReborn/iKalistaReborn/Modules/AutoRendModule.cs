@@ -30,7 +30,7 @@ namespace iKalistaReborn.Modules
                     HeroManager.Enemies.Where(
                         x => x.IsValid && x.HasRendBuff() && SpellManager.Spell[SpellSlot.E].IsInRange(x)))
             {
-                if (source.IsRendKillable())
+                if (SpellManager.Spell[SpellSlot.E].GetDamage(source) >= source.GetHealthWithShield())
                 {
                     SpellManager.Spell[SpellSlot.E].Cast();
                 }
