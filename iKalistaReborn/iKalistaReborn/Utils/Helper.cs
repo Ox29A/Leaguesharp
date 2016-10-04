@@ -62,8 +62,7 @@ namespace iKalistaReborn.Utils
         /// <returns>
         ///     The <see cref="float" />.
         /// </returns>
-        public static float GetHealthWithShield(this Obj_AI_Base target)
-            => target.Health + target.PhysicalShield > 0 ? target.PhysicalShield : 0; // TODO shield when fixed.
+        public static float GetHealthWithShield(this Obj_AI_Base target)=> target.Health + 10; // TODO shield when fixed.
 
         /// <summary>
         ///     Gets the rend buff
@@ -174,7 +173,9 @@ namespace iKalistaReborn.Utils
         /// </returns>
         public static bool IsRendKillable(this Obj_AI_Base target)
         {
-            if (target.IsInvulnerable || !target.HasBuff("kalistaexpungemarker"))
+            var count = target.GetBuffCount("KalistaExpungeMarker");
+
+            if (target.IsInvulnerable || count < 1)
             {
                 return false;
             }
