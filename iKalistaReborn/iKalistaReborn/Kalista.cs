@@ -638,17 +638,14 @@ namespace iKalistaReborn
                 }
             }
 
-            if (SpellManager.Spell[SpellSlot.E].IsReady() && Menu.Item("com.ikalista.mixed.useE").GetValue<bool>())
+            foreach (var source in
+                HeroManager.Enemies.Where(
+                    x => x.IsValid && x.HasRendBuff() && SpellManager.Spell[SpellSlot.E].IsInRange(x)))
             {
-                foreach (var source in
-                    HeroManager.Enemies.Where(
-                        x => x.IsValid && x.HasRendBuff() && SpellManager.Spell[SpellSlot.E].IsInRange(x)))
+                if (source.IsRendKillable()
+                    || source.GetRendBuffCount() >= Menu.Item("com.ikalista.mixed.stacks").GetValue<Slider>().Value)
                 {
-                    if (source.IsRendKillable()
-                        || source.GetRendBuffCount() >= Menu.Item("com.ikalista.mixed.stacks").GetValue<Slider>().Value)
-                    {
-                        SpellManager.Spell[SpellSlot.E].Cast();
-                    }
+                    SpellManager.Spell[SpellSlot.E].Cast();
                 }
             }
         }

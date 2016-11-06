@@ -54,6 +54,7 @@ namespace iTwitch
 
             var comboMenu = new Menu(":: iTwitch 2.0 - Combo Options", "com.itwitch.combo");
             {
+                comboMenu.AddBool("com.itwitch.combo.useQ", "Use Q", true);
                 comboMenu.AddBool("com.itwitch.combo.useW", "Use W", true);
                 comboMenu.AddBool("com.itwitch.combo.useEKillable", "Use E Killable", true);
                 Menu.AddSubMenu(comboMenu);
@@ -71,6 +72,7 @@ namespace iTwitch
                 miscMenu.AddBool("com.itwitch.misc.autoYo", "Youmuus with R", true);
                 miscMenu.AddBool("com.itwitch.misc.noWTurret", "Don't W Under Tower", true);
                 miscMenu.AddSlider("com.itwitch.misc.noWAA", "No W if x aa can kill", 2, 0, 10);
+                miscMenu.AddBool("com.itwitch.misc.ebeforedeath", "E Before Death", true);
                 miscMenu.AddBool("com.itwitch.misc.saveManaE", "Save Mana for E", true);
                 miscMenu.AddBool("com.itwitch.misc.EAAQ", "E AA Q")
                     .SetTooltip("Will cast E if killable by E + AA then Q");
@@ -105,6 +107,15 @@ namespace iTwitch
 
         public void OnCombo()
         {
+            if (Menu.Item("com.itwitch.combo.useQ").GetValue<bool>() && Spells[SpellSlot.Q].IsReady())
+            {
+                if (Menu.Item("com.itwitch.misc.saveManaE").GetValue<bool>()
+                   && ObjectManager.Player.Mana >= Spells[SpellSlot.E].ManaCost + Spells[SpellSlot.Q].ManaCost)
+                {
+                    Spells[SpellSlot.Q].Cast();
+                }
+            }
+
             if (Menu.Item("com.itwitch.combo.useW").GetValue<bool>() && Spells[SpellSlot.W].IsReady())
             {
                 if (Menu.Item("com.itwitch.misc.saveManaE").GetValue<bool>()
@@ -219,6 +230,7 @@ namespace iTwitch
             if (Menu.Item("com.itwitch.drawing.drawRRange").GetValue<bool>())
             {
                 Render.Circle.DrawCircle(ObjectManager.Player.Position, Spells[SpellSlot.R].Range, Color.BlueViolet);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, 850, Color.BlueViolet);
             }
 
             if (Menu.Item("com.itwitch.drawing.drawERange").GetValue<bool>())
@@ -274,6 +286,12 @@ namespace iTwitch
             if (Menu.Item("com.itwitch.misc.recall").GetValue<KeyBind>().Active)
             {
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
+            }
+
+            if (Menu.Item("com.itwitch.misc.ebeforedeath").GetValue<bool>() && Spells[SpellSlot.E].IsReady()
+                 && HealthPrediction.GetHealthPrediction(ObjectManager.Player, (int)(Game.Time + 1000.0)) <= 50.0f)
+            {
+                Spells[SpellSlot.E].Cast();
             }
 
             if (Menu.Item("com.itwitch.combo.useEKillable").GetValue<bool>() && Spells[SpellSlot.E].IsReady())
