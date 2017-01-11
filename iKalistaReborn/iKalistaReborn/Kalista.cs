@@ -443,21 +443,21 @@ namespace iKalistaReborn
 
         private void OnCombo()
         {
-            if (Menu.Item("com.ikalista.misc.exploit").GetValue<bool>())
-            {
-                var target = TargetSelector.GetTarget(
-                    ObjectManager.Player.AttackRange, 
-                    TargetSelector.DamageType.Physical);
-                if (target.IsValidTarget(ObjectManager.Player.AttackRange))
-                {
-                    if (Environment.TickCount - LastAutoAttack <= 250) ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-                    if (Environment.TickCount - LastAutoAttack >= 50)
-                    {
-                        ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, target);
-                        LastAutoAttack = Environment.TickCount;
-                    }
-                }
-            }
+            //if (Menu.Item("com.ikalista.misc.exploit").GetValue<bool>())
+            //{
+            //    var target = TargetSelector.GetTarget(
+            //        ObjectManager.Player.AttackRange, 
+            //        TargetSelector.DamageType.Physical);
+            //    if (target.IsValidTarget(ObjectManager.Player.AttackRange))
+            //    {
+            //        if (Environment.TickCount - LastAutoAttack <= 250) ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+            //        if (Environment.TickCount - LastAutoAttack >= 50)
+            //        {
+            //            ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, target);
+            //            LastAutoAttack = Environment.TickCount;
+            //        }
+            //    }
+            //}
 
             if (Menu.Item("com.ikalista.combo.orbwalkMinions").GetValue<bool>())
             {
