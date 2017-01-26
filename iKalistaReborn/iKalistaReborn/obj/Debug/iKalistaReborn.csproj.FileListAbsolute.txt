@@ -18,3 +18,4 @@ C:\Users\Corey\Desktop\Assemblies\iKalistaReborn\iKalistaReborn\bin\Release\SPre
 C:\Users\Corey\Desktop\Assemblies\iKalistaReborn\iKalistaReborn\obj\Debug\iKalistaReborn.csprojResolveAssemblyReference.cache
 C:\Users\Corey\Desktop\Assemblies\iKalistaReborn\iKalistaReborn\obj\Debug\iKalistaReborn.exe
 C:\Users\Corey\Desktop\Assemblies\iKalistaReborn\iKalistaReborn\obj\Debug\iKalistaReborn.pdb
+C:\Users\XPredatorX1\Desktop\Leaguesharp\iKalistaReborn\iKalistaReborn\bin\Release\iKalistaReborn.exe.config

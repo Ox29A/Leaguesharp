@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DZLib.Modules;
 using iKalistaReborn.Utils;
 using LeagueSharp;
@@ -27,14 +24,10 @@ namespace iKalistaReborn.Modules
         {
             foreach (
                 var source in
-                    HeroManager.Enemies.Where(
-                        x => x.IsValid && x.HasRendBuff() && SpellManager.Spell[SpellSlot.E].IsInRange(x)))
-            {
-                if (SpellManager.Spell[SpellSlot.E].GetDamage(source) >= source.GetHealthWithShield())
-                {
+                HeroManager.Enemies.Where(
+                    x => x.IsValid && x.HasRendBuff() && SpellManager.Spell[SpellSlot.E].IsInRange(x)))
+                if (source.IsRendKillable())
                     SpellManager.Spell[SpellSlot.E].Cast();
-                }
-            }
         }
 
         public ModuleType GetModuleType()

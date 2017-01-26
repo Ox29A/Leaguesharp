@@ -1,26 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ClipperLib;
+using LeagueSharp;
+using LeagueSharp.Common;
+using SharpDX;
+using Color = System.Drawing.Color;
 
 namespace iLucian.Utils
 {
-    using ClipperLib;
+    using Path = List<IntPoint>;
+    using Paths = List<List<IntPoint>>;
+    using GamePath = List<Vector2>;
 
-    using LeagueSharp;
-    using LeagueSharp.Common;
-
-    using Path = List<ClipperLib.IntPoint>;
-    using Paths = List<List<ClipperLib.IntPoint>>;
-    using GamePath = List<SharpDX.Vector2>;
-
-    using SharpDX;
-
-    using Color = System.Drawing.Color;
-
-    class EPosition
+    internal class EPosition
     {
         /// <summary>
-        /// Gets the Lucian E Position position using a patented logic!
+        ///     Gets the Lucian E Position position using a patented logic!
         /// </summary>
         /// <returns></returns>
         public Vector3 GetEPosition()
@@ -31,8 +27,8 @@ namespace iLucian.Utils
             var enemyPositions = DashHelper.GetEnemyPoints();
             var safePositions = positions.Where(pos => !enemyPositions.Contains(pos.To2D())).ToList();
             var bestPosition = ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, 450f);
-            var AverageDistanceWeight = .60f;
-            var ClosestDistanceWeight = .40f;
+            const float averageDistanceWeight = .60f;
+            const float closestDistanceWeight = .40f;
 
             var bestWeightedAvg = 0f;
 
@@ -56,41 +52,37 @@ namespace iLucian.Utils
                     (ObjectManager.Player.ServerPosition.To2D() - 450f * ObjectManager.Player.Direction.To2D()).To3D();
 
                 if (!forwardPosition.UnderTurret(true))
-                {
                     return forwardPosition;
-                }
             }
 
             #endregion
 
             #region Alone, 2 Enemies, 1 Killable
 
-            if (alliesNear == 0 && enemiesNear.Count() <= 2)
-            {
+            if (alliesNear == 0 && enemiesNear.Count <= 2)
                 if (
                     enemiesNear.Any(
                         t =>
-                        t.Health + 15
-                        < ObjectManager.Player.GetAutoAttackDamage(t) * 2 + Variables.Spell[Variables.Spells.Q].GetDamage(t)
-                        && t.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(t) + 80f))
+                            t.Health + 15
+                            <
+                            ObjectManager.Player.GetAutoAttackDamage(t) * 2 +
+                            Variables.Spell[Variables.Spells.Q].GetDamage(t)
+                            && t.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(t) + 80f))
                 {
                     var ePosition =
                         ObjectManager.Player.ServerPosition.Extend(
-                            highHealthEnemiesNear.OrderBy(t => t.Health).First().ServerPosition, 
+                            highHealthEnemiesNear.OrderBy(t => t.Health).First().ServerPosition,
                             450f);
 
                     if (!ePosition.UnderTurret(true))
-                    {
                         return ePosition;
-                    }
                 }
-            }
 
             #endregion
 
             #region Alone, 2 Enemies, None Killable
 
-            if (alliesNear == 0 && highHealthEnemiesNear.Count() <= 2)
+            if (alliesNear == 0 && highHealthEnemiesNear.Count <= 2)
             {
                 // Logic for 2 enemies Near and alone
 
@@ -99,9 +91,7 @@ namespace iLucian.Utils
                     (ObjectManager.Player.ServerPosition.To2D() + 450f * ObjectManager.Player.Direction.To2D()).To3D();
 
                 if (!backwardsPosition.UnderTurret(true))
-                {
                     return backwardsPosition;
-                }
             }
 
             #endregion
@@ -114,11 +104,9 @@ namespace iLucian.Utils
             if (closeNonMeleeEnemy != null
                 && ObjectManager.Player.Distance(closeNonMeleeEnemy) <= closeNonMeleeEnemy.AttackRange - 85
                 && !closeNonMeleeEnemy.IsMelee)
-            {
                 return ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, 450).IsSafe()
-                           ? ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, 450f)
-                           : Vector3.Zero;
-            }
+                    ? ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, 450f)
+                    : Vector3.Zero;
 
             #endregion
 
@@ -128,22 +116,19 @@ namespace iLucian.Utils
             {
                 var enemy = DashHelper.GetClosestEnemy(position);
                 if (!enemy.IsValidTarget())
-                {
                     continue;
-                }
 
                 var avgDist = DashHelper.GetAvgDistance(position);
 
-                if (avgDist > -1)
-                {
-                    var closestDist = ObjectManager.Player.ServerPosition.Distance(enemy.ServerPosition);
-                    var weightedAvg = closestDist * ClosestDistanceWeight + avgDist * AverageDistanceWeight;
-                    if (weightedAvg > bestWeightedAvg && position.IsSafe())
-                    {
-                        bestWeightedAvg = weightedAvg;
-                        bestPosition = position;
-                    }
-                }
+                if (!(avgDist > -1))
+                    continue;
+                var closestDist = ObjectManager.Player.ServerPosition.Distance(enemy.ServerPosition);
+                var weightedAvg = closestDist * closestDistanceWeight + avgDist * averageDistanceWeight;
+                if (!(weightedAvg > bestWeightedAvg) || !position.IsSafe())
+                    continue;
+
+                bestWeightedAvg = weightedAvg;
+                bestPosition = position;
             }
 
             #endregion
@@ -154,7 +139,7 @@ namespace iLucian.Utils
 
             if (endPosition == Vector3.Zero)
             {
-                // Try to find another suitable position. This usually means we are already near too much enemies turrets so just gtfo and tumble
+                // Try to find another suitable position. This usually means we are already near too much enemies turrets so just gtfo and E
                 // to the closest ally ordered by most health.
                 var alliesClose =
                     HeroManager.Allies.Where(ally => !ally.IsMe && ally.IsValidTarget(1500f, false)).ToList();
@@ -172,12 +157,10 @@ namespace iLucian.Utils
                             enemiesNear.OrderBy(m => m.Distance(ObjectManager.Player)).FirstOrDefault()))
                     {
                         var tempPosition = ObjectManager.Player.ServerPosition.Extend(
-                            closestMostHealth.ServerPosition, 
+                            closestMostHealth.ServerPosition,
                             450f);
                         if (tempPosition.IsSafe())
-                        {
                             endPosition = tempPosition;
-                        }
                     }
                 }
             }
@@ -186,14 +169,12 @@ namespace iLucian.Utils
 
             #region Couldn't even tumble to ally, just go to mouse
 
-            if (endPosition == Vector3.Zero)
-            {
-                var mousePosition = ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, 450f);
-                if (mousePosition.IsSafe())
-                {
-                    endPosition = mousePosition;
-                }
-            }
+            if (endPosition != Vector3.Zero)
+                return endPosition;
+
+            var mousePosition = ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, 450f);
+            if (mousePosition.IsSafe())
+                endPosition = mousePosition;
 
             #endregion
 
@@ -201,24 +182,24 @@ namespace iLucian.Utils
         }
     }
 
-    class DashHelper
+    internal class DashHelper
     {
         /// <summary>
-        /// Gets the rotated e positions.
+        ///     Gets the rotated e positions.
         /// </summary>
         /// <returns></returns>
         public static List<Vector3> GetRotatedEPositions()
         {
-            const int CurrentStep = 30;
+            const int currentStep = 30;
 
             // var direction = ObjectManager.Player.Direction.To2D().Perpendicular();
             var direction = (Game.CursorPos - ObjectManager.Player.ServerPosition).Normalized().To2D();
 
             var list = new List<Vector3>();
-            for (var i = -105; i <= 105; i += CurrentStep)
+            for (var i = -105; i <= 105; i += currentStep)
             {
                 var angleRad = Geometry.DegreeToRadian(i);
-                var rotatedPosition = ObjectManager.Player.Position.To2D() + (450f * direction.Rotated(angleRad));
+                var rotatedPosition = ObjectManager.Player.Position.To2D() + 450f * direction.Rotated(angleRad);
                 list.Add(rotatedPosition.To3D());
             }
 
@@ -226,26 +207,21 @@ namespace iLucian.Utils
         }
 
         /// <summary>
-        /// Gets the closest enemy.
+        ///     Gets the closest enemy.
         /// </summary>
         /// <param name="from">From.</param>
         /// <returns></returns>
         public static Obj_AI_Hero GetClosestEnemy(Vector3 from)
         {
-            if (Variables.Orbwalker.GetTarget() is Obj_AI_Hero)
-            {
-                var owAi = Variables.Orbwalker.GetTarget() as Obj_AI_Hero;
-                if (owAi.IsValidTarget(Orbwalking.GetRealAutoAttackRange(null) + 120f, true, from))
-                {
-                    return owAi;
-                }
-            }
+            if (!(Variables.Orbwalker.GetTarget() is Obj_AI_Hero))
+                return null;
 
-            return null;
+            var target = Variables.Orbwalker.GetTarget() as Obj_AI_Hero;
+            return target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(null) + 120f, true, from) ? target : null;
         }
 
         /// <summary>
-        /// Determines whether the specified position is Safe using AA ranges logic.
+        ///     Determines whether the specified position is Safe using AA ranges logic.
         /// </summary>
         /// <param name="position">The position.</param>
         /// <returns></returns>
@@ -253,61 +229,59 @@ namespace iLucian.Utils
         {
             var closeEnemies =
                 HeroManager.Enemies.FindAll(
-                    en =>
-                    en.IsValidTarget(1500f)
-                    && !(en.Distance(ObjectManager.Player.ServerPosition) < en.AttackRange + 65f))
+                        en =>
+                            en.IsValidTarget(1500f)
+                            && !(en.Distance(ObjectManager.Player.ServerPosition) < en.AttackRange + 65f))
                     .OrderBy(en => en.Distance(position));
 
             return closeEnemies.All(enemy => position.CountEnemiesInRange(enemy.AttackRange) <= 1);
         }
 
         /// <summary>
-        /// Gets the average distance of a specified position to the enemies.
+        ///     Gets the average distance of a specified position to the enemies.
         /// </summary>
         /// <param name="from">From.</param>
         /// <returns></returns>
         public static float GetAvgDistance(Vector3 from)
         {
             var numberOfEnemies = from.CountEnemiesInRange(1200f);
-            if (numberOfEnemies != 0)
-            {
-                var enemies =
-                    HeroManager.Enemies.Where(
-                        en =>
+            if (numberOfEnemies == 0)
+                return -1;
+
+            var enemies =
+                HeroManager.Enemies.Where(
+                    en =>
                         en.IsValidTarget(1200f, true, from)
                         && en.Health
                         > ObjectManager.Player.GetAutoAttackDamage(en) * 3
                         + Variables.Spell[Variables.Spells.W].GetDamage(en)
                         + Variables.Spell[Variables.Spells.Q].GetDamage(en)).ToList();
-                var enemiesEx = HeroManager.Enemies.Where(en => en.IsValidTarget(1200f, true, from)).ToList();
-                var LHEnemies = enemiesEx.Count() - enemies.Count();
+            var enemiesEx = HeroManager.Enemies.Where(en => en.IsValidTarget(1200f, true, from)).ToList();
+            var lhEnemies = enemiesEx.Count - enemies.Count;
 
-                var totalDistance = (LHEnemies > 1 && enemiesEx.Count() > 2)
-                                        ? enemiesEx.Sum(en => en.Distance(ObjectManager.Player.ServerPosition))
-                                        : enemies.Sum(en => en.Distance(ObjectManager.Player.ServerPosition));
+            var totalDistance = lhEnemies > 1 && enemiesEx.Count > 2
+                ? enemiesEx.Sum(en => en.Distance(ObjectManager.Player.ServerPosition))
+                : enemies.Sum(en => en.Distance(ObjectManager.Player.ServerPosition));
 
-                return totalDistance / numberOfEnemies;
-            }
-
-            return -1;
+            return totalDistance / numberOfEnemies;
         }
 
         /// <summary>
-        /// Gets the enemy points.
+        ///     Gets the enemy points.
         /// </summary>
         /// <param name="dynamic">if set to <c>true</c> [dynamic].</param>
         /// <returns></returns>
         public static GamePath GetEnemyPoints(bool dynamic = true)
         {
-            var staticRange = 360f;
+            const float staticRange = 360f;
             var polygonsList =
                 DashVariables.EnemiesClose.Select(
                     enemy =>
-                    new SOLOGeometry.Circle(
-                        enemy.ServerPosition.To2D(), 
-                        (dynamic ? (enemy.IsMelee ? enemy.AttackRange * 1.5f : enemy.AttackRange) : staticRange)
-                        + enemy.BoundingRadius + 20).ToPolygon()).ToList();
-            var pathList = SOLOGeometry.ClipPolygons(polygonsList);
+                        new SoloGeometry.Circle(
+                            enemy.ServerPosition.To2D(),
+                            (dynamic ? (enemy.IsMelee ? enemy.AttackRange * 1.5f : enemy.AttackRange) : staticRange)
+                            + enemy.BoundingRadius + 20).ToPolygon()).ToList();
+            var pathList = SoloGeometry.ClipPolygons(polygonsList);
             var pointList =
                 pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y))
                     .Where(currentPoint => !currentPoint.IsWall())
@@ -316,13 +290,13 @@ namespace iLucian.Utils
         }
     }
 
-    class DashVariables
+    internal class DashVariables
     {
         /// <summary>
-        /// Gets the enemies close.
+        ///     Gets the enemies close.
         /// </summary>
         /// <value>
-        /// The enemies close.
+        ///     The enemies close.
         /// </value>
         public static IEnumerable<Obj_AI_Hero> EnemiesClose
         {
@@ -331,16 +305,16 @@ namespace iLucian.Utils
                 return
                     HeroManager.Enemies.Where(
                         m =>
-                        m.Distance(ObjectManager.Player, true) <= Math.Pow(1000, 2) && m.IsValidTarget(1500, false)
-                        && m.CountEnemiesInRange(m.IsMelee() ? m.AttackRange * 1.5f : m.AttackRange + 20 * 1.5f) > 0);
+                            m.Distance(ObjectManager.Player, true) <= Math.Pow(1000, 2) && m.IsValidTarget(1500, false)
+                            && m.CountEnemiesInRange(m.IsMelee() ? m.AttackRange * 1.5f : m.AttackRange + 20 * 1.5f) > 0);
             }
         }
     }
 
-    static class DashExtensions
+    internal static class DashExtensions
     {
         /// <summary>
-        /// Determines whether the position is safe.
+        ///     Determines whether the position is safe.
         /// </summary>
         /// <param name="position">The position.</param>
         /// <returns></returns>
@@ -349,25 +323,23 @@ namespace iLucian.Utils
             return position.IsSafeEx() && position.IsNotIntoEnemies()
                    && HeroManager.Enemies.All(m => m.Distance(position) > 350f)
                    && (!position.UnderTurret(true)
-                       || (ObjectManager.Player.UnderTurret(true) && position.UnderTurret(true)
-                           && ObjectManager.Player.HealthPercent > 10));
+                       || ObjectManager.Player.UnderTurret(true) && position.UnderTurret(true)
+                       && ObjectManager.Player.HealthPercent > 10);
 
             // Either it is not under turret or both the player and the position are under turret already and the health percent is greater than 10.
         }
 
         /// <summary>
-        /// Determines whether the position is Safe using the allies/enemies logic
+        ///     Determines whether the position is Safe using the allies/enemies logic
         /// </summary>
-        /// <param name="Position">The position.</param>
+        /// <param name="position">The position.</param>
         /// <returns></returns>
-        public static bool IsSafeEx(this Vector3 Position)
+        public static bool IsSafeEx(this Vector3 position)
         {
-            if (Position.UnderTurret(true) && !ObjectManager.Player.UnderTurret())
-            {
+            if (position.UnderTurret(true) && !ObjectManager.Player.UnderTurret())
                 return false;
-            }
 
-            var range = 1000f;
+            const float range = 1000f;
             var lowHealthAllies =
                 HeroManager.Allies.Where(a => a.IsValidTarget(range, false) && a.HealthPercent < 10 && !a.IsMe);
             var lowHealthEnemies = HeroManager.Allies.Where(a => a.IsValidTarget(range) && a.HealthPercent < 10);
@@ -377,12 +349,12 @@ namespace iLucian.Utils
             var allyTurrets = GameObjects.AllyTurrets.Where(m => m.IsValidTarget(975f, false));
 
             return allies - lowHealthAllies.Count() + allyTurrets.Count() * 2 + 1
-                    >= enemies - lowHealthEnemies.Count()
-                    + (!ObjectManager.Player.UnderTurret(true) ? enemyTurrets.Count() * 2 : 0);
+                   >= enemies - lowHealthEnemies.Count()
+                   + (!ObjectManager.Player.UnderTurret(true) ? enemyTurrets.Count() * 2 : 0);
         }
 
         /// <summary>
-        /// Determines whether the position is not into enemies.
+        ///     Determines whether the position is not into enemies.
         /// </summary>
         /// <param name="position">The position.</param>
         /// <returns></returns>
@@ -391,26 +363,31 @@ namespace iLucian.Utils
             var enemyPoints = DashHelper.GetEnemyPoints();
             if (enemyPoints.ToList().Contains(position.To2D())
                 && !enemyPoints.Contains(ObjectManager.Player.ServerPosition.To2D()))
-            {
                 return false;
-            }
 
             var closeEnemies =
                 HeroManager.Enemies.FindAll(
                     en =>
-                    en.IsValidTarget(1500f)
-                    && !(en.Distance(ObjectManager.Player.ServerPosition) < en.AttackRange + 65f));
-            if (!closeEnemies.All(enemy => position.CountEnemiesInRange(enemy.AttackRange) <= 1))
-            {
-                return false;
-            }
-
-            return true;
+                        en.IsValidTarget(1500f)
+                        && !(en.Distance(ObjectManager.Player.ServerPosition) < en.AttackRange + 65f));
+            return closeEnemies.All(enemy => position.CountEnemiesInRange(enemy.AttackRange) <= 1);
         }
     }
 
     public static class GameObjects
     {
+        #region Constructors and Destructors
+
+        /// <summary>
+        ///     Initializes static members of the <see cref="GameObjects" /> class.
+        /// </summary>
+        static GameObjects()
+        {
+            Initialize();
+        }
+
+        #endregion
+
         #region Static Fields
 
         /// <summary>
@@ -566,19 +543,7 @@ namespace iLucian.Utils
         /// <summary>
         ///     Indicates whether the <see cref="GameObjects" /> stack was initialized and saved required instances.
         /// </summary>
-        private static bool initialized;
-
-        #endregion
-
-        #region Constructors and Destructors
-
-        /// <summary>
-        ///     Initializes static members of the <see cref="GameObjects" /> class.
-        /// </summary>
-        static GameObjects()
-        {
-            Initialize();
-        }
+        private static bool _initialized;
 
         #endregion
 
@@ -802,72 +767,70 @@ namespace iLucian.Utils
         /// </summary>
         internal static void Initialize()
         {
-            if (initialized)
-            {
+            if (_initialized)
                 return;
-            }
 
-            initialized = true;
+            _initialized = true;
 
-            CustomEvents.Game.OnGameLoad += (args) =>
-                {
-                    Player = ObjectManager.Player;
+            CustomEvents.Game.OnGameLoad += args =>
+            {
+                Player = ObjectManager.Player;
 
-                    HeroesList.AddRange(ObjectManager.Get<Obj_AI_Hero>());
-                    MinionsList.AddRange(
-                        ObjectManager.Get<Obj_AI_Minion>()
-                            .Where(
-                                o =>
+                HeroesList.AddRange(ObjectManager.Get<Obj_AI_Hero>());
+                MinionsList.AddRange(
+                    ObjectManager.Get<Obj_AI_Minion>()
+                        .Where(
+                            o =>
                                 o.Team != GameObjectTeam.Neutral && !o.CharData.BaseSkinName.ToLower().Contains("ward")
                                 && !o.CharData.BaseSkinName.ToLower().Contains("trinket")
                                 && !o.CharData.BaseSkinName.Equals("gangplankbarrel")));
-                    TurretsList.AddRange(ObjectManager.Get<Obj_AI_Turret>());
-                    InhibitorsList.AddRange(ObjectManager.Get<Obj_BarracksDampener>());
-                    JungleList.AddRange(ObjectManager.Get<Obj_AI_Minion>().Where(o => o.Team == GameObjectTeam.Neutral));
-                    WardsList.AddRange(
-                        ObjectManager.Get<Obj_AI_Minion>()
-                            .Where(
-                                o =>
+                TurretsList.AddRange(ObjectManager.Get<Obj_AI_Turret>());
+                InhibitorsList.AddRange(ObjectManager.Get<Obj_BarracksDampener>());
+                JungleList.AddRange(ObjectManager.Get<Obj_AI_Minion>().Where(o => o.Team == GameObjectTeam.Neutral));
+                WardsList.AddRange(
+                    ObjectManager.Get<Obj_AI_Minion>()
+                        .Where(
+                            o =>
                                 o.CharData.BaseSkinName.ToLower().Contains("ward")
                                 || o.CharData.BaseSkinName.ToLower().Contains("trinket")));
-                    ShopsList.AddRange(ObjectManager.Get<Obj_Shop>());
-                    SpawnPointsList.AddRange(ObjectManager.Get<Obj_SpawnPoint>());
-                    GameObjectsList.AddRange(ObjectManager.Get<GameObject>());
-                    NexusList.AddRange(ObjectManager.Get<Obj_HQ>());
-                    AttackableUnitsList.AddRange(ObjectManager.Get<AttackableUnit>());
+                ShopsList.AddRange(ObjectManager.Get<Obj_Shop>());
+                SpawnPointsList.AddRange(ObjectManager.Get<Obj_SpawnPoint>());
+                GameObjectsList.AddRange(ObjectManager.Get<GameObject>());
+                NexusList.AddRange(ObjectManager.Get<Obj_HQ>());
+                AttackableUnitsList.AddRange(ObjectManager.Get<AttackableUnit>());
 
-                    EnemyHeroesList.AddRange(HeroesList.Where(o => o.IsEnemy));
-                    EnemyMinionsList.AddRange(MinionsList.Where(o => o.IsEnemy));
-                    EnemyTurretsList.AddRange(TurretsList.Where(o => o.IsEnemy));
-                    EnemyInhibitorsList.AddRange(InhibitorsList.Where(o => o.IsEnemy));
-                    EnemyList.AddRange(
-                        EnemyHeroesList.Cast<Obj_AI_Base>().Concat(EnemyMinionsList).Concat(EnemyTurretsList));
-                    EnemyNexus = NexusList.FirstOrDefault(n => n.IsEnemy);
+                EnemyHeroesList.AddRange(HeroesList.Where(o => o.IsEnemy));
+                EnemyMinionsList.AddRange(MinionsList.Where(o => o.IsEnemy));
+                EnemyTurretsList.AddRange(TurretsList.Where(o => o.IsEnemy));
+                EnemyInhibitorsList.AddRange(InhibitorsList.Where(o => o.IsEnemy));
+                EnemyList.AddRange(
+                    EnemyHeroesList.Cast<Obj_AI_Base>().Concat(EnemyMinionsList).Concat(EnemyTurretsList));
+                EnemyNexus = NexusList.FirstOrDefault(n => n.IsEnemy);
 
-                    AllyHeroesList.AddRange(HeroesList.Where(o => o.IsAlly));
-                    AllyMinionsList.AddRange(MinionsList.Where(o => o.IsAlly));
-                    AllyTurretsList.AddRange(TurretsList.Where(o => o.IsAlly));
-                    AllyInhibitorsList.AddRange(InhibitorsList.Where(o => o.IsAlly));
-                    AllyList.AddRange(
-                        AllyHeroesList.Cast<Obj_AI_Base>().Concat(AllyMinionsList).Concat(AllyTurretsList));
-                    AllyNexus = NexusList.FirstOrDefault(n => n.IsAlly);
+                AllyHeroesList.AddRange(HeroesList.Where(o => o.IsAlly));
+                AllyMinionsList.AddRange(MinionsList.Where(o => o.IsAlly));
+                AllyTurretsList.AddRange(TurretsList.Where(o => o.IsAlly));
+                AllyInhibitorsList.AddRange(InhibitorsList.Where(o => o.IsAlly));
+                AllyList.AddRange(
+                    AllyHeroesList.Cast<Obj_AI_Base>().Concat(AllyMinionsList).Concat(AllyTurretsList));
+                AllyNexus = NexusList.FirstOrDefault(n => n.IsAlly);
 
-                    JungleSmallList.AddRange(JungleList.Where(o => o.GetJungleType() == JungleType.Small));
-                    JungleLargeList.AddRange(JungleList.Where(o => o.GetJungleType() == JungleType.Large));
-                    JungleLegendaryList.AddRange(JungleList.Where(o => o.GetJungleType() == JungleType.Legendary));
+                JungleSmallList.AddRange(JungleList.Where(o => o.GetJungleType() == JungleType.Small));
+                JungleLargeList.AddRange(JungleList.Where(o => o.GetJungleType() == JungleType.Large));
+                JungleLegendaryList.AddRange(JungleList.Where(o => o.GetJungleType() == JungleType.Legendary));
 
-                    AllyWardsList.AddRange(WardsList.Where(o => o.IsAlly));
-                    EnemyWardsList.AddRange(WardsList.Where(o => o.IsEnemy));
+                AllyWardsList.AddRange(WardsList.Where(o => o.IsAlly));
+                EnemyWardsList.AddRange(WardsList.Where(o => o.IsEnemy));
 
-                    AllyShopsList.AddRange(ShopsList.Where(o => o.IsAlly));
-                    EnemyShopsList.AddRange(ShopsList.Where(o => o.IsEnemy));
+                AllyShopsList.AddRange(ShopsList.Where(o => o.IsAlly));
+                EnemyShopsList.AddRange(ShopsList.Where(o => o.IsEnemy));
 
-                    AllySpawnPointsList.AddRange(SpawnPointsList.Where(o => o.IsAlly));
-                    EnemySpawnPointsList.AddRange(SpawnPointsList.Where(o => o.IsEnemy));
+                AllySpawnPointsList.AddRange(SpawnPointsList.Where(o => o.IsAlly));
+                EnemySpawnPointsList.AddRange(SpawnPointsList.Where(o => o.IsEnemy));
 
-                    GameObject.OnCreate += OnCreate;
-                    GameObject.OnDelete += OnDelete;
-                };
+                GameObject.OnCreate += OnCreate;
+                GameObject.OnDelete += OnDelete;
+            };
         }
 
         /// <summary>
@@ -885,9 +848,7 @@ namespace iLucian.Utils
 
             var attackableUnit = sender as AttackableUnit;
             if (attackableUnit != null)
-            {
                 AttackableUnitsList.Add(attackableUnit);
-            }
 
             var hero = sender as Obj_AI_Hero;
             if (hero != null)
@@ -917,13 +878,9 @@ namespace iLucian.Utils
                     {
                         WardsList.Add(minion);
                         if (minion.IsEnemy)
-                        {
                             EnemyWardsList.Add(minion);
-                        }
                         else
-                        {
                             AllyWardsList.Add(minion);
-                        }
                     }
                     else if (!minion.CharData.BaseSkinName.Equals("gangplankbarrel"))
                     {
@@ -984,13 +941,9 @@ namespace iLucian.Utils
             {
                 ShopsList.Add(shop);
                 if (shop.IsAlly)
-                {
                     AllyShopsList.Add(shop);
-                }
                 else
-                {
                     EnemyShopsList.Add(shop);
-                }
 
                 return;
             }
@@ -1000,13 +953,9 @@ namespace iLucian.Utils
             {
                 SpawnPointsList.Add(spawnPoint);
                 if (spawnPoint.IsAlly)
-                {
                     AllySpawnPointsList.Add(spawnPoint);
-                }
                 else
-                {
                     EnemySpawnPointsList.Add(spawnPoint);
-                }
             }
 
             var inhibitor = sender as Obj_BarracksDampener;
@@ -1014,13 +963,9 @@ namespace iLucian.Utils
             {
                 InhibitorsList.Add(inhibitor);
                 if (inhibitor.IsAlly)
-                {
                     AllyInhibitorsList.Add(inhibitor);
-                }
                 else
-                {
                     EnemyInhibitorsList.Add(inhibitor);
-                }
             }
 
             var nexus = sender as Obj_HQ;
@@ -1028,13 +973,9 @@ namespace iLucian.Utils
             {
                 NexusList.Add(nexus);
                 if (nexus.IsAlly)
-                {
                     AllyNexus = nexus;
-                }
                 else
-                {
                     EnemyNexus = nexus;
-                }
             }
         }
 
@@ -1050,14 +991,10 @@ namespace iLucian.Utils
         private static void OnDelete(GameObject sender, EventArgs args)
         {
             foreach (var gameObject in GameObjectsList.Where(o => o.Compare(sender)).ToList())
-            {
                 GameObjectsList.Remove(gameObject);
-            }
 
             foreach (var attackableUnitObject in AttackableUnitsList.Where(a => a.Compare(sender)).ToList())
-            {
                 AttackableUnitsList.Remove(attackableUnitObject);
-            }
 
             var hero = sender as Obj_AI_Hero;
             if (hero != null)
@@ -1087,22 +1024,15 @@ namespace iLucian.Utils
                 {
                     if (minion.CharData.BaseSkinName.ToLower().Contains("ward")
                         || minion.CharData.BaseSkinName.ToLower().Contains("trinket"))
-                    {
                         foreach (var ward in WardsList.Where(w => w.Compare(minion)).ToList())
                         {
                             WardsList.Remove(ward);
                             if (minion.IsEnemy)
-                            {
                                 EnemyWardsList.Remove(ward);
-                            }
                             else
-                            {
                                 AllyWardsList.Remove(ward);
-                            }
                         }
-                    }
                     else if (!minion.CharData.BaseSkinName.Equals("gangplankbarrel"))
-                    {
                         foreach (var minionObject in MinionsList.Where(m => m.Compare(minion)).ToList())
                         {
                             MinionsList.Remove(minionObject);
@@ -1117,7 +1047,6 @@ namespace iLucian.Utils
                                 AllyList.Remove(minionObject);
                             }
                         }
-                    }
                 }
                 else
                 {
@@ -1171,13 +1100,9 @@ namespace iLucian.Utils
                 {
                     ShopsList.Remove(shopObject);
                     if (shop.IsAlly)
-                    {
                         AllyShopsList.Remove(shopObject);
-                    }
                     else
-                    {
                         EnemyShopsList.Remove(shopObject);
-                    }
                 }
 
                 return;
@@ -1185,64 +1110,46 @@ namespace iLucian.Utils
 
             var spawnPoint = sender as Obj_SpawnPoint;
             if (spawnPoint != null)
-            {
                 foreach (var spawnPointObject in SpawnPointsList.Where(s => s.Compare(spawnPoint)).ToList())
                 {
                     SpawnPointsList.Remove(spawnPointObject);
                     if (spawnPoint.IsAlly)
-                    {
                         AllySpawnPointsList.Remove(spawnPointObject);
-                    }
                     else
-                    {
                         EnemySpawnPointsList.Remove(spawnPointObject);
-                    }
                 }
-            }
 
             var inhibitor = sender as Obj_BarracksDampener;
             if (inhibitor != null)
-            {
                 foreach (var inhibitorObject in InhibitorsList.Where(i => i.Compare(inhibitor)).ToList())
                 {
                     InhibitorsList.Remove(inhibitorObject);
                     if (inhibitor.IsAlly)
-                    {
                         AllyInhibitorsList.Remove(inhibitorObject);
-                    }
                     else
-                    {
                         EnemyInhibitorsList.Remove(inhibitorObject);
-                    }
                 }
-            }
 
             var nexus = sender as Obj_HQ;
-            if (nexus != null)
+            if (nexus == null) return;
+            foreach (var nexusObject in NexusList.Where(n => n.Compare(nexus)).ToList())
             {
-                foreach (var nexusObject in NexusList.Where(n => n.Compare(nexus)).ToList())
-                {
-                    NexusList.Remove(nexusObject);
-                    if (nexusObject.IsAlly)
-                    {
-                        AllyNexus = null;
-                    }
-                    else
-                    {
-                        EnemyNexus = null;
-                    }
-                }
+                NexusList.Remove(nexusObject);
+                if (nexusObject.IsAlly)
+                    AllyNexus = null;
+                else
+                    EnemyNexus = null;
             }
         }
 
         #endregion
     }
 
-    static class SOLOGeometry
+    internal static class SoloGeometry
     {
         private const int CircleLineSegmentN = 22;
 
-        public static Vector3 SwitchYZ(this Vector3 v)
+        public static Vector3 SwitchYz(this Vector3 v)
         {
             return new Vector3(v.X, v.Z, v.Y);
         }
@@ -1254,9 +1161,7 @@ namespace iLucian.Utils
             {
                 var tempPosition = start.Extend(end, i).To2D();
                 if (tempPosition.IsWall())
-                {
                     return true;
-                }
             }
 
             return false;
@@ -1265,18 +1170,11 @@ namespace iLucian.Utils
         // Clipper
         public static List<Polygon> ToPolygons(this Paths v)
         {
-            var result = new List<Polygon>();
-
-            foreach (var path in v)
-            {
-                result.Add(path.ToPolygon());
-            }
-
-            return result;
+            return v.Select(path => path.ToPolygon()).ToList();
         }
 
         /// <summary>
-        /// Returns the position on the path after t milliseconds at speed speed.
+        ///     Returns the position on the path after t milliseconds at speed speed.
         /// </summary>
         public static Vector2 PositionAfter(this GamePath self, int t, int speed, int delay = 0)
         {
@@ -1285,11 +1183,9 @@ namespace iLucian.Utils
             {
                 var from = self[i];
                 var to = self[i + 1];
-                var d = (int)to.Distance(from);
+                var d = (int) to.Distance(from);
                 if (d > distance)
-                {
                     return from + distance * (to - from).Normalized();
-                }
 
                 distance -= d;
             }
@@ -1301,9 +1197,7 @@ namespace iLucian.Utils
         {
             var polygon = new Polygon();
             foreach (var point in v)
-            {
                 polygon.Add(new Vector2(point.X, point.Y));
-            }
 
             return polygon;
         }
@@ -1344,15 +1238,15 @@ namespace iLucian.Utils
             {
                 var result = new Polygon();
                 var outRadius = overrideWidth > 0
-                                     ? overrideWidth
-                                     : (offset + Radius) / (float)Math.Cos(2 * Math.PI / CircleLineSegmentN);
+                    ? overrideWidth
+                    : (offset + Radius) / (float) Math.Cos(2 * Math.PI / CircleLineSegmentN);
 
                 for (var i = 1; i <= CircleLineSegmentN; i++)
                 {
                     var angle = i * 2 * Math.PI / CircleLineSegmentN;
                     var point = new Vector2(
-                        Center.X + outRadius * (float)Math.Cos(angle), 
-                        Center.Y + outRadius * (float)Math.Sin(angle));
+                        Center.X + outRadius * (float) Math.Cos(angle),
+                        Center.Y + outRadius * (float) Math.Sin(angle));
                     result.Add(point);
                 }
 
@@ -1372,11 +1266,7 @@ namespace iLucian.Utils
             public Path ToClipperPath()
             {
                 var result = new Path(Points.Count);
-
-                foreach (var point in Points)
-                {
-                    result.Add(new IntPoint(point.X, point.Y));
-                }
+                result.AddRange(Points.Select(point => new IntPoint(point.X, point.Y)));
 
                 return result;
             }
@@ -1391,7 +1281,7 @@ namespace iLucian.Utils
             {
                 for (var i = 0; i <= Points.Count - 1; i++)
                 {
-                    var nextIndex = (Points.Count - 1 == i) ? 0 : (i + 1);
+                    var nextIndex = Points.Count - 1 == i ? 0 : i + 1;
                     DrawLineInWorld(Points[i].To3D(), Points[nextIndex].To3D(), width, color);
                 }
             }
@@ -1461,15 +1351,15 @@ namespace iLucian.Utils
             {
                 var result = new Polygon();
 
-                var outRadius = (offset + Radius + RingRadius) / (float)Math.Cos(2 * Math.PI / CircleLineSegmentN);
+                var outRadius = (offset + Radius + RingRadius) / (float) Math.Cos(2 * Math.PI / CircleLineSegmentN);
                 var innerRadius = Radius - RingRadius - offset;
 
                 for (var i = 0; i <= CircleLineSegmentN; i++)
                 {
                     var angle = i * 2 * Math.PI / CircleLineSegmentN;
                     var point = new Vector2(
-                        Center.X - outRadius * (float)Math.Cos(angle), 
-                        Center.Y - outRadius * (float)Math.Sin(angle));
+                        Center.X - outRadius * (float) Math.Cos(angle),
+                        Center.Y - outRadius * (float) Math.Sin(angle));
                     result.Add(point);
                 }
 
@@ -1477,8 +1367,8 @@ namespace iLucian.Utils
                 {
                     var angle = i * 2 * Math.PI / CircleLineSegmentN;
                     var point = new Vector2(
-                        Center.X + innerRadius * (float)Math.Cos(angle), 
-                        Center.Y - innerRadius * (float)Math.Sin(angle));
+                        Center.X + innerRadius * (float) Math.Cos(angle),
+                        Center.Y - innerRadius * (float) Math.Sin(angle));
                     result.Add(point);
                 }
 
@@ -1507,14 +1397,14 @@ namespace iLucian.Utils
             public Polygon ToPolygon(int offset = 0)
             {
                 var result = new Polygon();
-                var outRadius = (Radius + offset) / (float)Math.Cos(2 * Math.PI / CircleLineSegmentN);
+                var outRadius = (Radius + offset) / (float) Math.Cos(2 * Math.PI / CircleLineSegmentN);
 
                 result.Add(Center);
-                var Side1 = Direction.Rotated(-Angle * 0.5f);
+                var side1 = Direction.Rotated(-Angle * 0.5f);
 
                 for (var i = 0; i <= CircleLineSegmentN; i++)
                 {
-                    var cDirection = Side1.Rotated(i * Angle / CircleLineSegmentN).Normalized();
+                    var cDirection = side1.Rotated(i * Angle / CircleLineSegmentN).Normalized();
                     result.Add(new Vector2(Center.X + outRadius * cDirection.X, Center.Y + outRadius * cDirection.Y));
                 }
 

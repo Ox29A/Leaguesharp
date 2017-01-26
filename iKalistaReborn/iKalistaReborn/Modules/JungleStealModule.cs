@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Linq;
-
 using DZLib.Modules;
-
 using iKalistaReborn.Utils;
-
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -37,20 +34,18 @@ namespace iKalistaReborn.Modules
         {
             var small =
                 GameObjects.JungleSmall.Any(
-                    x => SpellManager.Spell[SpellSlot.E].CanCast(x) && x.IsMobKillable() && x.IsValid);
+                    x => SpellManager.Spell[SpellSlot.E].CanCast(x) && x.IsRendKillable() && x.IsValid);
             var large =
                 GameObjects.JungleLarge.Any(
-                    x => SpellManager.Spell[SpellSlot.E].CanCast(x) && x.IsMobKillable() && x.IsValid);
+                    x => SpellManager.Spell[SpellSlot.E].CanCast(x) && x.IsRendKillable() && x.IsValid);
             var legendary =
                 GameObjects.JungleLegendary.Any(
-                    x => SpellManager.Spell[SpellSlot.E].CanCast(x) && x.IsMobKillable() && x.IsValid);
+                    x => SpellManager.Spell[SpellSlot.E].CanCast(x) && x.IsRendKillable() && x.IsValid);
 
-            if ((small && Kalista.Menu.Item("com.ikalista.jungleSteal.small").GetValue<bool>())
-                || (large && Kalista.Menu.Item("com.ikalista.jungleSteal.large").GetValue<bool>())
-                || (legendary && Kalista.Menu.Item("com.ikalista.jungleSteal.legendary").GetValue<bool>()))
-            {
+            if (small && Kalista.Menu.Item("com.ikalista.jungleSteal.small").GetValue<bool>()
+                || large && Kalista.Menu.Item("com.ikalista.jungleSteal.large").GetValue<bool>()
+                || legendary && Kalista.Menu.Item("com.ikalista.jungleSteal.legendary").GetValue<bool>())
                 SpellManager.Spell[SpellSlot.E].Cast();
-            }
         }
     }
 }

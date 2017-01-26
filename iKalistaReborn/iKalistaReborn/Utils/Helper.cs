@@ -1,18 +1,13 @@
-﻿using LeagueSharp;
+﻿using System.Collections.Generic;
+using System.Linq;
+using LeagueSharp;
+using LeagueSharp.Common;
+using SharpDX;
+using Collision = LeagueSharp.Common.Collision;
+using Color = System.Drawing.Color;
 
 namespace iKalistaReborn.Utils
 {
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using LeagueSharp;
-    using LeagueSharp.Common;
-
-    using SharpDX;
-
-    using Collision = LeagueSharp.Common.Collision;
-    using Color = System.Drawing.Color;
-
     /// <summary>
     ///     The Helper class
     /// </summary>
@@ -35,15 +30,16 @@ namespace iKalistaReborn.Utils
         public static List<Obj_AI_Base> GetCollisionMinions(Obj_AI_Hero source, Vector3 targetPosition)
         {
             var input = new PredictionInput
-                            {
-                                Unit = source, Radius = SpellManager.Spell[SpellSlot.Q].Width, 
-                                Delay = SpellManager.Spell[SpellSlot.Q].Delay, 
-                                Speed = SpellManager.Spell[SpellSlot.Q].Speed, 
-                                CollisionObjects = new[] { CollisionableObjects.Minions }
-                            };
+            {
+                Unit = source,
+                Radius = SpellManager.Spell[SpellSlot.Q].Width,
+                Delay = SpellManager.Spell[SpellSlot.Q].Delay,
+                Speed = SpellManager.Spell[SpellSlot.Q].Speed,
+                CollisionObjects = new[] {CollisionableObjects.Minions}
+            };
 
             return
-                Collision.GetCollision(new List<Vector3> { targetPosition }, input)
+                Collision.GetCollision(new List<Vector3> {targetPosition}, input)
                     .OrderBy(x => x.Distance(source))
                     .ToList();
         }
@@ -62,7 +58,9 @@ namespace iKalistaReborn.Utils
         /// <returns>
         ///     The <see cref="float" />.
         /// </returns>
-        public static float GetHealthWithShield(this Obj_AI_Base target)=> target.Health + 10; // TODO shield when fixed.
+        public static float GetHealthWithShield(this Obj_AI_Base target) => target.Health + 10;
+
+        // TODO shield when fixed.
 
         /// <summary>
         ///     Gets the rend buff
@@ -90,11 +88,11 @@ namespace iKalistaReborn.Utils
         public static int GetRendBuffCount(this Obj_AI_Base target)
             => target.Buffs.Count(x => x.Name == "kalistaexpungemarker");
 
-        public static float GetRendDamage(Obj_AI_Base target)
+        public static double GetRendDamage(Obj_AI_Base target)
             =>
                 Kalista.Menu.Item("com.ikalista.misc.damage").GetValue<StringList>().SelectedIndex == 0
                     ? SpellManager.Spell[SpellSlot.E].GetDamage(target)
-                    : Damages.GetRendDamage(target);
+                    : target.GetCalculatedRendDamage();
 
         /// <summary>
         ///     Checks if a target has the Expunge <see cref="BuffInstance" />
@@ -126,65 +124,21 @@ namespace iKalistaReborn.Utils
             if (target.ChampionName == "Tryndamere"
                 && target.Buffs.Any(
                     b => b.Caster.NetworkId == target.NetworkId && b.IsValid && b.DisplayName == "Undying Rage"))
-            {
                 return true;
-            }
 
             // Zilean R
             if (target.Buffs.Any(b => b.IsValid && b.DisplayName == "Chrono Shift"))
-            {
                 return true;
-            }
 
             // Kayle R
             if (target.Buffs.Any(b => b.IsValid && b.DisplayName == "JudicatorIntervention"))
-            {
                 return true;
-            }
 
             if (target.HasBuff("kindredrnodeathbuff"))
-            {
                 return true;
-            }
 
             // TODO poppy
             return false;
-        }
-
-        /// <summary>
-        ///     TODO The is mob killable.
-        /// </summary>
-        /// <param name="target">
-        ///     TODO The target.
-        /// </param>
-        /// <returns>
-        ///     The <see cref="bool" />.
-        /// </returns>
-        public static bool IsMobKillable(this Obj_AI_Base target) => IsRendKillable(target);
-
-        /// <summary>
-        ///     Checks if the given target is killable
-        /// </summary>
-        /// <param name="target">
-        ///     The Target
-        /// </param>
-        /// <returns>
-        ///     The <see cref="bool" />.
-        /// </returns>
-        public static bool IsRendKillable(this Obj_AI_Base target)
-        {
-            var count = target.GetBuffCount("KalistaExpungeMarker");
-
-            if (target.IsInvulnerable || count < 1)
-            {
-                return false;
-            }
-
-            double baseDamage = Kalista.Menu.Item("com.ikalista.misc.damage").GetValue<StringList>().SelectedIndex == 0
-                                    ? SpellManager.Spell[SpellSlot.E].GetDamage(target)
-                                    : Damages.GetRendDamage(target);
-
-            return (float)baseDamage >= target.GetHealthWithShield();
         }
 
         #endregion

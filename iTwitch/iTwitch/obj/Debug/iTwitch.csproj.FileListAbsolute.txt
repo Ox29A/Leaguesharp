@@ -21,3 +21,4 @@ C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\obj\Debug\iTwitch.csprojResolv
 C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\obj\Debug\iTwitch.exe
 C:\Users\Corey\Desktop\Assemblies\iTwitch\iTwitch\obj\Debug\iTwitch.pdb
 C:\Users\Daniel\Documents\Visual Studio 2013\Projects\Leaguesharp_iJava\iTwitch\iTwitch\bin\Debug\iTwitch.exe.config
+C:\Users\XPredatorX1\Desktop\Leaguesharp\iTwitch\iTwitch\bin\Debug\iTwitch.exe.config

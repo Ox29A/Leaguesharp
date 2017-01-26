@@ -1,21 +1,17 @@
-﻿namespace iKalistaReborn.Modules
+﻿using System;
+using DZLib.Modules;
+using iKalistaReborn.Utils;
+using LeagueSharp;
+using LeagueSharp.Common;
+using SharpDX;
+
+namespace iKalistaReborn.Modules
 {
-    using System;
-
-    using DZLib.Modules;
-
-    using iKalistaReborn.Utils;
-
-    using LeagueSharp;
-    using LeagueSharp.Common;
-
-    using SharpDX;
-
-    class WallJumpModule : IModule
+    internal class WallJumpModule : IModule
     {
         #region Fields
 
-        private float lastMovementTick;
+        private float _lastMovementTick;
 
         #endregion
 
@@ -28,9 +24,7 @@
             {
                 var tempPosition = start.Extend(end, i);
                 if (tempPosition.IsWall())
-                {
                     return tempPosition.Extend(start, -35);
-                }
             }
 
             return Vector3.Zero;
@@ -46,15 +40,11 @@
             {
                 var tempPosition = start.Extend(end, i);
                 if (tempPosition.IsWall() && firstPosition == Vector3.Zero)
-                {
                     firstPosition = tempPosition;
-                }
 
                 lastPosition = tempPosition;
                 if (!lastPosition.IsWall() && firstPosition != Vector3.Zero)
-                {
                     break;
-                }
             }
 
             return Vector3.Distance(firstPosition, lastPosition);
@@ -67,9 +57,7 @@
             {
                 var tempPosition = start.Extend(end, i).To2D();
                 if (tempPosition.IsWall())
-                {
                     return true;
-                }
             }
 
             return false;
@@ -87,12 +75,10 @@
 
         public void MoveToLimited(Vector3 where)
         {
-            if (Game.Time - lastMovementTick < 90f)
-            {
+            if (Game.Time - _lastMovementTick < 90f)
                 return;
-            }
 
-            lastMovementTick = Game.Time;
+            _lastMovementTick = Game.Time;
 
             ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, where);
         }
@@ -101,13 +87,9 @@
         {
             if (IsOverWall(ObjectManager.Player.ServerPosition, Game.CursorPos)
                 && GetWallLength(ObjectManager.Player.ServerPosition, Game.CursorPos) >= 35f)
-            {
                 MoveToLimited(GetFirstWallPoint(ObjectManager.Player.ServerPosition, Game.CursorPos));
-            }
             else
-            {
                 MoveToLimited(Game.CursorPos);
-            }
 
             var directionExtension = ObjectManager.Player.ServerPosition.To2D()
                                      + ObjectManager.Player.Direction.To2D().Perpendicular()
@@ -121,10 +103,8 @@
             if (directionExtension.IsWall() && IsOverWall(ObjectManager.Player.ServerPosition, extendedPosition.To3D())
                 && SpellManager.Spell[SpellSlot.Q].IsReady()
                 && IsOverWall(ObjectManager.Player.ServerPosition, Game.CursorPos)
-                && GetWallLength(ObjectManager.Player.ServerPosition, extendedPosition.To3D()) <= (280f - 65f / 2f))
-            {
+                && GetWallLength(ObjectManager.Player.ServerPosition, extendedPosition.To3D()) <= 280f - 65f / 2f)
                 SpellManager.Spell[SpellSlot.Q].Cast(oppositeDirectionExtension);
-            }
         }
 
         public void OnLoad()

@@ -1,2 +1,3 @@
 c:\users\corey\documents\visual studio 2015\Projects\iSivir\iSivir\bin\Debug\iSivir.exe.config
 C:\Users\Corey\Desktop\Assemblies\iSivir\iSivir\bin\Debug\iSivir.exe.config
+C:\Users\XPredatorX1\Desktop\Leaguesharp\iSivir\iSivir\bin\Debug\iSivir.exe.config

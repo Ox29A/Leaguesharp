@@ -8,114 +8,57 @@ namespace iKalistaReborn.Utils
     /// </summary>
     internal static class Damages
     {
-        #region Static Fields
+        private const string BuffName = "kalistaexpungemarker";
+        public static Spell RendSpell = SpellManager.Spell[SpellSlot.E];
 
-        /// <summary>
-        ///     TODO The player.
-        /// </summary>
-        private static readonly Obj_AI_Hero Player = ObjectManager.Player;
+        private static float BaseRendDamage => new[] {20f, 30f, 40f, 50f, 60f}[RendSpell.Level - 1];
 
-        /// <summary>
-        ///     TODO The raw rend damage.
-        /// </summary>
-        private static readonly float[] RawRendDamage = {20, 30, 40, 50, 60};
+        private static float AdditionalRendDamage => new[] {0.6f, 0.6f, 0.6f, 0.6f, 0.6f}[RendSpell.Level - 1];
 
-        /// <summary>
-        ///     TODO The raw rend damage multiplier.
-        /// </summary>
-        private static readonly float[] RawRendDamageMultiplier = {0.6f, 0.6f, 0.6f, 0.6f, 0.6f};
+        private static float SpearDamagePerStack => new[] {5, 9, 14, 20, 27}[RendSpell.Level - 1];
 
-        /// <summary>
-        ///     TODO The raw rend damage per spear.
-        /// </summary>
-        private static readonly float[] RawRendDamagePerSpear = {10, 14, 19, 25, 32};
+        private static float AdditionalSpearDamage => new[] {0.15f, 0.18f, 0.21f, 0.24f, 0.27f}[RendSpell.Level - 1];
 
-        /// <summary>
-        ///     TODO The raw rend damage per spear multiplier.
-        /// </summary>
-        private static readonly float[] RawRendDamagePerSpearMultiplier = {0.2f, 0.225f, 0.25f, 0.275f, 0.3f};
-
-        #endregion
-
-        #region Public Methods and Operators
-
-        /// <summary>
-        ///     TODO The get raw rend damage.
-        /// </summary>
-        /// <param name="target">
-        ///     TODO The target.
-        /// </param>
-        /// <param name="customStacks">
-        ///     TODO The custom stacks.
-        /// </param>
-        /// <returns>
-        ///     The <see cref="float" />.
-        /// </returns>
-        public static float GetRawRendDamage(Obj_AI_Base target, int customStacks = -1)
+        public static bool IsRendKillable(this Obj_AI_Base @base)
         {
-            // Get buff
-            var buff = target?.GetRendBuff();
+            if (@base == null || !@base.IsValidTarget() || !@base.HasRendBuff())
+                return false;
 
-            if (buff == null && customStacks <= -1) return 0;
+            var target = @base as Obj_AI_Hero;
+            var baseDamage = Kalista.Menu.Item("com.ikalista.misc.damage").GetValue<StringList>().SelectedIndex == 0
+                ? SpellManager.Spell[SpellSlot.E].GetDamage(target)
+                : GetCalculatedRendDamage(target);
 
-            if (buff != null)
-                return RawRendDamage[SpellManager.Spell[SpellSlot.E].Level - 1]
-                       + RawRendDamageMultiplier[SpellManager.Spell[SpellSlot.E].Level - 1]
-                       *Player.TotalAttackDamage + // Base damage
-                       ((customStacks < 0 ? buff.Count : customStacks) - 1)* // Spear count
-                       (RawRendDamagePerSpear[SpellManager.Spell[SpellSlot.E].Level - 1]
-                        + RawRendDamagePerSpearMultiplier[SpellManager.Spell[SpellSlot.E].Level - 1]
-                        *Player.TotalAttackDamage); // Damage per spear
+            if (target == null) return baseDamage >= @base.GetHealthWithShield();
 
-            return 0;
+            if (target.HasUndyingBuff() || target.HasBuffOfType(BuffType.SpellShield) ||
+                target.HasBuffOfType(BuffType.SpellImmunity))
+                return false;
+
+            return baseDamage >= @base.GetHealthWithShield();
         }
 
-        /// <summary>
-        ///     TODO The get rend damage.
-        /// </summary>
-        /// <param name="target">
-        ///     TODO The target.
-        /// </param>
-        /// <returns>
-        ///     The <see cref="float" />.
-        /// </returns>
-        public static float GetRendDamage(Obj_AI_Hero target)
+        public static float GetQDamage(Obj_AI_Base target)
         {
-            return GetRendDamage(target, -1);
+            return new[] {10f, 70f, 130f, 190f, 250f}[SpellManager.Spell[SpellSlot.Q].Level - 1] +
+                   ObjectManager.Player.BaseAttackDamage +
+                   ObjectManager.Player.FlatPhysicalDamageMod;
         }
 
-        /// <summary>
-        ///     TODO The get rend damage.
-        /// </summary>
-        /// <param name="target">
-        ///     TODO The target.
-        /// </param>
-        /// <param name="customStacks">
-        ///     TODO The custom stacks.
-        /// </param>
-        /// <returns>
-        ///     The <see cref="float" />.
-        /// </returns>
-        public static float GetRendDamage(Obj_AI_Base target, int customStacks = -1)
+        public static float GetRawRendDamage(Obj_AI_Base target)
         {
-            // Calculate the damage and return
-            return (float) Player.CalcDamage(target, Damage.DamageType.Physical, GetRawRendDamage(target, customStacks));
+            var rendBuff = target?.GetRendBuff();
+
+            if (rendBuff == null) return 0;
+
+            var stacks = rendBuff.Count;
+            return BaseRendDamage + stacks * SpearDamagePerStack +
+                   ObjectManager.Player.TotalAttackDamage * (AdditionalRendDamage + stacks * AdditionalSpearDamage);
         }
 
-        /// <summary>
-        ///     TODO The total attack damage.
-        /// </summary>
-        /// <param name="target">
-        ///     TODO The target.
-        /// </param>
-        /// <returns>
-        ///     The <see cref="float" />.
-        /// </returns>
-        public static float TotalAttackDamage(this Obj_AI_Base target)
+        public static float GetCalculatedRendDamage(this Obj_AI_Base hero)
         {
-            return target.BaseAttackDamage + target.FlatPhysicalDamageMod;
+            return (float) ObjectManager.Player.CalcDamage(hero, Damage.DamageType.Physical, GetRawRendDamage(hero));
         }
-
-        #endregion
     }
 }
