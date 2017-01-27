@@ -12,7 +12,7 @@ namespace iKalistaReborn
                 if (ObjectManager.Player.ChampionName != "Kalista")
                     return;
 
-                new Kalista();
+                var kalista = new Kalista();
             };
         }
     }

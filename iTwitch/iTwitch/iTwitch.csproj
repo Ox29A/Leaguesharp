@@ -35,22 +35,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DZLib">
-      <HintPath>..\..\..\Mcrc03FzR5g\References\DZLib.dll</HintPath>
+      <HintPath>C:\Users\XPredatorX1\Desktop\Mcrc03FzR5g\References\DZLib.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp">
-      <HintPath>..\..\..\Mcrc03FzR5g\References\LeagueSharp.dll</HintPath>
+      <HintPath>C:\Users\XPredatorX1\Desktop\Mcrc03FzR5g\References\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
-      <HintPath>..\..\..\Mcrc03FzR5g\References\LeagueSharp.Common.dll</HintPath>
+      <HintPath>C:\Users\XPredatorX1\Desktop\Mcrc03FzR5g\References\LeagueSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Data">
-      <HintPath>..\..\..\Mcrc03FzR5g\References\LeagueSharp.Data.dll</HintPath>
+      <HintPath>C:\Users\XPredatorX1\Desktop\Mcrc03FzR5g\References\LeagueSharp.Data.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\Mcrc03FzR5g\References\Newtonsoft.Json.dll</HintPath>
+      <HintPath>C:\Users\XPredatorX1\Desktop\Mcrc03FzR5g\References\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>..\..\..\Mcrc03FzR5g\References\SharpDX.dll</HintPath>
+      <HintPath>C:\Users\XPredatorX1\Desktop\Mcrc03FzR5g\References\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

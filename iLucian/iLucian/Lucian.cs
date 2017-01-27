@@ -81,10 +81,6 @@ namespace iLucian
 
             unitList.AddRange(minions);
 
-            /*if (Variables.Menu.IsEnabled("com.ilucian.misc.extendChamps"))
-            {
-                unitList.AddRange(champions);
-            }*/
             return unitList;
         }
 
@@ -139,19 +135,17 @@ namespace iLucian
         public void UltimateLock()
         {
             var currentTarget = TargetSelector.GetSelectedTarget();
-            if (currentTarget.IsValidTarget())
-            {
-                var predictedPosition = Variables.Spell[Variables.Spells.R].GetPrediction(currentTarget).UnitPosition;
-                var directionVector = (currentTarget.ServerPosition - ObjectManager.Player.ServerPosition).Normalized();
-                const float rRangeCoefficient = 0.95f;
-                var rRangeAdjusted = Variables.Spell[Variables.Spells.R].Range * rRangeCoefficient;
-                var rEndPointXCoordinate = predictedPosition.X + directionVector.X * rRangeAdjusted;
-                var rEndPointYCoordinate = predictedPosition.Y + directionVector.Y * rRangeAdjusted;
-                var rEndPoint = new Vector2(rEndPointXCoordinate, rEndPointYCoordinate).To3D();
+            if (!currentTarget.IsValidTarget()) return;
+            var predictedPosition = Variables.Spell[Variables.Spells.R].GetPrediction(currentTarget).UnitPosition;
+            var directionVector = (currentTarget.ServerPosition - ObjectManager.Player.ServerPosition).Normalized();
+            const float rRangeCoefficient = 0.95f;
+            var rRangeAdjusted = Variables.Spell[Variables.Spells.R].Range * rRangeCoefficient;
+            var rEndPointXCoordinate = predictedPosition.X + directionVector.X * rRangeAdjusted;
+            var rEndPointYCoordinate = predictedPosition.Y + directionVector.Y * rRangeAdjusted;
+            var rEndPoint = new Vector2(rEndPointXCoordinate, rEndPointYCoordinate).To3D();
 
-                if (rEndPoint.Distance(ObjectManager.Player.ServerPosition) < Variables.Spell[Variables.Spells.R].Range)
-                    ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, rEndPoint);
-            }
+            if (rEndPoint.Distance(ObjectManager.Player.ServerPosition) < Variables.Spell[Variables.Spells.R].Range)
+                ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, rEndPoint);
         }
 
         #endregion
@@ -233,7 +227,7 @@ namespace iLucian
             }
         }
 
-        private void CastEqKillsteal()
+        private static void CastEqKillsteal()
         {
             var target =
                 TargetSelector.GetTarget(
@@ -356,7 +350,7 @@ namespace iLucian
             };
         }
 
-        private void LoadSpells()
+        private static void LoadSpells()
         {
             Variables.Spell[Variables.Spells.Q].SetTargetted(0.25f, 1400f);
             Variables.Spell[Variables.Spells.Q2].SetSkillshot(
