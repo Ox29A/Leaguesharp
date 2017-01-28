@@ -385,7 +385,7 @@ namespace iKalistaReborn
                 jungleStealMenu.AddBool("com.ikalista.jungleSteal.small", "Kill Small Minions", true);
                 jungleStealMenu.AddBool("com.ikalista.jungleSteal.large", "Kill Large Minions", true);
                 jungleStealMenu.AddBool("com.ikalista.jungleSteal.legendary", "Kill Legendary Minions", true);
-                var colourItem = new MenuItem("com.ikalista.jungleSteal.eDamage", "Draw E Damage on Jungle Mobs")
+                /*var colourItem = new MenuItem("com.ikalista.jungleSteal.eDamage", "Draw E Damage on Jungle Mobs")
                     .SetValue(
                         new Circle(true, Color.DarkOliveGreen));
                 jungleStealMenu.AddItem(colourItem);
@@ -396,7 +396,7 @@ namespace iKalistaReborn
                     {
                         CustomMobIndicator.Enabled = eventArgs.GetNewValue<bool>();
                     };
-
+                    */
                 Menu.AddSubMenu(jungleStealMenu);
             }
 

@@ -56,6 +56,23 @@ namespace iKalistaReborn.Utils
                    ObjectManager.Player.TotalAttackDamage * (AdditionalRendDamage + stacks * AdditionalSpearDamage);
         }
 
+        public static float GetTotalDamage(this Obj_AI_Hero target)
+        {
+            var qDamage = GetQDamage(target);
+            var rendDamage = GetCalculatedRendDamage(target);
+            var passiveDamage = ObjectManager.Player.GetAutoAttackDamage(target, true);
+            double damage = 0;
+
+            if (SpellManager.Spell[SpellSlot.Q].IsReady())
+                damage += qDamage;
+            if (SpellManager.Spell[SpellSlot.E].IsReady())
+                damage += rendDamage;
+            if (ObjectManager.Player.CanAttack)
+                damage += passiveDamage;
+
+            return (float) damage;
+        }
+
         public static float GetCalculatedRendDamage(this Obj_AI_Base hero)
         {
             return (float) ObjectManager.Player.CalcDamage(hero, Damage.DamageType.Physical, GetRawRendDamage(hero));
